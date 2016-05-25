@@ -3,12 +3,25 @@
 #define FILE ".BACKP.cache"
 
 
+/*
+	FILE STRUCTURE
+	--begin <-
+	2B - length of path (LP)
+	LPB - path			#path
+	36B - date time		#time
+	--beginContent <-
+	THE REST - content
+	--end <-
+*/
+
+
 File::File(const std::streampos & begin, const std::streampos & end) {
 	this->begin = begin;
 	this->end = end;
 	std::ifstream stream(FILE);
 	stream.seekg(begin);
-	stream.read()
+	short pathLength;
+	stream.read((char *)&pathLength, sizeof(pathLength));
 }
 
 File::~File() {}

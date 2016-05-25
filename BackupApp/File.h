@@ -5,10 +5,12 @@
 class File { 
 private:
 	std::streampos begin;
+	std::streampos beginContent;
 	std::streampos end;
 
 	tm time;
-	char* path;
+	std::string path;
+
 public:
 	File(const std::streampos&, const std::streampos&);
 	~File();
