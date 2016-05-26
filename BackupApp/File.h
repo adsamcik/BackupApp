@@ -8,7 +8,7 @@ private:
 	std::streampos beginContent;
 	std::streampos end;
 
-	tm time;
+	tm lastEdited;
 	std::string path;
 
 public:

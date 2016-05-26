@@ -22,6 +22,7 @@ File::File(const std::streampos & begin, const std::streampos & end) {
 	stream.seekg(begin);
 	short pathLength;
 	stream.read((char *)&pathLength, sizeof(pathLength));
+	stream.read(reinterpret_cast<char*>(&lastEdited), sizeof(lastEdited));
 }
 
 File::~File() {}
