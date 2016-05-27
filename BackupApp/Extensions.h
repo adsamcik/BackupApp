@@ -1,10 +1,18 @@
 #pragma once
 #include "stdafx.h"
+#include <cctype>
+
 #define ws " \t\n\r\f\v"
 
 //Support functions
 class Ext {
 public:
+
+	static inline std::string& tolower(std::string& s) {
+		for (size_t i = 0; i < s.length(); i++)
+			s[i] = std::tolower(s[i]);
+		return s;
+	}
 
 	//trim right
 	static inline std::string& rtrim(std::string& s, const char* t = ws) {
