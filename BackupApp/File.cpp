@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "File.h"
-#define FILE ".BACKP.cache"
 
 /*
 	FILE STRUCTURE

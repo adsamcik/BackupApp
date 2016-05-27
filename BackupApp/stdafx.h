@@ -7,9 +7,10 @@
 
 #include "targetver.h"
 
-#include <stdio.h>
-#include <tchar.h>
+#include <cstdio>
+#include <string>
+#include <iostream>
+#include <fstream>
+#include "Extensions.h"
 
-
-
-// TODO: reference additional headers your program requires here
+#define FILE ".BACKP.cache"
