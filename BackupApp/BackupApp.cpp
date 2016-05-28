@@ -1,10 +1,13 @@
 #include "stdafx.h"
 #include "File.h"
+#include "Console.h"
 
-void GenerateHelpLine(const char* command, const char* description) {
+/*void GenerateHelpLine(const char* command, const char* description) {
 	std::cout << command << "\t\t" << description << std::endl;
-}
+}*/
 
+/// <summary>Handles command recognition from user input
+/// </summary>
 bool ResolveInput() {
 	std::cout << "What do you want to do?" << std::endl;
 
@@ -23,7 +26,7 @@ bool ResolveInput() {
 	Ext::tolower(sLower);
 
 	if (Ext::startsWith(sLower, "backup")) {
-
+		s = s.substr(0, 6);
 	}
 	else if (Ext::startsWith(sLower, "exit")) {
 		if (s != "exit") {
@@ -42,12 +45,13 @@ bool ResolveInput() {
 		return false;
 	}
 	else if (Ext::startsWith(sLower, "help")) {
-		GenerateHelpLine("backup <path>", "supports relative and absolute paths");
-		GenerateHelpLine("restore <path>", "supports relative and absolute paths");
-		GenerateHelpLine("restore all (<path>)", "restores all files to their default or set paths");
-		GenerateHelpLine("remove all/<path>", "removes all or set path from backup");
-		GenerateHelpLine("exit", "to close the app");
-		std::cout << std::endl;
+		Console cns(2, 4);
+		cns.AddLine("backup <path>\tsupports relative and absolute paths");
+		cns.AddLine("restore <path>\tsupports relative and absolute paths");
+		cns.AddLine("restore all (<path>)\trestores all files to their default or set paths");
+		cns.AddLine("remove all/<path>\tremoves all or set path from backup");
+		cns.AddLine("exit\tto close the app");
+		cns.Print();
 	}
 	else {
 		std::cout << s << " is not a command. Type 'help' for list of commands" << std::endl << std::endl;

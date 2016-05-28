@@ -145,6 +145,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Console.h" />
     <ClInclude Include="Extensions.h" />
     <ClInclude Include="File.h" />
     <ClInclude Include="FileManager.h" />
@@ -153,6 +154,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="BackupApp.cpp" />
+    <ClCompile Include="Console.cpp" />
     <ClCompile Include="File.cpp" />
     <ClCompile Include="FileManager.cpp" />
     <ClCompile Include="stdafx.cpp">
