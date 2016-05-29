@@ -42,6 +42,7 @@ namespace ext {
 		Automatically deletes message, because it assumes the message is not reused and there is no point copying it
 	*/
 	struct Success {
+		///Default state is true without message, because the name of this structure is Success
 		Success(const bool& success = true, char* message = "") {
 			this->message = message;
 			this->success = success;
