@@ -14,3 +14,4 @@
 #include "Extensions.h"
 
 #define FILE ".BACKP.cache"
+#define CONFIG ".CFG"

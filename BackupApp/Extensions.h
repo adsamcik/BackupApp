@@ -1,13 +1,9 @@
-#pragma once
 #include "stdafx.h"
 #include <cctype>
+#pragma once
 
 #define ws " \t\n\r\f\v"
-
-//Support functions
-class Ext {
-public:
-
+namespace ext {
 	static inline std::string& tolower(std::string& s) {
 		for (size_t i = 0; i < s.length(); i++)
 			s[i] = std::tolower(s[i]);
@@ -40,5 +36,23 @@ public:
 		}
 		return true;
 	}
-};
+
+	/**
+		Structure for returning success values with messages
+		Automatically deletes message, because it assumes the message is not reused and there is no point copying it
+	*/
+	struct Success {
+		Success(const bool& success = true, char* message = "") {
+			this->message = message;
+			this->success = success;
+		}
+
+		~Success() {
+			delete[] message;
+		}
+
+		bool success;
+		char* message;
+	};
+}
 

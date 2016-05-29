@@ -21,22 +21,22 @@ bool ResolveInput() {
 	std::system("clear");
 #endif
 
-	s = Ext::trim(s);
+	s = ext::trim(s);
 	sLower = s;
-	Ext::tolower(sLower);
+	ext::tolower(sLower);
 
-	if (Ext::startsWith(sLower, "backup")) {
+	if (ext::startsWith(sLower, "backup")) {
 		s = s.substr(0, 6);
 	}
-	else if (Ext::startsWith(sLower, "exit")) {
+	else if (ext::startsWith(sLower, "exit")) {
 		if (s != "exit") {
 			std::cout << "Are you sure you want to exit? (yes/NO)" << std::endl;
 			while (true) {
 				std::cin >> s;
-				Ext::tolower(s);
-				if (Ext::startsWith(s, "yes"))
+				ext::tolower(s);
+				if (ext::startsWith(s, "yes"))
 					return false;
-				else if (Ext::startsWith(s, "no")) {
+				else if (ext::startsWith(s, "no")) {
 					std::cout << std::endl;
 					return true;
 				}
@@ -46,7 +46,7 @@ bool ResolveInput() {
 		}
 		return false;
 	}
-	else if (Ext::startsWith(sLower, "help")) {
+	else if (ext::startsWith(sLower, "help")) {
 		Console cns(2, 4);
 		cns.AddLine("backup <path>\tsupports relative and absolute paths");
 		cns.AddLine("restore <path>\tsupports relative and absolute paths");

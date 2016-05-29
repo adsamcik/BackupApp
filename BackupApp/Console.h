@@ -1,6 +1,6 @@
-#pragma once
 #include "stdafx.h"
 #include <vector>
+#pragma once
 
 ///Used to print columns to output
 class Console {
@@ -11,7 +11,13 @@ public:
 	*/
 	Console(const uint16_t& columnCount, const uint16_t& spaces);
 	~Console();
+	/** Add new line to console
+	* @param text Line to be displayed, columns seperated with tabs (\t)
+	*/
 	void AddLine(const std::string& text);
+
+	/** Prints all added lines to cout
+	*/
 	void Print();
 private:
 	///Number of columns
