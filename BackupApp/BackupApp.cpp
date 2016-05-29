@@ -9,7 +9,7 @@
 /// <summary>Handles command recognition from user input
 /// </summary>
 bool ResolveInput() {
-	std::cout << std::endl << "What do you want to do?" << std::endl;
+	std::cout << "What do you want to do?" << std::endl;
 
 	std::string s;
 	std::string sLower;
@@ -36,8 +36,10 @@ bool ResolveInput() {
 				Ext::tolower(s);
 				if (Ext::startsWith(s, "yes"))
 					return false;
-				else if (Ext::startsWith(s, "no"))
+				else if (Ext::startsWith(s, "no")) {
+					std::cout << std::endl;
 					return true;
+				}
 
 				std::cout << s << " is not a valid answer. Yes or no?" << std::endl;
 			}
@@ -56,6 +58,8 @@ bool ResolveInput() {
 	else {
 		std::cout << s << " is not a command. Type 'help' for list of commands" << std::endl << std::endl;
 	}
+
+	std::cout << std::endl;
 	return true;
 }
 
