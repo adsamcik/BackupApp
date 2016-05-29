@@ -9,7 +9,7 @@
 /// <summary>Handles command recognition from user input
 /// </summary>
 bool ResolveInput() {
-	std::cout << "What do you want to do?" << std::endl;
+	std::cout << std::endl << "What do you want to do?" << std::endl;
 
 	std::string s;
 	std::string sLower;
