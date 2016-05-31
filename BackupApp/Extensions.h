@@ -4,6 +4,16 @@
 
 #define ws " \t\n\r\f\v"
 namespace ext {
+	enum DayOfWeek {
+		Monday,
+		Tuesday,
+		Wednesday,
+		Thursday,
+		Friday,
+		Saturday,
+		Sunday
+	};
+
 	static inline std::string& tolower(std::string& s) {
 		for (size_t i = 0; i < s.length(); i++)
 			s[i] = std::tolower(s[i]);
