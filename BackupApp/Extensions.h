@@ -62,6 +62,10 @@ namespace ext {
 			delete[] message;
 		}
 
+		operator bool() {
+			return success;
+		}
+
 		bool success;
 		char* message;
 	};

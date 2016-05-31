@@ -52,3 +52,7 @@ void Console::Print() {
 		std::cout << std::endl;
 	}
 }
+
+void Console::PrintError(const std::string & message) {
+	std::cout << std::endl << "#### Error ####" << std::endl << message << std::endl << std::endl;
+}

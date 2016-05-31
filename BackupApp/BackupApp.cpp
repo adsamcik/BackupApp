@@ -1,10 +1,13 @@
 #include "stdafx.h"
 #include "File.h"
 #include "Console.h"
+#include "Config.h"
 
 /*void GenerateHelpLine(const char* command, const char* description) {
 	std::cout << command << "\t\t" << description << std::endl;
 }*/
+
+Config cfg;
 
 /// <summary>Handles command recognition from user input
 /// </summary>
@@ -15,11 +18,7 @@ bool ResolveInput() {
 	std::string sLower;
 	std::cin >> s;
 
-#ifdef _WIN32
-	std::system("cls");
-#elif __linux__
-	std::system("clear");
-#endif
+	Console::Clear();
 
 	s = ext::trim(s);
 	sLower = s;
@@ -45,6 +44,9 @@ bool ResolveInput() {
 			}
 		}
 		return false;
+	}
+	else if (ext::startsWith(sLower, "config")) {
+		cfg.Edit();
 	}
 	else if (ext::startsWith(sLower, "help")) {
 		Console cns(2, 4);

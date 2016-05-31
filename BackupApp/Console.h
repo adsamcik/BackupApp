@@ -5,11 +5,11 @@
 ///Used to print columns to output
 class Console {
 public:
-	/** Constructor 
+	/** Constructor
 	* @param columnCount number of columns
 	* @param spaces number of spaces between columns
 	*/
-	Console(const uint16_t& columnCount, const uint16_t& spaces);
+	Console(const uint16_t& columnCount, const uint16_t& spaces = 4);
 	~Console();
 	/** Add new line to console
 	* @param text Line to be displayed, columns seperated with tabs (\t)
@@ -19,6 +19,14 @@ public:
 	/** Prints all added lines to cout
 	*/
 	void Print();
+
+	static void PrintError(const std::string& message);
+
+#ifdef _WIN32
+	static inline void Clear() { std::system("cls"); }
+#elif __linux__
+	static inline void Clear() { std::system("clear"); }
+#endif
 private:
 	///Number of columns
 	uint16_t columnsLength;

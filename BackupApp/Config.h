@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include <set>
 #include <sstream>
 #pragma once
 
@@ -21,7 +20,21 @@ public:
 		\return Success (Successfull when path is found)
 	*/
 	ext::Success RemovePath(const std::string& path);
+
+	/**
+	\return Success
+	*/
+	ext::Success Save();
+
+	void Edit();
 private:
-	std::set<std::string> paths;
+	///paths to back up
+	std::vector<std::string> paths;
+	///Auto backup enabled
+	bool abEnabled;
+	///Day on which files should be backed up
+	ext::DayOfWeek day;
+
+	void PrintOptions();
 };
 

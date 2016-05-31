@@ -11,6 +11,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <vector>
 #include "Extensions.h"
 
 #define FILE ".BACKP.cache"
