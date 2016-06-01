@@ -3,7 +3,7 @@
 #include "Console.h"
 #include "Config.h"
 
-//Secret hidden commit message to keep streak ^^
+//Secret hidden much change line
 
 Config cfg;
 
