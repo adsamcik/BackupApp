@@ -3,9 +3,7 @@
 #include "Console.h"
 #include "Config.h"
 
-/*void GenerateHelpLine(const char* command, const char* description) {
-	std::cout << command << "\t\t" << description << std::endl;
-}*/
+//Secret hidden commit message to keep streak ^^
 
 Config cfg;
 
