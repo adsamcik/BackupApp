@@ -53,6 +53,18 @@ void Config::Edit() {
 	Console::Clear();
 	std::cout << "OPTIONS" << std::endl;
 	PrintOptions();
+	while (true) {
+		std::string s;
+		std::string sLower;
+		std::cin >> s;
+		Console::Clear();
+		s = ext::trim(s);
+		ext::tolower(sLower = s);
+
+		if (ext::startsWith(sLower, "day=")) {
+			
+		}
+	}
 }
 
 void Config::PrintOptions() {

@@ -27,6 +27,7 @@ public:
 #elif __linux__
 	static inline void Clear() { std::system("clear"); }
 #endif
+
 private:
 	///Number of columns
 	uint16_t columnsLength;
