@@ -62,7 +62,13 @@ void Config::Edit() {
 		ext::tolower(sLower = s);
 
 		if (ext::startsWith(sLower, "day=")) {
-			
+			try {
+				int val = std::stoi(sLower.substr(4));
+				std::cout << "Variable day updated" << std::endl;
+			}
+			catch(std::exception e) {
+				std::cout << "Variable day needs a number" << std::endl;
+			}
 		}
 	}
 }
