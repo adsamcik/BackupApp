@@ -48,7 +48,6 @@ const ext::Success& Config::RemovePath(const std::string & path) {
 
 const ext::Success& Config::Save() {
 	std::ofstream stream(CONFIG);
-	std::cout << CONFIG;
 	if (!stream)
 		return ext::Success(false, "Unable to write to config file");
 
@@ -74,43 +73,48 @@ void Config::Edit() {
 		ext::tolower(sLower = s);
 
 		if (ext::startsWith(sLower, "day")) {
-			if (sLower.length() > 3) {
-				if (sLower.length() == 4)
-					std::cout << "Number cannot be empty" << std::endl;
-				else if (sLower[3] != '=')
-					std::cout << "Unknown command" << std::endl;
-				else {
-					auto tmp = day;
-					try {
-						auto substr = sLower.substr(4);
-						if (!ext::IsDigit(substr))
-							throw std::invalid_argument("");
-						auto d = std::stoi(substr);
-						if (d < 0 || d > 7)
-							throw std::out_of_range("Number is out of range");
-						day = static_cast<ext::DayOfWeek>(d);
-						if (!Save().success)
-							throw std::exception();
-						std::cout << "Day updated" << std::endl;
-					}
-					catch (std::invalid_argument e) {
-						std::cout << "Day needs a number" << std::endl;
-					}
-					catch (std::out_of_range e) {
-						day = tmp;
-						std::cout << "Number must be in range 0-7" << std::endl;
-					}
-					catch (std::exception e) {
-						day = tmp;
-						std::cout << "Variable day needs a number" << std::endl;
-					}
-				}
-			}
+			USetDay(sLower);
 		}
 		else if (ext::startsWith(sLower, "exit") || ext::startsWith(sLower, "return"))
 			break;
 		else {
 			std::cout << "Unknown command" << std::endl;
+		}
+	}
+}
+
+void Config::USetDay(const std::string & lcCommand) {
+	if (lcCommand.length() > 3) {
+		if (lcCommand.length() == 4)
+			std::cout << "Number cannot be empty" << std::endl;
+		else if (lcCommand[3] != '=')
+			std::cout << "Unknown command" << std::endl;
+		else {
+			auto tmp = day;
+			try {
+				auto substr = lcCommand.substr(4);
+				if (!ext::isDigit(substr))
+					throw std::invalid_argument("");
+				auto d = std::stoi(substr);
+				if (d < 0 || d > 7)
+					throw std::out_of_range("Number is out of range");
+				day = static_cast<ext::DayOfWeek>(d);
+				auto save = Save();
+				if (!save.success)
+					throw std::exception(save.message);
+				std::cout << "Day updated" << std::endl;
+			}
+			catch (std::invalid_argument e) {
+				std::cout << "Day needs a number" << std::endl;
+			}
+			catch (std::out_of_range e) {
+				day = tmp;
+				std::cout << "Number must be in range 0-7" << std::endl;
+			}
+			catch (std::exception e) {
+				day = tmp;
+				std::cout << e.what() << std::endl;
+			}
 		}
 	}
 }

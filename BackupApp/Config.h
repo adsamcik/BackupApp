@@ -22,11 +22,17 @@ public:
 	const ext::Success& RemovePath(const std::string& path);
 
 	/**
-	\return Success
+		\return Success
 	*/
 	const ext::Success& Save();
 
 	void Edit();
+
+	/**
+		User input functions
+		Start with U
+	*/
+	void USetDay(const std::string& line);
 private:
 	///paths to back up
 	std::vector<std::string> paths;

@@ -4,6 +4,10 @@
 #pragma once
 
 #define ws " \t\n\r\f\v"
+
+//Namespace ext is generally list of short functions that are used all around the app
+//Most functions are very short and only a few are longer so I decided to keep it inline
+//because it's still easy to read and it's quite short anyway
 namespace ext {
 	enum DayOfWeek {
 		Undefined,
@@ -49,14 +53,34 @@ namespace ext {
 		return true;
 	}
 
-	static inline bool IsDigit(const std::string &str) {
+	static inline bool isDigit(const std::string &str) {
 		return std::all_of(str.begin(), str.end(), ::isdigit);
 	}
 
-	static inline bool IsDir(const char* path) {
+	static inline bool isDir(const char* path) {
 		struct stat path_stat;
 		stat(path, &path_stat);
 		return path_stat.st_mode & S_IFDIR;
+	}
+
+	static inline uint16_t difference(const std::string& str, const std::string& source) {
+		size_t slength;
+		uint16_t diff;
+		if (str.length() > source.length()) {
+			slength = source.length();
+			diff = str.length() - source.length();
+		}
+		else {
+			slength = str.length();
+			diff = source.length() - str.length();
+		}
+
+		for (size_t i = 0; i < slength; i++) {
+			if (str[i] != source[i])
+				diff++;
+		}
+
+		return diff;
 	}
 
 	/**

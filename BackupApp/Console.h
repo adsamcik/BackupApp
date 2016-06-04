@@ -22,11 +22,13 @@ public:
 
 	static void PrintError(const std::string& message);
 
-#ifdef _WIN32
-	static inline void Clear() { std::system("cls"); }
+	static inline void Clear() {
+#ifdef _WIN32 
+		std::system("cls");
 #elif __linux__
-	static inline void Clear() { std::system("clear"); }
+		std::system("clear");
 #endif
+	}
 
 private:
 	///Number of columns

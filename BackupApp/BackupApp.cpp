@@ -26,8 +26,8 @@ bool ResolveInput() {
 		s = s.substr(0, 6);
 	}
 	else if (ext::startsWith(sLower, "exit")) {
-		if (s != "exit") {
-			std::cout << "Are you sure you want to exit? (yes/NO)" << std::endl;
+		if (sLower != "exit") {
+			std::cout << "Did you really mean to exit? (yes/NO)" << std::endl;
 			while (true) {
 				std::cin >> s;
 				ext::tolower(s);
@@ -38,7 +38,7 @@ bool ResolveInput() {
 					return true;
 				}
 
-				std::cout << s << " is not a valid answer. Yes or no?" << std::endl;
+				std::cout << s << " is not a valid answer to yes or no question." << std::endl;
 			}
 		}
 		return false;
