@@ -1,10 +1,12 @@
 #include "stdafx.h"
 #include <cctype>
+#include <algorithm>
 #pragma once
 
 #define ws " \t\n\r\f\v"
 namespace ext {
 	enum DayOfWeek {
+		Undefined,
 		Monday,
 		Tuesday,
 		Wednesday,
@@ -47,19 +49,24 @@ namespace ext {
 		return true;
 	}
 
+	static inline bool is_digits(const std::string &str) {
+		return std::all_of(str.begin(), str.end(), ::isdigit);
+	}
+
 	/**
 		Structure for returning success values with messages
 		Automatically deletes message, because it assumes the message is not reused and there is no point copying it
 	*/
 	struct Success {
 		///Default state is true without message, because the name of this structure is Success
-		Success(const bool& success = true, char* message = "") {
+		Success(const bool& success = true, char* message = nullptr) {
 			this->message = message;
 			this->success = success;
 		}
 
 		~Success() {
-			delete[] message;
+			if (message != nullptr)
+				delete[] message;
 		}
 
 		operator bool() {

@@ -14,17 +14,17 @@ public:
 	/**
 		\return Success (Successfull when valid path and not already added)
 	*/
-	ext::Success AddPath(const std::string& path);
+	const ext::Success& AddPath(const std::string& path);
 
 	/**
 		\return Success (Successfull when path is found)
 	*/
-	ext::Success RemovePath(const std::string& path);
+	const ext::Success& RemovePath(const std::string& path);
 
 	/**
 	\return Success
 	*/
-	ext::Success Save();
+	const ext::Success& Save();
 
 	void Edit();
 private:
@@ -32,6 +32,8 @@ private:
 	std::vector<std::string> paths;
 	///Auto backup enabled
 	bool abEnabled;
+
+	void SetDay(const int day);
 	///Day on which files should be backed up
 	ext::DayOfWeek day;
 
