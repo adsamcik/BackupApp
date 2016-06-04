@@ -49,8 +49,14 @@ namespace ext {
 		return true;
 	}
 
-	static inline bool is_digits(const std::string &str) {
+	static inline bool IsDigit(const std::string &str) {
 		return std::all_of(str.begin(), str.end(), ::isdigit);
+	}
+
+	static inline bool IsDir(const char* path) {
+		struct stat path_stat;
+		stat(path, &path_stat);
+		return path_stat.st_mode & S_IFDIR;
 	}
 
 	/**

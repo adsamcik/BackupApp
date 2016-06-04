@@ -29,11 +29,8 @@ Config::Config() {
 		std::ifstream test(line);
 		if (!test)
 			Console::PrintError(line + " is invalid path");
-		else {
-			struct stat path_stat;
-			stat(line.c_str(), &path_stat);
-				AddPath(line, S_I);
-		}
+		else
+			AddPath(line);
 	}
 }
 
@@ -86,7 +83,7 @@ void Config::Edit() {
 					auto tmp = day;
 					try {
 						auto substr = sLower.substr(4);
-						if (!ext::is_digits(substr))
+						if (!ext::IsDigit(substr))
 							throw std::invalid_argument("");
 						auto d = std::stoi(substr);
 						if (d < 0 || d > 7)
