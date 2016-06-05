@@ -14,7 +14,7 @@ bool ResolveInput() {
 
 	std::string s;
 	std::string sLower;
-	std::cin >> s;
+	std::getline(std::cin, s);
 
 	Console::Clear();
 
