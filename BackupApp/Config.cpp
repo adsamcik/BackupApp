@@ -26,8 +26,7 @@ Config::Config() {
 	while (std::getline(stream, line)) {
 		if (ext::startsWith(line, "#"))
 			continue;
-		std::ifstream test(line);
-		if (!test)
+		if (!ext::isValidPath(line))
 			Console::PrintError(line + " is invalid path");
 		else
 			AddPath(line);
@@ -36,17 +35,20 @@ Config::Config() {
 
 Config::~Config() {}
 
-const ext::Success& Config::AddPath(const std::string & path) {
-	auto s = ext::Success();
-	return s;
+const ext::Success Config::AddPath(const std::string & path) {
+	for (size_t i = 0; i < paths.size(); i++) {
+		if (ext::ComparePaths(path, paths[i]))
+			return ext::Success(false, "Path is already backed up");
+	}
+	paths.push_back(path);
+	return ext::Success();
 }
 
-const ext::Success& Config::RemovePath(const std::string & path) {
-	auto s = ext::Success();
-	return s;
+const ext::Success Config::RemovePath(const std::string & path) {
+	return ext::Success();
 }
 
-const ext::Success& Config::Save() {
+const ext::Success Config::Save() {
 	std::ofstream stream(CONFIG);
 	if (!stream)
 		return ext::Success(false, "Unable to write to config file");
@@ -56,8 +58,7 @@ const ext::Success& Config::Save() {
 	for (size_t i = 0; i < paths.size(); i++)
 		stream << paths[i] << std::endl;
 	stream.close();
-	auto s = ext::Success();
-	return s;
+	return ext::Success();
 }
 
 void Config::Edit() {
@@ -67,57 +68,87 @@ void Config::Edit() {
 	while (true) {
 		std::string s;
 		std::string sLower;
-		std::cin >> s;
+		std::getline(std::cin, s);
 		//Console::Clear();
-		s = ext::trim(s);
-		ext::tolower(sLower = s);
+		ext::tolower(ext::trim(sLower = s));
 
 		if (ext::startsWith(sLower, "day")) {
-			USetDay(sLower);
+			if (sLower[3] != '=')
+				Console::PrintError("Variable and value need to be seperated with =");
+			if (sLower.length() == 4)
+				Console::PrintError("You need to enter some value");
+			else
+				USetDay(sLower.substr(4));
+		}
+		else if (sLower == "list") {
+			UList();
+		}
+		else if (ext::startsWith(sLower, "add")) {
+			if (ext::ltrim(s)[3] != ' ')
+				Console::PrintError("Command and value need to be seperated with space");
+			else if (sLower.length() == 3)
+				Console::PrintError("You did not enter path");
+			else
+				UAdd(sLower.substr(4));
 		}
 		else if (ext::startsWith(sLower, "exit") || ext::startsWith(sLower, "return"))
-			break;
+				 break;
 		else {
 			std::cout << "Unknown command" << std::endl;
 		}
 	}
 }
 
-void Config::USetDay(const std::string & lcCommand) {
-	if (lcCommand.length() > 3) {
-		if (lcCommand.length() == 4)
-			std::cout << "Number cannot be empty" << std::endl;
-		else if (lcCommand[3] != '=')
-			std::cout << "Unknown command" << std::endl;
-		else {
-			auto tmp = day;
-			try {
-				auto substr = lcCommand.substr(4);
-				if (!ext::isDigit(substr))
-					throw std::invalid_argument("");
-				auto d = std::stoi(substr);
-				if (d < 0 || d > 7)
-					throw std::out_of_range("Number is out of range");
-				day = static_cast<ext::DayOfWeek>(d);
-				auto save = Save();
-				if (!save.success)
-					throw std::exception(save.message);
-				std::cout << "Day updated" << std::endl;
-			}
-			catch (std::invalid_argument e) {
-				std::cout << "Day needs a number" << std::endl;
-			}
-			catch (std::out_of_range e) {
-				day = tmp;
-				std::cout << "Number must be in range 0-7" << std::endl;
-			}
-			catch (std::exception e) {
-				day = tmp;
-				std::cout << e.what() << std::endl;
-			}
-		}
+void Config::USetDay(const std::string & params) {
+	auto tmp = day;
+	try {
+		auto substr = params.substr(4);
+		if (!ext::isDigit(substr))
+			throw std::invalid_argument("");
+		auto d = std::stoi(substr);
+		if (d < 0 || d > 7)
+			throw std::out_of_range("Number is out of range");
+		day = static_cast<ext::DayOfWeek>(d);
+		auto save = Save();
+		if (!save.success)
+			throw std::exception(save.message.c_str());
+		std::cout << "Day updated" << std::endl;
+	}
+	catch (std::invalid_argument e) {
+		std::cout << "Day needs a number" << std::endl;
+	}
+	catch (std::out_of_range e) {
+		day = tmp;
+		std::cout << "Number must be in range 0-7" << std::endl;
+	}
+	catch (std::exception e) {
+		day = tmp;
+		std::cout << e.what() << std::endl;
 	}
 }
+
+void Config::UList() {
+	if (paths.size() == 0)
+		std::cout << "Nothing is being backed up." << std::endl;
+	else {
+		Console c(2);
+		for (size_t i = 0; i < paths.size(); i++)
+			c.AddLine(std::to_string(i) + "\t" + paths[i]);
+		c.Print();
+	}
+}
+
+void Config::UAdd(const std::string & path) {
+	if (!ext::isValidPath(path)) {
+		Console::PrintError("Invalid path");
+		return;
+	}
+	auto s = AddPath(path);
+	if (!s.success)
+		Console::PrintError(s.message);
+}
+
+void Config::URemove(const std::string & line) {}
 
 void Config::SetDay(const int day) {
 	if (day > 0 && day < 8)
@@ -129,6 +160,9 @@ void Config::SetDay(const int day) {
 void Config::PrintOptions() {
 	Console c(2);
 	c.AddLine("day=<0-7>\tsets day of auto-backup. 0 disables autobackup, 1 is Monday");
+	c.AddLine("list\treturns list of backed up folders and files with their indexes for easier removal");
+	c.AddLine("add <path>\tadds path to backup");
+	c.AddLine("remove <path/index>\tremoves path");
 	c.AddLine("help\tto print this help again");
 	c.Print();
 }

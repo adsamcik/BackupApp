@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "FileManager.h"
+#include "stdlib.h"
 
 /*	BACKUP FILE STRUCTURE
 	8B - position of content

@@ -14,17 +14,17 @@ public:
 	/**
 		\return Success (Successfull when valid path and not already added)
 	*/
-	const ext::Success& AddPath(const std::string& path);
+	const ext::Success AddPath(const std::string& path);
 
 	/**
 		\return Success (Successfull when path is found)
 	*/
-	const ext::Success& RemovePath(const std::string& path);
+	const ext::Success RemovePath(const std::string& path);
 
 	/**
 		\return Success
 	*/
-	const ext::Success& Save();
+	const ext::Success Save();
 
 	void Edit();
 
@@ -33,6 +33,9 @@ public:
 		Start with U
 	*/
 	void USetDay(const std::string& line);
+	void UList();
+	void UAdd(const std::string& line);
+	void URemove(const std::string& line);
 private:
 	///paths to back up
 	std::vector<std::string> paths;

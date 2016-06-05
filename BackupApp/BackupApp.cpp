@@ -67,4 +67,3 @@ int main() {
 	while (ResolveInput()) {}
 	return 0;
 }
-
