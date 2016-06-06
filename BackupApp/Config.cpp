@@ -6,7 +6,7 @@
 
 
 Config::Config() {
-	std::ifstream stream(CONFIG);
+	std::ifstream stream(CONFIG_FILE);
 	std::string line;
 
 	std::getline(stream, line);
@@ -16,7 +16,7 @@ Config::Config() {
 		auto frst = line.find_first_of('=');
 		if (frst == std::string::npos)
 			throw std::exception("Day is incorrectly saved");
-		this->day = static_cast<ext::DayOfWeek>(std::stoi(line.substr(frst + 1)));
+		day = static_cast<ext::DayOfWeek>(std::stoi(line.substr(frst + 1)));
 	}
 	catch (const std::exception e) {
 		Console::PrintError(e.what());
@@ -48,8 +48,16 @@ const ext::Success Config::RemovePath(const std::string & path) {
 	return ext::Success();
 }
 
+const ext::Success Config::RemovePath(const size_t & index) {
+	if (index < paths.size()) {
+		paths.erase(paths.begin() + index);
+		return ext::Success(false, "Invalid index");
+	}
+	return ext::Success(false, "Invalid index");
+}
+
 const ext::Success Config::Save() {
-	std::ofstream stream(CONFIG);
+	std::ofstream stream(CONFIG_FILE);
 	if (!stream)
 		return ext::Success(false, "Unable to write to config file");
 

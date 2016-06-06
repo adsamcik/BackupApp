@@ -20,6 +20,7 @@ public:
 		\return Success (Successfull when path is found)
 	*/
 	const ext::Success RemovePath(const std::string& path);
+	const ext::Success RemovePath(const size_t& path);
 
 	/**
 		\return Success
@@ -36,15 +37,18 @@ public:
 	void UList();
 	void UAdd(const std::string& line);
 	void URemove(const std::string& line);
-private:
+	void URemove(const size_t& index);
+
 	///paths to back up
 	std::vector<std::string> paths;
+private:
 	///Auto backup enabled
 	bool abEnabled;
 
 	void SetDay(const int day);
 	///Day on which files should be backed up
 	ext::DayOfWeek day;
+
 
 	void PrintOptions();
 };

@@ -59,7 +59,7 @@ namespace ext {
 	static inline bool isDir(const char* path) {
 		struct stat path_stat;
 		stat(path, &path_stat);
-		return path_stat.st_mode & S_IFDIR == S_IFDIR;
+		return (path_stat.st_mode & S_IFDIR) == S_IFDIR;
 	}
 
 	static inline bool isValidPath(const char* path) {

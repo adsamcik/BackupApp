@@ -14,5 +14,5 @@
 #include <vector>
 #include "Extensions.h"
 
-#define FILE "backup.data"
-#define CONFIG "backup.cfg"
+#define BACKUP_FILE "backup.data"
+#define CONFIG_FILE "backup.cfg"
