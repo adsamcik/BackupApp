@@ -16,7 +16,7 @@
 File::File(const std::streampos & begin, const std::streampos & end) {
 	this->begin = begin;
 	this->end = end;
-	std::ifstream stream(FILE);
+	std::ifstream stream(BACKUP_FILE);
 	stream.seekg(begin);
 	short pathLength;
 	stream.read((char *)&pathLength, sizeof(pathLength));

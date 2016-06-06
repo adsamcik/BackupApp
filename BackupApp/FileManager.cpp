@@ -21,6 +21,11 @@ FileManager::FileManager() {
 	stream->seekg(0, stream->end);
 	fileEnd = stream->tellg();
 	stream->seekg(0, stream->beg);
+	if (fileEnd != stream->tellg()) {
+		char* pos = new char[8];
+		stream->read(pos, 8);
+		contentEnd = reinterpret_cast<long long>(pos);
+	}
 }
 
 

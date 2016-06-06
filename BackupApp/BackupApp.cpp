@@ -1,11 +1,12 @@
 #include "stdafx.h"
-#include "File.h"
 #include "Console.h"
 #include "Config.h"
+#include "FileManager.h"
 
 //Secret hidden much change line
 
 Config cfg;
+FileManager fm;
 
 /// <summary>Handles command recognition from user input
 /// </summary>
