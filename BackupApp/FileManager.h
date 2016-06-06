@@ -6,7 +6,7 @@
 class FileManager {
 private:
 	std::fstream* stream;
-	std::streampos contentEnd;
+	std::streampos metaBegin;
 	std::streampos fileEnd;
 public:
 	FileManager();

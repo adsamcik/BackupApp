@@ -24,7 +24,7 @@ FileManager::FileManager() {
 	if (fileEnd != stream->tellg()) {
 		char* pos = new char[8];
 		stream->read(pos, 8);
-		contentEnd = reinterpret_cast<long long>(pos);
+		metaBegin = reinterpret_cast<long long>(pos);
 	}
 }
 
