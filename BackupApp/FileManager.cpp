@@ -16,6 +16,14 @@
 	meta-data are placed at the end, because they will be most often rewritten and we don't have to rewrite the whole file when lots of new files are added.
 */
 
+void FileManager::Backup(const std::string &) {
+	stream->seekg(metaBegin);
+}
+
+void FileManager::WriteMeta() {
+	stream->seekg(metaBegin);
+}
+
 FileManager::FileManager() {
 	stream = new std::fstream(BACKUP_FILE);
 	stream->seekg(0, stream->end);
@@ -25,6 +33,12 @@ FileManager::FileManager() {
 		char* pos = new char[8];
 		stream->read(pos, 8);
 		metaBegin = reinterpret_cast<long long>(pos);
+
+		stream->seekg(metaBegin);
+		while (true) {
+			char c;
+			auto r = stream->get(c);
+		}
 	}
 }
 
@@ -39,7 +53,9 @@ void FileManager::BackupPath(const std::string &) {
 
 }
 
-void FileManager::BackupPath(const std::string &, const std::streampos pos) {}
+void FileManager::BackupPath(const std::string &, const std::streampos pos) {
+
+}
 
 void FileManager::RebuildBackups() {}
 
@@ -61,5 +77,3 @@ void FileManager::BackupAll(std::vector<std::string>& paths) {
 	}
 	closedir(dpdf);
 }
-
-
