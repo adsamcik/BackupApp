@@ -110,10 +110,9 @@ void Config::Edit() {
 void Config::USetDay(const std::string & params) {
 	auto tmp = day;
 	try {
-		auto substr = params.substr(4);
-		if (!ext::isDigit(substr))
+		if (!ext::isDigit(params))
 			throw std::invalid_argument("");
-		auto d = std::stoi(substr);
+		auto d = std::stoi(params);
 		if (d < 0 || d > 7)
 			throw std::out_of_range("Number is out of range");
 		day = static_cast<ext::DayOfWeek>(d);
