@@ -36,8 +36,8 @@ FileManager::FileManager() {
 
 		stream->seekg(metaBegin);
 		while (true) {
-			char c;
-			auto r = stream->get(c);
+			//char c;
+			auto r = stream->get();
 		}
 	}
 }
