@@ -30,15 +30,14 @@ FileManager::FileManager() {
 	fileEnd = stream->tellg();
 	stream->seekg(0, stream->beg);
 	if (fileEnd != stream->tellg()) {
-		char* pos = new char[8];
-		stream->read(pos, 8);
-		metaBegin = reinterpret_cast<long long>(pos);
+		char* mPos = new char[8];
+		stream->read(mPos, 8);
+		metaBegin = reinterpret_cast<long long>(mPos);
 
 		stream->seekg(metaBegin);
-		while (true) {
-			//char c;
-			auto r = stream->get();
-		}
+		std::streampos pos = metaBegin;
+		while (!stream->eof())
+			files.push_back(new File(*stream, pos));
 	}
 }
 

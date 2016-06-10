@@ -1,6 +1,7 @@
 #pragma once
 #include <stdio.h>
 #include <iostream>
+#include "File.h"
 
 
 class FileManager {
@@ -13,7 +14,7 @@ private:
 	void Backup(const std::string&);
 	void WriteMeta();
 
-	std::vector<FileManager> files;
+	std::vector<File*> files;
 public:
 	FileManager();
 	~FileManager();

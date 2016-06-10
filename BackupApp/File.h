@@ -2,15 +2,15 @@
 
 class File { 
 private:
-	std::streampos begin;
+	std::streampos beginMeta;
 	std::streampos beginContent;
-	std::streampos end;
+	std::streampos endContent;
 
 	tm lastEdited;
 	std::string path;
 
 public:
-	File(const std::streampos&, const std::streampos&);
+	File(std::fstream& stream, const std::streampos& beginMeta);
 	~File();
 
 	void Restore();
