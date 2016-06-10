@@ -13,6 +13,6 @@ public:
 	File(std::fstream& stream, const std::streampos& beginMeta);
 	~File();
 
-	void Restore();
+	void Restore(std::fstream & stream);
 };
 

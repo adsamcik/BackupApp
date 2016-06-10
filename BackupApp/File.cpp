@@ -42,3 +42,10 @@ File::File(std::fstream & stream, const std::streampos & beginMeta) {
 }
 
 File::~File() {}
+
+void File::Restore(std::fstream& stream) {
+	std::ofstream outfile;
+	outfile.open(path);
+	std::copy(beginContent, endContent, outfile.beg());
+	outfile.close();
+}
