@@ -41,11 +41,27 @@ File::File(std::fstream & stream, const std::streampos & beginMeta) {
 	delete[] mInt;
 }
 
-File::~File() {}
+File::~File() {
+	delete lastEdited;
+}
 
 void File::Restore(std::fstream& stream) {
 	std::ofstream outfile;
 	outfile.open(path);
-	std::copy(beginContent, endContent, outfile.beg());
+	auto size = static_cast<long long>(endContent - beginContent);
+	auto count = size / 32;
+	char* cache = new char[32];
+	for (long long i = 0; i < count; i++) {
+		stream.get(cache, 32);
+		outfile << cache;
+	}
+	delete[] cache;
+	auto diff = size - (count * 32);
+	if (diff > 0) {
+		char* temp = new char[diff];
+		stream.get(temp, diff);
+		outfile << temp;
+		delete[] temp;
+	}
 	outfile.close();
 }
