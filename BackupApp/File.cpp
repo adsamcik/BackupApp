@@ -2,6 +2,7 @@
 #include "File.h"
 #include <istream>
 #include <fstream>
+#include <ctime>
 
 /*
 	FILE STRUCTURE
@@ -15,17 +16,6 @@
 	---ContentEnd								8B
 */
 
-
-/*File::File(const std::streampos & beginMeta, const std::streampos & endContent, const std::string& path) {
-	this->beginMeta = beginMeta;
-	this->endContent = endContent;
-	std::ifstream stream(BACKUP_FILE);
-	stream.seekg(beginMeta);
-	short pathLength;
-	stream.read((char *)&pathLength, sizeof(pathLength));
-	stream.read(reinterpret_cast<char*>(&lastEdited), sizeof(lastEdited));
-}*/
-
 File::File(std::fstream & stream, const std::streampos & beginMeta) {
 	char* mLong = new char[8];
 	char* mInt = new char[4];
@@ -37,9 +27,15 @@ File::File(std::fstream & stream, const std::streampos & beginMeta) {
 	path = string;
 	//Load time
 	stream.get(mLong, 4);
-	lastEdited = reinterpret_cast<tm>(mLong);
+	auto t = reinterpret_cast<time_t>(mLong);
+	lastEdited = new tm();
+	gmtime_s(lastEdited, &t);
+
+	//Load content begin and end
 	stream.get(mLong, 8);
+	beginContent = reinterpret_cast<long long>(mLong);
 	stream.get(mLong, 8);
+	endContent = reinterpret_cast<long long>(mLong);
 
 	delete[] mLong;
 	delete[] mInt;

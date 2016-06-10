@@ -6,7 +6,7 @@ private:
 	std::streampos beginContent;
 	std::streampos endContent;
 
-	tm lastEdited;
+	tm* lastEdited;
 	std::string path;
 
 public:
