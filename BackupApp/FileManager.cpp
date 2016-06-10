@@ -22,6 +22,10 @@ void FileManager::Backup(const std::string &) {
 
 void FileManager::WriteMeta() {
 	stream->seekg(metaBegin);
+	for (auto file : files) {
+		//Todo Write operator <<
+		//stream << file;
+	}
 }
 
 FileManager::FileManager() {
