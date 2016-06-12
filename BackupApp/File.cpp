@@ -12,8 +12,8 @@
 	---PathLength (possibly faster loading)		4B (should every imaginable path, can't imagine 4gb large path)
 	---Path										XB
 	---Time										8B
-	---ContentBegin								8B
-	---ContentEnd								8B
+	---ContentBegin								sizeof(std::streamoff) most probably 8B
+	---ContentEnd								sizeof(std::streamoff) most probably 8B
 */
 
 File::File(std::fstream & stream, const std::streampos & beginMeta) {

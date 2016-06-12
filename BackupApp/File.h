@@ -1,15 +1,14 @@
 #pragma once
 
 class File { 
-private:
-	std::streampos beginMeta;
-	std::streampos beginContent;
-	std::streampos endContent;
+public:
+	std::streamoff beginMeta;
+	std::streamoff beginContent;
+	std::streamoff endContent;
 
 	tm* lastEdited;
 	std::string path;
 
-public:
 	File(std::fstream& stream, const std::streampos& beginMeta);
 	~File();
 
