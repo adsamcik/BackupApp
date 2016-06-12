@@ -13,6 +13,9 @@ File::File(const std::string & path) {
 	auto r = stat(path.c_str(), &t_stat);
 	this->lastEdited = new tm();
 	gmtime_s(this->lastEdited, &t_stat.st_mtime);
+	this->beginMeta = -1;
+	this->beginContent = -1;
+	this->endContent = -1;
 }
 
 File::File(std::fstream & stream, const std::streampos & begin) {

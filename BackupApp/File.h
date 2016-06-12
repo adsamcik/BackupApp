@@ -5,22 +5,21 @@
 #include <dirent.h>
 #endif
 
-/*
+/**
 FILE STRUCTURE
---Meta										12B + 2*sizeof(std::streamoff)B + sizeof(string)B
+--Meta										12B + sizeof(std::streamoff)B + sizeof(string)B
 ---PathLength (possibly faster loading)		4B (should every imaginable path, can't imagine 4gb large path)
 ---Path										XB
 ---Time										8B
----ContentBegin								sizeof(std::streamoff) most probably 8B == 0 if no content is saved
 ---ContentEnd								sizeof(std::streamoff) most probably 8B == 0 if no content is saved
 --Content												
 
 */
 class File { 
 public:
-	std::streamoff beginMeta = 0;
-	std::streamoff beginContent = 0;
-	std::streamoff endContent = 0;
+	std::streamoff beginMeta;
+	std::streamoff beginContent;
+	std::streamoff endContent;
 
 	tm* lastEdited;
 

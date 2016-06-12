@@ -4,6 +4,14 @@
 #include "Config.h"
 #include "Console.h"
 
+void FileManager::Open() {
+	stream->open(BACKUP_FILE, std::fstream::in | std::fstream::out | std::fstream::binary);
+}
+
+void FileManager::Close() {
+	stream->close();
+}
+
 void FileManager::WriteMeta(File *file) {
 	auto path = file->GetPath();
 	file->beginMeta = stream->tellg();
@@ -21,19 +29,16 @@ FileManager::FileManager() {
 	fileEnd = stream->tellg();
 	stream->seekg(0, stream->beg);
 	if (fileEnd != stream->tellg()) {
-		char* mPos = new char[8];
-		stream->read(mPos, 8);
-		metaBegin = reinterpret_cast<long long>(mPos);
-
-		stream->seekg(metaBegin);
-		std::streampos pos = metaBegin;
-		while (!stream->eof())
-			files.push_back(new File(*stream, pos));
+		//char* mPos = new char[8];
+		//while (!stream->eof())
+		//	files.push_back(new File(*stream, pos));
 	}
+	Close();
 }
 
 
 FileManager::~FileManager() {
+	stream->close();
 	delete stream;
 	for (auto file : files)
 		delete file;
@@ -53,27 +58,24 @@ void FileManager::AddPath(const std::string &path) {
 void FileManager::Backup(File *file) {
 	std::cout << "Backing up " << file->GetPath()->c_str() << std::endl;
 
-	if (file->beginMeta == 0) {
-		stream->seekg(fileEnd);
-		WriteMeta(file);
-		file->beginContent = stream->tellg();
-	}
-
-	std::ifstream ostream(*file->GetPath(), std::ios::binary);
-	ostream.seekg(ostream.end);
+	std::ifstream ostream(*file->GetPath(), std::ifstream::ate | std::ifstream::binary);
 	std::streamoff length = ostream.tellg();
 	ostream.seekg(ostream.beg);
 
-	if (file->endContent != std::streampos(0) && length > file->endContent - file->beginContent) {
+	if (file->beginMeta == -1) {
+		file->beginMeta = stream->tellg();
+		file->beginContent = file->beginMeta + 12 + sizeof(file->endContent) + file->GetPath()->size();
+		file->endContent = file->beginContent + length;
+		stream->seekg(fileEnd);
+		WriteMeta(file);
+	}
+
+
+	if (file->endContent != -1 && length > file->endContent - file->beginContent) {
 		auto off = static_cast<std::streamoff>(length * 1.1 - (file->endContent - file->beginContent));
 		OffsetData(file->endContent, off);
 		file->endContent += off;
 	}
-
-	file->beginContent = stream->tellg();
-	/*char buffer[100];
-	while (ostream.read(buffer, sizeof(buffer)))
-		*stream << buffer;*/
 
 	*stream << ostream.rdbuf();
 
@@ -81,6 +83,7 @@ void FileManager::Backup(File *file) {
 	if (pos > fileEnd)
 		fileEnd = pos;
 	file->endContent = pos;
+
 	//file->ClearPath();
 }
 
@@ -104,7 +107,6 @@ void FileManager::Backup(Dir *dir) {
 
 void FileManager::OffsetData(const std::streampos &beg, const std::streamoff &off) {
 	long long length = fileEnd;
-	stream->seekg(metaBegin);
 	for (auto file : files) {
 		if (file->beginContent > beg) {
 			file->beginContent += off;
@@ -117,6 +119,7 @@ void FileManager::OffsetData(const std::streampos &beg, const std::streamoff &of
 void FileManager::RebuildBackups() {}
 
 void FileManager::BackupAll() {
+	Open();
 	for (auto file : files) {
 		if (!file->IsValid())
 			Console::PrintError(*file->GetPath() + " is not a valid path!");
@@ -130,5 +133,5 @@ void FileManager::BackupAll() {
 		}
 		//file->ClearPath();
 	}
-	metaBegin = stream->tellg();
+	Close();
 }

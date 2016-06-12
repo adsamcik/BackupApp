@@ -7,14 +7,13 @@
 class FileManager {
 private:
 	std::fstream* stream;
-	std::streampos metaBegin;
 	std::streampos fileEnd;
+	std::vector<File*> files;
 
-	///Backs up file on path
-	void WriteMeta();
+	void Open();
+	void Close();
 	void WriteMeta(File *file);
 
-	std::vector<File*> files;
 public:
 	FileManager();
 	~FileManager();
