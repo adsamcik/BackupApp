@@ -2,11 +2,7 @@
 #include "FileManager.h"
 #include "stdlib.h"
 #include "Config.h"
-#ifdef _WIN32 
-#include "dirent.h"
-#elif __linux__
-#include <dirent.h>
-#endif
+#include "Console.h"
 
 /*	BACKUP FILE STRUCTURE
 	8B - position of meta-data
@@ -15,10 +11,6 @@
 
 	meta-data are placed at the end, because they will be most often rewritten and we don't have to rewrite the whole file when lots of new files are added.
 */
-
-void FileManager::Backup(const std::string &) {
-	stream->seekg(metaBegin);
-}
 
 void FileManager::WriteMeta() {
 	stream->seekg(metaBegin);
@@ -56,23 +48,34 @@ bool FileManager::DeletePath(const std::string &) {
 	return false;
 }
 
-void FileManager::BackupPath(File &file) {
-	if (file.beginContent == std::streampos(0))
-		file.beginContent = metaBegin;
+void FileManager::Backup(File *file) {
+	if (file->beginContent == std::streampos(0))
+		file->beginContent = metaBegin;
 
-	std::ifstream ostream(file.path);
+	std::ifstream ostream(file->path);
 	ostream.seekg(ostream.end);
 	std::streamoff length = ostream.tellg();
 	ostream.seekg(ostream.beg);
 
-	if (file.endContent == std::streampos(0) || length > file.endContent - file.beginContent) {
-		auto off = static_cast<std::streamoff>(length * 1.1 - (file.endContent - file.beginContent));
-		OffsetData(file.endContent, off);
-		file.endContent += off;
+	if (file->endContent == std::streampos(0) || length > file->endContent - file->beginContent) {
+		auto off = static_cast<std::streamoff>(length * 1.1 - (file->endContent - file->beginContent));
+		OffsetData(file->endContent, off);
+		file->endContent += off;
 	}
 
-	stream->seekg(file.beginContent);
+	stream->seekg(file->beginContent);
 	*stream << ostream.rdbuf();
+}
+
+void FileManager::Backup(Dir *dir) {
+	auto v = dir->GetFiles();
+	for (auto path : *v) {
+		if (ext::isDir(path.c_str())) {
+			auto d = new Dir(path);
+			Backup(d);
+			delete d;
+		}
+	}
 }
 
 void FileManager::OffsetData(const std::streampos &beg, const std::streamoff &off) {
@@ -90,20 +93,16 @@ void FileManager::OffsetData(const std::streampos &beg, const std::streamoff &of
 void FileManager::RebuildBackups() {}
 
 void FileManager::BackupAll() {
-	Config c;
-	BackupAll(c.paths);
-}
-
-void FileManager::BackupAll(std::vector<std::string>& paths) {
-	DIR *dpdf;
-	struct dirent *epdf;
-
-	dpdf = opendir("./");
-	if (dpdf != NULL) {
-		while (epdf = readdir(dpdf)) {
-			printf("Filename: %s\n", epdf->d_name);
-			// std::cout << epdf->d_name << std::endl;
+	for (auto file : files) {
+		if (!file->IsValid())
+			Console::PrintError(file->path + " is not a valid path!");
+		else {
+			//Checks whether file is directory or file
+			auto r = dynamic_cast<Dir*>(file);
+			if (r != nullptr)
+				Backup(r);
+			else
+				Backup(file);
 		}
 	}
-	closedir(dpdf);
 }

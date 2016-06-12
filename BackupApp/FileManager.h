@@ -11,7 +11,6 @@ private:
 	std::streampos fileEnd;
 
 	///Backs up file on path
-	void Backup(const std::string&);
 	void WriteMeta();
 	void WriteMeta(const File &file);
 
@@ -22,7 +21,8 @@ public:
 	bool DeletePath(const std::string&);
 
 	///Backs up all files on path
-	void BackupPath(File&);
+	void Backup(File*);
+	void Backup(Dir*);
 	void OffsetData(const std::streampos &beg, const std::streamoff &off);
 	///Regenerates backup file with new reserves etc. Can be run if computer is idle and backup file is crowded.
 	void RebuildBackups();
