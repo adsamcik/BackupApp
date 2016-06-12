@@ -36,9 +36,9 @@ public:
 	*/
 	void USetDay(const std::string& line);
 	void UList();
-	void UAdd(const std::string& line);
-	void URemove(const std::string& line);
-	void URemove(const size_t& index);
+	void UAdd(FileManager &fm, const std::string& line);
+	void URemove(FileManager &fm, const std::string& line);
+	void URemove(FileManager &fm, const size_t& index);
 
 	///paths to back up
 	std::vector<std::string> paths;

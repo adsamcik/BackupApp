@@ -24,7 +24,7 @@ bool ResolveInput() {
 	ext::tolower(sLower);
 
 	if (ext::startsWith(sLower, "backup")) {
-		s = s.substr(0, 6);
+		fm.BackupAll();
 	}
 	else if (ext::startsWith(sLower, "exit")) {
 		if (sLower != "exit") {

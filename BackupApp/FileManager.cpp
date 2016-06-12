@@ -101,7 +101,7 @@ void FileManager::BackupAll(std::vector<std::string>& paths) {
 	dpdf = opendir("./");
 	if (dpdf != NULL) {
 		while (epdf = readdir(dpdf)) {
-			printf("Filename: %s", epdf->d_name);
+			printf("Filename: %s\n", epdf->d_name);
 			// std::cout << epdf->d_name << std::endl;
 		}
 	}
