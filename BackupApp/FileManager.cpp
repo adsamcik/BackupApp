@@ -4,14 +4,6 @@
 #include "Config.h"
 #include "Console.h"
 
-/*	BACKUP FILE STRUCTURE
-	8B - position of meta-data
-	xB - content (actual content of files)
-	xB - meta-data (information about filenames, beginnings and ends of files)
-
-	meta-data are placed at the end, because they will be most often rewritten and we don't have to rewrite the whole file when lots of new files are added.
-*/
-
 void FileManager::WriteMeta(File *file) {
 	auto path = file->GetPath();
 	file->beginMeta = stream->tellg();
@@ -95,6 +87,12 @@ void FileManager::Backup(Dir *dir) {
 			Backup(d);
 			delete d;
 		}
+		else {
+			auto f = new File(*dir->GetPath() + '/' + path);
+			Backup(f);
+			delete f;
+		}
+
 	}
 	delete v;
 }

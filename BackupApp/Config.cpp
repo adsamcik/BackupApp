@@ -101,7 +101,7 @@ void Config::Edit(FileManager &fm) {
 				UAdd(fm, sLower.substr(4));
 		}
 		else if (ext::startsWith(sLower, "exit") || ext::startsWith(sLower, "return"))
-				 break;
+			break;
 		else {
 			std::cout << "Unknown command" << std::endl;
 		}
@@ -151,7 +151,8 @@ void Config::UAdd(FileManager &fm, const std::string & path) {
 		Console::PrintError("Invalid path");
 		return;
 	}
-	auto s = AddPath(path);
+	char last = path[path.length() - 1];
+	auto s = AddPath(last == '/' ||  last == '\\' ? path.substr(0, path.length() - 1) : path);
 	if (!s.success)
 		Console::PrintError(s.message);
 	else {

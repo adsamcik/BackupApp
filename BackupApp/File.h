@@ -7,16 +7,14 @@
 
 /*
 FILE STRUCTURE
---Content
-////////stuff
---Meta
+--Meta										12B + 2*sizeof(std::streamoff)B + sizeof(string)B
 ---PathLength (possibly faster loading)		4B (should every imaginable path, can't imagine 4gb large path)
 ---Path										XB
 ---Time										8B
----ContentBegin								sizeof(std::streamoff) most probably 8B
----ContentEnd								sizeof(std::streamoff) most probably 8B
-------------Dir only-----------------
----File count								4B (next x files will belong to this folder)
+---ContentBegin								sizeof(std::streamoff) most probably 8B == 0 if no content is saved
+---ContentEnd								sizeof(std::streamoff) most probably 8B == 0 if no content is saved
+--Content												
+
 */
 class File { 
 public:
