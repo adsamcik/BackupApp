@@ -60,10 +60,10 @@ void FileManager::BackupPath(File &file) {
 	if (file.beginContent == std::streampos(0))
 		file.beginContent = metaBegin;
 
-	std::ofstream ostream(file.path);
-	ostream.seekp(ostream.end);
-	std::streamoff length = ostream.tellp();
-	ostream.seekp(ostream.beg);
+	std::ifstream ostream(file.path);
+	ostream.seekg(ostream.end);
+	std::streamoff length = ostream.tellg();
+	ostream.seekg(ostream.beg);
 
 	if (file.endContent == std::streampos(0) || length > file.endContent - file.beginContent) {
 		auto off = static_cast<std::streamoff>(length * 1.1 - (file.endContent - file.beginContent));
@@ -72,7 +72,7 @@ void FileManager::BackupPath(File &file) {
 	}
 
 	stream->seekg(file.beginContent);
-	char *buffer = new char[100];
+	*stream << ostream.rdbuf();
 }
 
 void FileManager::OffsetData(const std::streampos &beg, const std::streamoff &off) {
