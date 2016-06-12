@@ -100,6 +100,7 @@ void FileManager::OffsetData(const std::streampos &beg, const std::streamoff &of
 	WriteMeta();
 }
 
+//Creates new backup file with restored reserves
 void FileManager::RebuildBackups() {}
 
 void FileManager::BackupAll() {
