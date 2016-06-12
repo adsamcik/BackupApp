@@ -4,17 +4,15 @@
 #include <fstream>
 #include <ctime>
 
-/*
-	FILE STRUCTURE
-	--Content
-	////////stuff
-	--Meta
-	---PathLength (possibly faster loading)		4B (should every imaginable path, can't imagine 4gb large path)
-	---Path										XB
-	---Time										8B
-	---ContentBegin								sizeof(std::streamoff) most probably 8B
-	---ContentEnd								sizeof(std::streamoff) most probably 8B
-*/
+File::File(const std::string & path) {
+	if (!ext::isValidPath(path))
+		throw std::exception("path is invalid!");
+	this->path = path;
+
+	struct stat t_stat;
+	auto r = stat(path.c_str(), &t_stat);
+	gmtime_s(this->lastEdited, &t_stat.st_mtime);
+}
 
 File::File(std::fstream & stream, const std::streampos & beginMeta) {
 	char* mLong = new char[8];
@@ -64,4 +62,31 @@ void File::Restore(std::fstream& stream) {
 		delete[] temp;
 	}
 	outfile.close();
+}
+
+bool File::IsValid() {
+	return ext::isValidPath(path);
+}
+
+Dir::Dir(const std::string & path) :File(path) {
+	this->path = path;
+}
+
+void Dir::Restore(std::fstream & stream) {
+
+}
+
+std::vector<std::string>* Dir::GetFiles() {
+	DIR *dir;
+	struct dirent *ent;
+	auto v = new std::vector<std::string>();
+
+	dir = opendir(path.c_str());
+	if (dir != NULL) {
+		while (ent = readdir(dir)) {
+			v->push_back(std::string(ent->d_name, ent->d_namlen));
+		}
+	}
+	closedir(dir);
+	return v;
 }
