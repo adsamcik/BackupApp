@@ -286,3 +286,4 @@ paket-files/
 *.exe
 *.out
 *.app
+BackupApp/backup.cfg

@@ -3,6 +3,7 @@
 #include "Console.h"
 #include <sys/stat.h>
 #include <sys/types.h>
+#include "FileManager.h"
 
 
 Config::Config() {
@@ -51,7 +52,8 @@ const ext::Success Config::RemovePath(const std::string & path) {
 const ext::Success Config::RemovePath(const size_t & index) {
 	if (index < paths.size()) {
 		paths.erase(paths.begin() + index);
-		return ext::Success(false, "Invalid index");
+		Save();
+		return ext::Success();
 	}
 	return ext::Success(false, "Invalid index");
 }
@@ -69,7 +71,7 @@ const ext::Success Config::Save() {
 	return ext::Success();
 }
 
-void Config::Edit() {
+void Config::Edit(FileManager &fm) {
 	Console::Clear();
 	std::cout << "OPTIONS" << std::endl;
 	PrintOptions();
@@ -153,6 +155,8 @@ void Config::UAdd(const std::string & path) {
 	auto s = AddPath(path);
 	if (!s.success)
 		Console::PrintError(s.message);
+	else
+		Save();
 }
 
 void Config::URemove(const std::string & line) {}

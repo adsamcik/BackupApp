@@ -27,7 +27,7 @@ public:
 	*/
 	const ext::Success Save();
 
-	void Edit();
+	void Edit(FileManager &fm);
 
 	/**
 		User input functions
