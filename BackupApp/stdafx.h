@@ -13,6 +13,9 @@
 #include <fstream>
 #include <vector>
 #include "Extensions.h"
+#ifdef _DEBUG
+#include <vld.h>
+#endif
 
 #define BACKUP_FILE "backup.data"
 #define CONFIG_FILE "backup.cfg"
