@@ -25,7 +25,7 @@ void FileManager::WriteMeta(const File & file) {
 }
 
 FileManager::FileManager() {
-	stream = new std::fstream(BACKUP_FILE);
+	stream = new std::fstream(BACKUP_FILE, std::fstream::in | std::fstream::out | std::fstream::binary);
 	stream->seekg(0, stream->end);
 	fileEnd = stream->tellg();
 	stream->seekg(0, stream->beg);
@@ -42,7 +42,9 @@ FileManager::FileManager() {
 }
 
 
-FileManager::~FileManager() {}
+FileManager::~FileManager() {
+	delete stream;
+}
 
 bool FileManager::DeletePath(const std::string &) {
 	return false;
