@@ -7,7 +7,7 @@
 File::File(const std::string & path) {
 	if (!ext::isValidPath(path))
 		throw std::exception("path is invalid!");
-	this->path = path;
+	this->path = new std::string(path);
 
 	struct stat t_stat;
 	auto r = stat(path.c_str(), &t_stat);
@@ -17,12 +17,12 @@ File::File(const std::string & path) {
 File::File(std::fstream & stream, const std::streampos & beginMeta) {
 	char* mLong = new char[8];
 	char* mInt = new char[4];
+	this->beginMeta = beginMeta;
 	//Load string
 	stream.get(mInt, 4);
 	size_t sLength = reinterpret_cast<size_t>(mInt);
-	char* string = new char[sLength];
-	stream.get(string, sLength);
-	path = string;
+	//path is loaded on demand
+	stream.seekg(sLength, std::ios::cur);
 	//Load time
 	stream.get(mLong, 4);
 	auto t = reinterpret_cast<time_t>(mLong);
@@ -41,11 +41,12 @@ File::File(std::fstream & stream, const std::streampos & beginMeta) {
 
 File::~File() {
 	delete lastEdited;
+	delete path;
 }
 
-void File::Restore(std::fstream& stream) {
+void File::Restore(std::fstream& stream) const {
 	std::ofstream outfile;
-	outfile.open(path);
+	outfile.open(GetPath());
 	auto size = static_cast<long long>(endContent - beginContent);
 	auto count = size / 32;
 	char* cache = new char[32];
@@ -64,15 +65,51 @@ void File::Restore(std::fstream& stream) {
 	outfile.close();
 }
 
-bool File::IsValid() {
-	return ext::isValidPath(path);
+bool File::IsValid() const {
+	return ext::isValidPath(GetPath());
+}
+
+std::string* File::GetPath() {
+	if (path == nullptr) {
+		std::ifstream is(BACKUP_FILE);
+		is.seekg(beginMeta);
+		char* buff = new char[4];
+		is.read(buff, 4);
+		auto length = *reinterpret_cast<int*>(buff);
+		delete[] buff;
+		buff = new char[length];
+		is.read(buff, length);
+		path = new std::string(buff);
+		is.close();
+	}
+	return path;
+}
+
+std::string File::GetPath() const {
+	if (path == nullptr) {
+		std::ifstream is(BACKUP_FILE);
+		is.seekg(beginMeta);
+		char* buff = new char[4];
+		is.read(buff, 4);
+		auto length = *reinterpret_cast<int*>(buff);
+		delete[] buff;
+		buff = new char[length];
+		is.read(buff, length);
+		return std::string(buff);
+		is.close();
+	}
+	return *path;
+}
+
+void File::ClearPath() {
+	if (path != nullptr)
+		delete path;
 }
 
 Dir::Dir(const std::string & path) :File(path) {
-	this->path = path;
 }
 
-void Dir::Restore(std::fstream & stream) {
+void Dir::Restore(std::fstream & stream) const {
 
 }
 
@@ -81,7 +118,7 @@ std::vector<std::string>* Dir::GetFiles() {
 	struct dirent *ent;
 	auto v = new std::vector<std::string>();
 
-	dir = opendir(path.c_str());
+	dir = opendir(GetPath()->c_str());
 	if (dir != NULL) {
 		while (ent = readdir(dir)) {
 			v->push_back(std::string(ent->d_name, ent->d_namlen));

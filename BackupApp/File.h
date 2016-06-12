@@ -20,19 +20,24 @@ FILE STRUCTURE
 */
 class File { 
 public:
-	std::streamoff beginMeta;
-	std::streamoff beginContent;
-	std::streamoff endContent;
+	std::streamoff beginMeta = 0;
+	std::streamoff beginContent = 0;
+	std::streamoff endContent = 0;
 
 	tm* lastEdited;
-	std::string path;
 
 	File(const std::string& path);
 	File(std::fstream& stream, const std::streampos& beginMeta);
 	~File();
 
-	virtual void Restore(std::fstream & stream);
-	bool IsValid();
+	virtual void Restore(std::fstream & stream) const;
+	bool IsValid() const;
+
+	std::string* GetPath();
+	std::string GetPath() const;
+	void ClearPath();
+private:
+	std::string* path;
 };
 
 class Dir : public File {
@@ -41,7 +46,7 @@ public:
 
 	Dir(const std::string& path);
 
-	void Restore(std::fstream & stream) override;
+	void Restore(std::fstream & stream) const override;
 	std::vector<std::string>* GetFiles();
 };
 

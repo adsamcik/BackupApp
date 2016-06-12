@@ -21,7 +21,8 @@ void FileManager::WriteMeta() {
 }
 
 void FileManager::WriteMeta(const File & file) {
-	*stream << file.path.size() << file.path << file.lastEdited << file.beginContent << file.endContent;
+	std::string path = file.GetPath();
+	*stream << path.size() << path << file.lastEdited << file.beginContent << file.endContent;
 }
 
 FileManager::FileManager() {
@@ -56,11 +57,11 @@ bool FileManager::DeletePath(const std::string &) {
 }
 
 void FileManager::Backup(File *file) {
-	std::cout << "Backing up " << file->path << std::endl;
+	std::cout << "Backing up " << file->GetPath() << std::endl;
 	if (file->beginContent == std::streampos(0))
 		file->beginContent = metaBegin;
 
-	std::ifstream ostream(file->path);
+	std::ifstream ostream(*file->GetPath());
 	ostream.seekg(ostream.end);
 	std::streamoff length = ostream.tellg();
 	ostream.seekg(ostream.beg);
@@ -73,6 +74,7 @@ void FileManager::Backup(File *file) {
 
 	stream->seekg(file->beginContent);
 	*stream << ostream.rdbuf();
+	file->ClearPath();
 }
 
 void FileManager::Backup(Dir *dir) {
@@ -103,7 +105,7 @@ void FileManager::RebuildBackups() {}
 void FileManager::BackupAll() {
 	for (auto file : files) {
 		if (!file->IsValid())
-			Console::PrintError(file->path + " is not a valid path!");
+			Console::PrintError(*file->GetPath() + " is not a valid path!");
 		else {
 			//Checks whether file is directory or file
 			auto r = dynamic_cast<Dir*>(file);
@@ -112,5 +114,6 @@ void FileManager::BackupAll() {
 			else
 				Backup(file);
 		}
+		file->ClearPath();
 	}
 }
