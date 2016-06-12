@@ -11,6 +11,7 @@ File::File(const std::string & path) {
 
 	struct stat t_stat;
 	auto r = stat(path.c_str(), &t_stat);
+	this->lastEdited = new tm();
 	gmtime_s(this->lastEdited, &t_stat.st_mtime);
 }
 
@@ -104,6 +105,7 @@ std::string File::GetPath() const {
 void File::ClearPath() {
 	if (path != nullptr)
 		delete path;
+	path = nullptr;
 }
 
 Dir::Dir(const std::string & path) :File(path) {

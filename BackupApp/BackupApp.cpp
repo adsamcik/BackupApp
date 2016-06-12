@@ -65,6 +65,9 @@ bool ResolveInput() {
 }
 
 int main() {
+	for (size_t i = 0; i < cfg.paths.size(); i++)
+		fm.AddPath(cfg.paths[i]);
+
 	while (ResolveInput()) {}
 	return 0;
 }

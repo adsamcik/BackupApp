@@ -288,3 +288,4 @@ paket-files/
 *.app
 BackupApp/backup.cfg
 BackupApp/backup.data
+BackupApp/backup.cfg

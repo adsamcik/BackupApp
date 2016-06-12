@@ -56,6 +56,10 @@ bool FileManager::DeletePath(const std::string &) {
 	return false;
 }
 
+void FileManager::AddPath(const std::string &path) {
+	files.push_back(new File(path));
+}
+
 void FileManager::Backup(File *file) {
 	std::cout << "Backing up " << file->GetPath() << std::endl;
 	if (file->beginContent == std::streampos(0))
@@ -74,7 +78,7 @@ void FileManager::Backup(File *file) {
 
 	stream->seekg(file->beginContent);
 	*stream << ostream.rdbuf();
-	file->ClearPath();
+	//file->ClearPath();
 }
 
 void FileManager::Backup(Dir *dir) {
@@ -115,6 +119,8 @@ void FileManager::BackupAll() {
 			else
 				Backup(file);
 		}
-		file->ClearPath();
+		//file->ClearPath();
 	}
+	metaBegin = stream->tellg();
+	WriteMeta();
 }

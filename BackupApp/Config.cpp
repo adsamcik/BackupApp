@@ -154,8 +154,10 @@ void Config::UAdd(FileManager &fm, const std::string & path) {
 	auto s = AddPath(path);
 	if (!s.success)
 		Console::PrintError(s.message);
-	else
+	else {
+		fm.AddPath(path);
 		Save();
+	}
 }
 
 void Config::URemove(FileManager &fm, const std::string & line) {}

@@ -19,6 +19,7 @@ public:
 	FileManager();
 	~FileManager();
 	bool DeletePath(const std::string&);
+	void AddPath(const std::string&);
 
 	///Backs up all files on path
 	void Backup(File*);
