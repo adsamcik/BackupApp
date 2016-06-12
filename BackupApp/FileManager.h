@@ -13,6 +13,7 @@ private:
 	///Backs up file on path
 	void Backup(const std::string&);
 	void WriteMeta();
+	void WriteMeta(const File &file);
 
 	std::vector<File*> files;
 public:
@@ -21,8 +22,8 @@ public:
 	bool DeletePath(const std::string&);
 
 	///Backs up all files on path
-	void BackupPath(const std::string&);
-	void BackupPath(const std::string&, const std::streampos pos);
+	void BackupPath(File&);
+	void OffsetData(const std::streampos &beg, const std::streamoff &off);
 	///Regenerates backup file with new reserves etc. Can be run if computer is idle and backup file is crowded.
 	void RebuildBackups();
 	void BackupAll();

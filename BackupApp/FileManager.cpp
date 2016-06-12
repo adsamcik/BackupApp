@@ -23,9 +23,13 @@ void FileManager::Backup(const std::string &) {
 void FileManager::WriteMeta() {
 	stream->seekg(metaBegin);
 	for (auto file : files) {
-		//Todo Write operator <<
-		//stream << file;
+		file->beginMeta = stream->tellg();
+		WriteMeta(*file);
 	}
+}
+
+void FileManager::WriteMeta(const File & file) {
+	*stream << file.path.size() << file.path << file.lastEdited << file.beginContent << file.endContent;
 }
 
 FileManager::FileManager() {
@@ -52,12 +56,35 @@ bool FileManager::DeletePath(const std::string &) {
 	return false;
 }
 
-void FileManager::BackupPath(const std::string &) {
+void FileManager::BackupPath(File &file) {
+	if (file.beginContent == std::streampos(0))
+		file.beginContent = metaBegin;
 
+	std::ofstream ostream(file.path);
+	ostream.seekp(ostream.end);
+	std::streamoff length = ostream.tellp();
+	ostream.seekp(ostream.beg);
+
+	if (file.endContent == std::streampos(0) || length > file.endContent - file.beginContent) {
+		auto off = static_cast<std::streamoff>(length * 1.1 - (file.endContent - file.beginContent));
+		OffsetData(file.endContent, off);
+		file.endContent += off;
+	}
+
+	stream->seekg(file.beginContent);
+	char *buffer = new char[100];
 }
 
-void FileManager::BackupPath(const std::string &, const std::streampos pos) {
-
+void FileManager::OffsetData(const std::streampos &beg, const std::streamoff &off) {
+	long long length = fileEnd;
+	stream->seekg(metaBegin);
+	for (auto file : files) {
+		if (file->beginContent > beg) {
+			file->beginContent += off;
+			file->endContent += off;
+		}
+	}
+	WriteMeta();
 }
 
 void FileManager::RebuildBackups() {}
