@@ -52,30 +52,35 @@ void FileManager::AddPath(const std::string &path) {
 
 void FileManager::Backup(File *file) {
 	std::cout << "Backing up " << file->GetPath()->c_str() << std::endl;
-	WriteMeta(file);
 
-	if (file->beginContent == std::streampos(0))
-		file->beginContent = fileEnd;
+	if (file->beginMeta == 0) {
+		stream->seekg(fileEnd);
+		WriteMeta(file);
+		file->beginContent = stream->tellg();
+	}
 
 	std::ifstream ostream(*file->GetPath(), std::ios::binary);
 	ostream.seekg(ostream.end);
 	std::streamoff length = ostream.tellg();
 	ostream.seekg(ostream.beg);
 
-	if (file->endContent == std::streampos(0) || length > file->endContent - file->beginContent) {
+	if (file->endContent != std::streampos(0) && length > file->endContent - file->beginContent) {
 		auto off = static_cast<std::streamoff>(length * 1.1 - (file->endContent - file->beginContent));
 		OffsetData(file->endContent, off);
 		file->endContent += off;
 	}
 
-	stream->seekg(file->beginContent);
-	char buffer[100];
+	file->beginContent = stream->tellg();
+	/*char buffer[100];
 	while (ostream.read(buffer, sizeof(buffer)))
-		*stream << buffer;
+		*stream << buffer;*/
+
+	*stream << ostream.rdbuf();
 
 	auto pos = stream->tellg();
 	if (pos > fileEnd)
 		fileEnd = pos;
+	file->endContent = pos;
 	//file->ClearPath();
 }
 
