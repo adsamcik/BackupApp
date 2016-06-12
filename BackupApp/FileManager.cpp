@@ -52,7 +52,10 @@ bool FileManager::DeletePath(const std::string &) {
 }
 
 void FileManager::AddPath(const std::string &path) {
-	files.push_back(new File(path));
+	if (ext::isDir(path.c_str()))
+		files.push_back(new Dir(path));
+	else
+		files.push_back(new File(path));
 }
 
 void FileManager::Backup(File *file) {
@@ -60,7 +63,7 @@ void FileManager::Backup(File *file) {
 	WriteMeta(file);
 
 	if (file->beginContent == std::streampos(0))
-		file->beginContent = metaBegin;
+		file->beginContent = fileEnd;
 
 	std::ifstream ostream(*file->GetPath(), std::ios::binary);
 	ostream.seekg(ostream.end);
@@ -73,13 +76,14 @@ void FileManager::Backup(File *file) {
 		file->endContent += off;
 	}
 
-	std::istreambuf_iterator<char> begin_source(ostream);
-	std::istreambuf_iterator<char> end_source;
-	std::ostreambuf_iterator<char> begin_dest(*stream);
-	std::copy(begin_source, end_source, begin_dest);
-
 	stream->seekg(file->beginContent);
-	*stream << ostream.rdbuf();
+	char buffer[100];
+	while (ostream.read(buffer, sizeof(buffer)))
+		*stream << buffer;
+
+	auto pos = stream->tellg();
+	if (pos > fileEnd)
+		fileEnd = pos;
 	//file->ClearPath();
 }
 
@@ -92,6 +96,7 @@ void FileManager::Backup(Dir *dir) {
 			delete d;
 		}
 	}
+	delete v;
 }
 
 void FileManager::OffsetData(const std::streampos &beg, const std::streamoff &off) {

@@ -286,6 +286,6 @@ paket-files/
 *.exe
 *.out
 *.app
+
 BackupApp/backup.cfg
 BackupApp/backup.data
-BackupApp/backup.cfg
