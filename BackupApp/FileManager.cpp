@@ -12,16 +12,9 @@
 	meta-data are placed at the end, because they will be most often rewritten and we don't have to rewrite the whole file when lots of new files are added.
 */
 
-void FileManager::WriteMeta() {
-	stream->seekg(metaBegin);
-	for (auto file : files) {
-		file->beginMeta = stream->tellg();
-		WriteMeta(file);
-	}
-}
-
 void FileManager::WriteMeta(File *file) {
 	auto path = file->GetPath();
+	file->beginMeta = stream->tellg();
 	*stream << path->size() << *path << file->lastEdited << file->beginContent << file->endContent;
 }
 
@@ -50,6 +43,8 @@ FileManager::FileManager() {
 
 FileManager::~FileManager() {
 	delete stream;
+	for (auto file : files)
+		delete file;
 }
 
 bool FileManager::DeletePath(const std::string &) {
@@ -61,13 +56,13 @@ void FileManager::AddPath(const std::string &path) {
 }
 
 void FileManager::Backup(File *file) {
-	std::cout << "Backing up " << file->GetPath() << std::endl;
+	std::cout << "Backing up " << file->GetPath()->c_str() << std::endl;
 	WriteMeta(file);
 
 	if (file->beginContent == std::streampos(0))
 		file->beginContent = metaBegin;
 
-	std::ifstream ostream(*file->GetPath());
+	std::ifstream ostream(*file->GetPath(), std::ios::binary);
 	ostream.seekg(ostream.end);
 	std::streamoff length = ostream.tellg();
 	ostream.seekg(ostream.beg);
@@ -77,6 +72,11 @@ void FileManager::Backup(File *file) {
 		OffsetData(file->endContent, off);
 		file->endContent += off;
 	}
+
+	std::istreambuf_iterator<char> begin_source(ostream);
+	std::istreambuf_iterator<char> end_source;
+	std::ostreambuf_iterator<char> begin_dest(*stream);
+	std::copy(begin_source, end_source, begin_dest);
 
 	stream->seekg(file->beginContent);
 	*stream << ostream.rdbuf();
@@ -103,7 +103,6 @@ void FileManager::OffsetData(const std::streampos &beg, const std::streamoff &of
 			file->endContent += off;
 		}
 	}
-	WriteMeta();
 }
 
 //Creates new backup file with restored reserves
@@ -124,5 +123,4 @@ void FileManager::BackupAll() {
 		//file->ClearPath();
 	}
 	metaBegin = stream->tellg();
-	WriteMeta();
 }
