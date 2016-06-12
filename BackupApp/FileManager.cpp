@@ -16,13 +16,13 @@ void FileManager::WriteMeta() {
 	stream->seekg(metaBegin);
 	for (auto file : files) {
 		file->beginMeta = stream->tellg();
-		WriteMeta(*file);
+		WriteMeta(file);
 	}
 }
 
-void FileManager::WriteMeta(const File & file) {
-	std::string path = file.GetPath();
-	*stream << path.size() << path << file.lastEdited << file.beginContent << file.endContent;
+void FileManager::WriteMeta(File *file) {
+	auto path = file->GetPath();
+	*stream << path->size() << *path << file->lastEdited << file->beginContent << file->endContent;
 }
 
 FileManager::FileManager() {
@@ -62,6 +62,8 @@ void FileManager::AddPath(const std::string &path) {
 
 void FileManager::Backup(File *file) {
 	std::cout << "Backing up " << file->GetPath() << std::endl;
+	WriteMeta(file);
+
 	if (file->beginContent == std::streampos(0))
 		file->beginContent = metaBegin;
 

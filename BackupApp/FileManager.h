@@ -12,7 +12,7 @@ private:
 
 	///Backs up file on path
 	void WriteMeta();
-	void WriteMeta(const File &file);
+	void WriteMeta(File *file);
 
 	std::vector<File*> files;
 public:
