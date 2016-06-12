@@ -12,7 +12,7 @@ public:
 	Console(const uint16_t& columnCount, const uint16_t& spaces = 4);
 	~Console();
 	/** Add new line to console
-	* @param text Line to be displayed, columns seperated with tabs (\t)
+	* @param text Line to be displayed, columns seperated with tabs (\\t)
 	*/
 	void AddLine(const std::string& text);
 

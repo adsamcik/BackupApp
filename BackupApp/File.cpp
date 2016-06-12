@@ -15,10 +15,10 @@ File::File(const std::string & path) {
 	gmtime_s(this->lastEdited, &t_stat.st_mtime);
 }
 
-File::File(std::fstream & stream, const std::streampos & beginMeta) {
+File::File(std::fstream & stream, const std::streampos & begin) {
 	char* mLong = new char[8];
 	char* mInt = new char[4];
-	this->beginMeta = beginMeta;
+	this->beginMeta = begin;
 	//Load string
 	stream.get(mInt, 4);
 	size_t sLength = reinterpret_cast<size_t>(mInt);

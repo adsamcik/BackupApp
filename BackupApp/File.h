@@ -31,8 +31,12 @@ public:
 	virtual void Restore(std::fstream & stream) const;
 	bool IsValid() const;
 
+	///Returns path and saves it to path variable
 	std::string* GetPath();
+	///Returns path
 	std::string GetPath() const;
+
+	///Allows removing path from memory
 	void ClearPath();
 private:
 	std::string* path;
