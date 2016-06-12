@@ -3,7 +3,6 @@
 #include "Console.h"
 #include <sys/stat.h>
 #include <sys/types.h>
-#include "FileManager.h"
 
 
 Config::Config() {

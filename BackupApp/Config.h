@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include <sstream>
+#include "FileManager.h"
 #pragma once
 
 class Config {

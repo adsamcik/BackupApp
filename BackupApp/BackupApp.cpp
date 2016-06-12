@@ -45,7 +45,7 @@ bool ResolveInput() {
 		return false;
 	}
 	else if (ext::startsWith(sLower, "config")) {
-		cfg.Edit();
+		cfg.Edit(fm);
 	}
 	else if (ext::startsWith(sLower, "help")) {
 		Console cns(2, 4);
