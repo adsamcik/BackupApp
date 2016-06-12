@@ -25,6 +25,11 @@ void FileManager::WriteMeta(const File & file) {
 }
 
 FileManager::FileManager() {
+	//fstream does not create file with fstream::in flag
+	//this ensures the file exists
+	std::ofstream outfile(BACKUP_FILE);
+	outfile.close();
+
 	stream = new std::fstream(BACKUP_FILE, std::fstream::in | std::fstream::out | std::fstream::binary);
 	stream->seekg(0, stream->end);
 	fileEnd = stream->tellg();
@@ -51,6 +56,7 @@ bool FileManager::DeletePath(const std::string &) {
 }
 
 void FileManager::Backup(File *file) {
+	std::cout << "Backing up " << file->path << std::endl;
 	if (file->beginContent == std::streampos(0))
 		file->beginContent = metaBegin;
 
