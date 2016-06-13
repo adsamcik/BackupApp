@@ -21,7 +21,7 @@ public:
 	void AddPath(const std::string&);
 
 	///Backs up files
-	void Backup(File*);
+	void Backup(File *file, const std::streampos& beg);
 	///Backs up all files and dirs in directory
 	void Backup(Dir*);
 	///Moves all data further in file to make space for file update that exceeds reserved file size

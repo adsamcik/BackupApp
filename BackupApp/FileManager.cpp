@@ -55,7 +55,7 @@ void FileManager::AddPath(const std::string &path) {
 		files.push_back(new File(path));
 }
 
-void FileManager::Backup(File *file) {
+void FileManager::Backup(File *file, const std::streampos &beg) {
 	std::cout << "Backing up " << file->GetPath()->c_str() << std::endl;
 
 	std::ifstream ostream(*file->GetPath(), std::ifstream::ate | std::ifstream::binary);
@@ -66,7 +66,7 @@ void FileManager::Backup(File *file) {
 		file->beginMeta = stream->tellg();
 		file->beginContent = file->beginMeta + 12 + sizeof(file->endContent) + file->GetPath()->size();
 		file->endContent = file->beginContent + length;
-		stream->seekg(fileEnd);
+		stream->seekg(beg);
 		WriteMeta(file);
 	}
 
@@ -97,7 +97,7 @@ void FileManager::Backup(Dir *dir) {
 		}
 		else {
 			auto f = new File(*dir->GetPath() + '/' + path);
-			Backup(f);
+			Backup(f, stream->tellg());
 			delete f;
 		}
 
@@ -129,7 +129,7 @@ void FileManager::BackupAll() {
 			if (r != nullptr)
 				Backup(r);
 			else
-				Backup(file);
+				Backup(file, fileEnd);
 		}
 		//file->ClearPath();
 	}
