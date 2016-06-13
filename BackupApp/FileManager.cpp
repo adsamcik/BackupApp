@@ -15,14 +15,20 @@ void FileManager::Close() {
 void FileManager::WriteMeta(File *file) {
 	auto path = file->GetPath();
 	file->beginMeta = stream->tellg();
-	*stream << path->size() << *path << file->lastEdited << file->beginContent << file->endContent;
+	size_t size = path->size();
+	stream->write(reinterpret_cast<char*>(&size), sizeof(size));
+	stream->write(path->c_str(), path->size());
+	stream->write(reinterpret_cast<char*>(file->lastEdited), sizeof(*file->lastEdited));
+	stream->write(reinterpret_cast<char*>(&file->endContent), sizeof(file->endContent));
 }
 
 FileManager::FileManager() {
 	//fstream does not create file with fstream::in flag
 	//this ensures the file exists
-	std::ofstream outfile(BACKUP_FILE, std::fstream::in | std::fstream::out | std::fstream::binary);
-	outfile.close();
+	if (!ext::isValidPath(BACKUP_FILE)) {
+		std::ofstream outfile(BACKUP_FILE);
+		outfile.close();
+	}
 
 	stream = new std::fstream(BACKUP_FILE, std::fstream::in | std::fstream::out | std::fstream::binary);
 	stream->seekg(0, stream->end);
@@ -32,7 +38,7 @@ FileManager::FileManager() {
 		while (!stream->eof()) {
 			auto f = new File(*stream, stream->tellg());
 			files.push_back(f);
-			stream->seekg(f->endContent);
+			//stream->seekg(f->endContent);
 		}
 	}
 	Close();

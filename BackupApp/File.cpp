@@ -35,12 +35,13 @@ File::File(std::fstream & stream, const std::streampos & begin) {
 
 	//Load content begin and end
 	stream.get(mLong, 8);
-	beginContent = reinterpret_cast<long long>(mLong);
-	stream.get(mLong, 8);
 	endContent = reinterpret_cast<long long>(mLong);
 
 	delete[] mLong;
 	delete[] mInt;
+
+	std::cout << "Loaded file" << std::endl;
+	ClearPath();
 }
 
 File::~File() {
