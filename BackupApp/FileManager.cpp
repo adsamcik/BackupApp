@@ -21,7 +21,7 @@ void FileManager::WriteMeta(File *file) {
 FileManager::FileManager() {
 	//fstream does not create file with fstream::in flag
 	//this ensures the file exists
-	std::ofstream outfile(BACKUP_FILE);
+	std::ofstream outfile(BACKUP_FILE, std::fstream::in | std::fstream::out | std::fstream::binary);
 	outfile.close();
 
 	stream = new std::fstream(BACKUP_FILE, std::fstream::in | std::fstream::out | std::fstream::binary);
@@ -29,9 +29,11 @@ FileManager::FileManager() {
 	fileEnd = stream->tellg();
 	stream->seekg(0, stream->beg);
 	if (fileEnd != stream->tellg()) {
-		//char* mPos = new char[8];
-		//while (!stream->eof())
-		//	files.push_back(new File(*stream, pos));
+		while (!stream->eof()) {
+			auto f = new File(*stream, stream->tellg());
+			files.push_back(f);
+			stream->seekg(f->endContent);
+		}
 	}
 	Close();
 }
