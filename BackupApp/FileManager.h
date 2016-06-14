@@ -12,7 +12,6 @@ private:
 
 	void Open();
 	void Close();
-	void WriteMeta(File *file);
 
 public:
 	FileManager();

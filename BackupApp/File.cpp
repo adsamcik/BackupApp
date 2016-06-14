@@ -18,7 +18,7 @@ File::File(const std::string & path) {
 	this->endContent = -1;
 }
 
-File::File(std::fstream & stream, const std::streampos & begin) {
+File::File(std::fstream & stream, const std::streampos &begin) {
 	char* mLong = new char[8];
 	char* mInt = new char[4];
 	this->beginMeta = begin;
@@ -68,6 +68,16 @@ void File::Restore(std::fstream& stream) const {
 		delete[] temp;
 	}
 	outfile.close();
+}
+
+void File::WriteMeta(std::fstream *stream) {
+	auto path = GetPath();
+	beginMeta = stream->tellg();
+	size_t size = path->size();
+	stream->write(reinterpret_cast<char*>(&size), sizeof(size));
+	stream->write(path->c_str(), path->size());
+	stream->write(reinterpret_cast<char*>(lastEdited), sizeof(*lastEdited));
+	stream->write(reinterpret_cast<char*>(&endContent), sizeof(endContent));
 }
 
 bool File::IsValid() const {

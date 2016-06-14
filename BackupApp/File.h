@@ -16,11 +16,19 @@ FILE STRUCTURE
 
 */
 class File { 
+private:
+	///Original path
+	std::string* path;
 public:
+	///Begin of meta
 	std::streamoff beginMeta;
+	///Begin of file
 	std::streamoff beginContent;
+	///End of file
 	std::streamoff endContent;
-
+	///End of file content + reserve
+	std::streamoff endFile;
+	///Last edited
 	tm* lastEdited;
 
 	File(const std::string& path);
@@ -31,7 +39,9 @@ public:
 		Restores file to the original location
 		@param stream stream to the backup file
 	*/
-	virtual void Restore(std::fstream & stream) const;
+	virtual void Restore(std::fstream &stream) const;
+
+	void WriteMeta(std::fstream *stream);
 
 	/**
 		Checks whether the path still exists or not
@@ -54,8 +64,6 @@ public:
 		Clears path from memory if cached
 	*/
 	void ClearPath();
-private:
-	std::string* path;
 };
 
 ///Has additional function and is used to identify directories.

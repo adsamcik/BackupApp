@@ -12,16 +12,6 @@ void FileManager::Close() {
 	stream->close();
 }
 
-void FileManager::WriteMeta(File *file) {
-	auto path = file->GetPath();
-	file->beginMeta = stream->tellg();
-	size_t size = path->size();
-	stream->write(reinterpret_cast<char*>(&size), sizeof(size));
-	stream->write(path->c_str(), path->size());
-	stream->write(reinterpret_cast<char*>(file->lastEdited), sizeof(*file->lastEdited));
-	stream->write(reinterpret_cast<char*>(&file->endContent), sizeof(file->endContent));
-}
-
 FileManager::FileManager() {
 	//fstream does not create file with fstream::in flag
 	//this ensures the file exists
@@ -34,10 +24,12 @@ FileManager::FileManager() {
 	stream->seekg(0, stream->end);
 	fileEnd = stream->tellg();
 	stream->seekg(0, stream->beg);
+	auto beg = stream->tellg();
 	if (fileEnd != stream->tellg()) {
 		while (!stream->eof()) {
 			auto f = new File(*stream, stream->tellg());
 			files.push_back(f);
+			beg = f->endContent;
 			//stream->seekg(f->endContent);
 		}
 	}
@@ -71,18 +63,18 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 	ostream.seekg(ostream.beg);
 
 	if (file->beginMeta == -1) {
-		file->beginMeta = stream->tellg();
 		file->beginContent = file->beginMeta + 12 + sizeof(file->endContent) + file->GetPath()->size();
 		file->endContent = file->beginContent + length;
 		stream->seekg(beg);
-		WriteMeta(file);
+		file->WriteMeta(stream);
 	}
+	else
+		stream->seekg(file->beginContent);
 
 
 	if (file->endContent != -1 && length > file->endContent - file->beginContent) {
 		auto off = static_cast<std::streamoff>(length * 1.1 - (file->endContent - file->beginContent));
 		OffsetData(file->endContent, off);
-		file->endContent += off;
 	}
 
 	*stream << ostream.rdbuf();
@@ -90,7 +82,6 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 	auto pos = stream->tellg();
 	if (pos > fileEnd)
 		fileEnd = pos;
-	file->endContent = pos;
 
 	//file->ClearPath();
 }
