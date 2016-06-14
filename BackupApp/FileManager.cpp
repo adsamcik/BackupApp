@@ -20,7 +20,7 @@ FileManager::FileManager() {
 		outfile.close();
 	}
 
-	stream = new std::fstream(BACKUP_FILE, std::fstream::in | std::fstream::out | std::fstream::binary);
+	stream = new std::fstream(BACKUP_FILE, std::fstream::in | std::fstream::binary);
 	stream->seekg(0, stream->end);
 	fileEnd = stream->tellg();
 	stream->seekg(0, stream->beg);
@@ -34,6 +34,9 @@ FileManager::FileManager() {
 		}
 	}
 	Close();
+
+	for (auto f : files)
+		std::cout << "Loaded " << f->GetPath()->c_str() << std::endl;
 }
 
 

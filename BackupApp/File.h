@@ -58,7 +58,7 @@ public:
 		Function returns path. Does not utilize caching to path variable on File object.
 		@return string with path to the file
 	*/
-	std::string GetPath() const;
+	char* GetPath() const;
 
 	/**
 		Clears path from memory if cached

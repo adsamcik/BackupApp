@@ -18,20 +18,21 @@ File::File(const std::string & path) {
 	this->endContent = -1;
 }
 
-File::File(std::fstream & stream, const std::streampos &begin) {
+File::File(std::fstream &stream, const std::streampos &begin) {
 	char* mLong = new char[8];
 	char* mInt = new char[4];
 	this->beginMeta = begin;
+	stream.seekg(begin);
 	//Load string
 	stream.get(mInt, 4);
-	size_t sLength = reinterpret_cast<size_t>(mInt);
+	uint32_t sLength = uint32_t(*reinterpret_cast<uint32_t*>(mInt));
 	//path is loaded on demand
 	stream.seekg(sLength, std::ios::cur);
 	//Load time
 	stream.get(mLong, 4);
-	auto t = reinterpret_cast<time_t>(mLong);
+	auto t = reinterpret_cast<time_t*>(mLong);
 	lastEdited = new tm();
-	gmtime_s(lastEdited, &t);
+	gmtime_s(lastEdited, t);
 
 	//Load content begin and end
 	stream.get(mLong, 8);
@@ -39,9 +40,6 @@ File::File(std::fstream & stream, const std::streampos &begin) {
 
 	delete[] mLong;
 	delete[] mInt;
-
-	std::cout << "Loaded file" << std::endl;
-	ClearPath();
 }
 
 File::~File() {
@@ -73,9 +71,10 @@ void File::Restore(std::fstream& stream) const {
 void File::WriteMeta(std::fstream *stream) {
 	auto path = GetPath();
 	beginMeta = stream->tellg();
-	size_t size = path->size();
+	///path big or bigger than 4GB is unimaginable
+	uint32_t size = static_cast<uint32_t>(path->size());
 	stream->write(reinterpret_cast<char*>(&size), sizeof(size));
-	stream->write(path->c_str(), path->size());
+	stream->write(path->c_str(), path->length());
 	stream->write(reinterpret_cast<char*>(lastEdited), sizeof(*lastEdited));
 	stream->write(reinterpret_cast<char*>(&endContent), sizeof(endContent));
 }
@@ -84,7 +83,7 @@ bool File::IsValid() const {
 	return ext::isValidPath(GetPath());
 }
 
-std::string* File::GetPath() {
+char* File::GetPath() const {
 	if (path == nullptr) {
 		std::ifstream is(BACKUP_FILE);
 		is.seekg(beginMeta);
@@ -92,28 +91,24 @@ std::string* File::GetPath() {
 		is.read(buff, 4);
 		auto length = *reinterpret_cast<int*>(buff);
 		delete[] buff;
-		buff = new char[length];
+		buff = new char[length+1];
+		buff[length] = '\0';
 		is.read(buff, length);
-		path = new std::string(buff);
 		is.close();
+		return buff;
 	}
-	return path;
+	char *writable = new char[path->size() + 1];
+	std::strcpy(writable, path->c_str());
+	return writable;
 }
 
-std::string File::GetPath() const {
+std::string* File::GetPath() {
 	if (path == nullptr) {
-		std::ifstream is(BACKUP_FILE);
-		is.seekg(beginMeta);
-		char* buff = new char[4];
-		is.read(buff, 4);
-		auto length = *reinterpret_cast<int*>(buff);
-		delete[] buff;
-		buff = new char[length];
-		is.read(buff, length);
-		return std::string(buff);
-		is.close();
+		const File* f = this;
+		char* buff = f->GetPath();
+		path = new std::string(buff);
 	}
-	return *path;
+	return path;
 }
 
 void File::ClearPath() {
