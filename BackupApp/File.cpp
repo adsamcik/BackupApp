@@ -75,7 +75,8 @@ void File::WriteMeta(std::fstream *stream) {
 	uint32_t size = static_cast<uint32_t>(path->size());
 	stream->write(reinterpret_cast<char*>(&size), sizeof(size));
 	stream->write(path->c_str(), path->length());
-	stream->write(reinterpret_cast<char*>(lastEdited), sizeof(*lastEdited));
+	auto le = mktime(lastEdited);
+	stream->write(reinterpret_cast<char*>(le), sizeof(le));
 	stream->write(reinterpret_cast<char*>(&endContent), sizeof(endContent));
 }
 
