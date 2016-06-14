@@ -19,29 +19,49 @@ namespace ext {
 		Saturday,
 		Sunday
 	};
-
+	
+	/**
+		Converts all chars in string to lower case
+		@param s string to convert
+	*/
 	static inline std::string& tolower(std::string& s) {
 		for (size_t i = 0; i < s.length(); i++)
 			s[i] = std::tolower(s[i]);
 		return s;
 	}
 
-	//trim right
+	/**
+		Trims right side of string from white characters by default
+		@param s string to trim from the right
+		@param t white characters which should be trimmed (default " \t\n\r\f\v")
+	*/
 	static inline std::string& rtrim(std::string& s, const char* t = ws) {
 		return s.erase(s.find_last_not_of(t) + 1);;
 	}
 
-	// trim left
+	/**
+	Trims left side of string from white characters by default
+	@param s string to trim from the left
+	@param t white characters which should be trimmed (default " \t\n\r\f\v")
+	*/
 	static inline std::string& ltrim(std::string& s, const char* t = ws) {
 		return s.erase(0, s.find_first_not_of(t));
 	}
 
-	// trim both
+	/**
+	Trims white characters on both sides of the string
+	@param s string to trim
+	@param t white characters which should be trimmed (default " \t\n\r\f\v")
+	*/
 	static inline std::string& trim(std::string& s, const char* t = ws) {
 		return ltrim(rtrim(s, t), t);
 	}
 
-	/// Checks if string starts with set characters 
+	/**
+	Checks if string starts with another string
+	@param string string to check
+	@param what what should the string start with
+	*/
 	static bool startsWith(const std::string& string, const std::string& what) {
 		if (string.length() < what.length())
 			return false;
@@ -52,26 +72,46 @@ namespace ext {
 		return true;
 	}
 
+	/**
+	Checks if all characters in string are digits
+	@param str string to check
+	*/
 	static inline bool isDigit(const std::string &str) {
 		return std::all_of(str.begin(), str.end(), ::isdigit);
 	}
 
+	/**
+	Checks if given path is directory
+	@param path path to check
+	@return true if dir false if not dir or does not exists
+	*/
 	static inline bool isDir(const char* path) {
 		struct stat path_stat;
 		stat(path, &path_stat);
 		return (path_stat.st_mode & S_IFDIR) == S_IFDIR;
 	}
 
+	/**
+	Checks if given path is valid
+	@param path path to check
+	*/
 	static inline bool isValidPath(const char* path) {
 		struct stat info;
 		return stat(path, &info) == 0;
 	}
 
+	/**
+	Checks if given path is directory
+	@param path path to check (converted to char*)
+	@return true if dir false if not dir or does not exists
+	*/
 	static inline bool isValidPath(const std::string& path) {
 		return isValidPath(path.c_str());
 	}
 
 	/**
+	Compares 2 paths
+	Accurate check should be ran on linux
 	Contains only simple check on Windows due to requirement of rather bigger lib to ensure crossplatform compatibility
 	*/
 	static bool ComparePaths(const std::string &s1, const std::string &s2) {
@@ -85,6 +125,9 @@ namespace ext {
 #endif
 	}
 
+	/**
+		Compares 2 strings and returns number of different characters
+	*/
 	static inline uint32_t difference(const std::string& str, const std::string& source) {
 		size_t slength;
 		uint32_t diff;
