@@ -19,27 +19,28 @@ File::File(const std::string & path) {
 }
 
 File::File(std::fstream &stream, const std::streampos &begin) {
-	char* mLong = new char[8];
-	char* mInt = new char[4];
 	this->beginMeta = begin;
 	stream.seekg(begin);
 	//Load string
-	stream.get(mInt, 4);
-	uint32_t sLength = uint32_t(*reinterpret_cast<uint32_t*>(mInt));
+	char* mLengthData = new char[4];
+	stream.get(mLengthData, 4);
+	uint32_t sLength = uint32_t(*reinterpret_cast<uint32_t*>(mLengthData));
 	//path is loaded on demand
 	stream.seekg(sLength+1, std::ios::cur);
 	//Load time
-	stream.get(mLong, 8);
-	auto t = reinterpret_cast<time_t*>(mLong);
+	char* mTimeData = new char[8];
+	stream.get(mTimeData, 8);
+	auto t = reinterpret_cast<time_t*>(mTimeData);
 	lastEdited = new tm();
-	gmtime_s(lastEdited, t);
+	localtime_s(lastEdited, t);
 
 	//Load content begin and end
-	stream.get(mLong, 8);
-	endContent = reinterpret_cast<long long>(mLong);
+	stream.get(reinterpret_cast<char*>(&endContent), 8);
 
-	delete[] mLong;
-	delete[] mInt;
+	auto x = 0;
+
+	delete[] mTimeData;
+	delete[] mLengthData;
 }
 
 File::~File() {
