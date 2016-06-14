@@ -76,7 +76,7 @@ void File::WriteMeta(std::fstream *stream) {
 	stream->write(reinterpret_cast<char*>(&size), sizeof(size));
 	stream->write(path->c_str(), path->length());
 	auto le = mktime(lastEdited);
-	stream->write(reinterpret_cast<char*>(le), sizeof(le));
+	stream->write(reinterpret_cast<char*>(&le), sizeof(le));
 	stream->write(reinterpret_cast<char*>(&endContent), sizeof(endContent));
 }
 
@@ -108,6 +108,7 @@ std::string* File::GetPath() {
 		const File* f = this;
 		char* buff = f->GetPath();
 		path = new std::string(buff);
+		delete[] buff;
 	}
 	return path;
 }
