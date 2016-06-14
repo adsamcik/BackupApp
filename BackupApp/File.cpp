@@ -27,9 +27,9 @@ File::File(std::fstream &stream, const std::streampos &begin) {
 	stream.get(mInt, 4);
 	uint32_t sLength = uint32_t(*reinterpret_cast<uint32_t*>(mInt));
 	//path is loaded on demand
-	stream.seekg(sLength, std::ios::cur);
+	stream.seekg(sLength+1, std::ios::cur);
 	//Load time
-	stream.get(mLong, 4);
+	stream.get(mLong, 8);
 	auto t = reinterpret_cast<time_t*>(mLong);
 	lastEdited = new tm();
 	gmtime_s(lastEdited, t);
