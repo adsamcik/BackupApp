@@ -19,7 +19,7 @@ namespace ext {
 		Saturday,
 		Sunday
 	};
-	
+
 	/**
 		Converts all chars in string to lower case
 		@param s string to convert
@@ -152,15 +152,27 @@ namespace ext {
 	/**
 		Structure for returning success values with messages
 		Automatically deletes message, because it assumes the message is not reused and there is no point copying it
+		message is not a pointer to reduce copying when it's not null
 	*/
 	struct Success {
-		/**
-		@param success default true
-		@param message no need for message when passed (default "")
-		*/
-		Success(const bool& success = true, const std::string& message = "") {
-			this->message = message;
+		Success(const Success& val) {
+			this->message = new std::string(*val.message);
+			this->success = val.success;
+		}
+
+		Success() {
+			this->success = true;
+			this->message = nullptr;
+		}
+
+		Success(const bool& success, const std::string& message) {
+			this->message = new std::string(message);
 			this->success = success;
+		}
+
+		~Success() {
+			if (message != nullptr)
+				delete message;
 		}
 
 		operator bool() {
@@ -168,7 +180,7 @@ namespace ext {
 		}
 
 		bool success;
-		std::string message;
+		std::string *message;
 	};
 }
 

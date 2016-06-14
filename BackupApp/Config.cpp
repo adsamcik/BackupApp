@@ -119,7 +119,7 @@ void Config::USetDay(const std::string & params) {
 		day = static_cast<ext::DayOfWeek>(d);
 		auto save = Save();
 		if (!save.success)
-			throw std::exception(save.message.c_str());
+			throw std::exception(save.message->c_str());
 		std::cout << "Day updated" << std::endl;
 	}
 	catch (std::invalid_argument e) {
@@ -154,7 +154,7 @@ void Config::UAdd(FileManager &fm, const std::string & path) {
 	char last = path[path.length() - 1];
 	auto s = AddPath(last == '/' ||  last == '\\' ? path.substr(0, path.length() - 1) : path);
 	if (!s.success)
-		Console::PrintError(s.message);
+		Console::PrintError(*s.message);
 	else {
 		fm.AddPath(path);
 		Save();
