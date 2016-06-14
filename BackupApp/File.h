@@ -27,27 +27,47 @@ public:
 	File(std::fstream& stream, const std::streampos& beginMeta);
 	~File();
 
+	/**
+		Restores file to the original location
+		@param stream stream to the backup file
+	*/
 	virtual void Restore(std::fstream & stream) const;
+
+	/**
+		Checks whether the path still exists or not
+	*/
 	bool IsValid() const;
 
-	///Returns path and saves it to path variable
+	/**
+		Function returns path. Utilizes caching to path variable on File object.
+		@return string with path to the file
+	*/
 	std::string* GetPath();
-	///Returns path
+
+	/**
+		Function returns path. Does not utilize caching to path variable on File object.
+		@return string with path to the file
+	*/
 	std::string GetPath() const;
 
-	///Allows removing path from memory
+	/**
+		Clears path from memory if cached
+	*/
 	void ClearPath();
 private:
 	std::string* path;
 };
 
+///Has additional function and is used to identify directories.
 class Dir : public File {
 public:	
-	uint32_t filesCount;
-
 	Dir(const std::string& path);
 
 	void Restore(std::fstream & stream) const override;
+
+	/**
+		@return pointer to list of files in folder, excluding . and ..
+	*/
 	std::vector<std::string>* GetFiles();
 };
 
