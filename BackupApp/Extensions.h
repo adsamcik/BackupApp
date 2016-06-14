@@ -126,7 +126,8 @@ namespace ext {
 	}
 
 	/**
-		Compares 2 strings and returns number of different characters
+		Compares 2 strings
+		@return number of different characters (including difference in lengths)
 	*/
 	static inline uint32_t difference(const std::string& str, const std::string& source) {
 		size_t slength;
@@ -153,7 +154,10 @@ namespace ext {
 		Automatically deletes message, because it assumes the message is not reused and there is no point copying it
 	*/
 	struct Success {
-		///Default state is true without message, because the name of this structure is Success
+		/**
+		@param success default true
+		@param message no need for message when passed (default "")
+		*/
 		Success(const bool& success = true, const std::string& message = "") {
 			this->message = message;
 			this->success = success;
