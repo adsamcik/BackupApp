@@ -65,6 +65,7 @@ bool ResolveInput() {
 }
 
 int main() {
+	Console::Clear();
 	for (size_t i = 0; i < cfg.paths.size(); i++)
 		fm.AddPath(cfg.paths[i]);
 
