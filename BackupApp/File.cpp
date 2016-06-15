@@ -27,15 +27,14 @@ File::File(std::fstream &stream) {
 	//path is loaded on demand
 	stream.seekg(sLength+1, std::ios::cur);
 	//Load time
-	char* mTimeData = new char[8];
-	stream.get(mTimeData, 8);
+	char* mTimeData = new char[9];
+	stream.get(mTimeData, 9);
 	auto t = reinterpret_cast<time_t*>(mTimeData);
 	lastEdited = new tm();
 	localtime_s(lastEdited, t);
 
 	//Load content begin and end
 	stream.get(reinterpret_cast<char*>(&endContent), sizeof(endContent));
-	std::cout << endContent << std::endl;
 
 	auto x = 0;
 
@@ -71,7 +70,6 @@ void File::Restore(std::fstream& stream) const {
 
 void File::WriteMeta(std::fstream *stream) {
 	auto path = GetPath();
-	beginMeta = stream->tellg();
 	///path big or bigger than 4GB is unimaginable
 	uint32_t size = static_cast<uint32_t>(path->size());
 	stream->write(reinterpret_cast<char*>(&size), sizeof(size));

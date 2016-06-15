@@ -26,11 +26,11 @@ FileManager::FileManager() {
 	stream->seekg(0, stream->beg);
 	auto beg = stream->tellg();
 	if (fileEnd != stream->tellg()) {
-		while (!stream->eof()) {
-			auto f = new File(*stream);
-			files.push_back(f);
-			stream->seekg(f->endContent);
-		}
+		File *f;
+		do {
+			f = new File(*stream);
+			files.push_back(f);	
+		} while (stream->seekg(f->endContent).peek() != EOF);
 	}
 	Close();
 
@@ -65,6 +65,7 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 	ostream.seekg(ostream.beg);
 
 	if (file->beginMeta == -1) {
+		file->beginMeta = beg;
 		file->beginContent = file->beginMeta + 12 + sizeof(file->endContent) + file->GetPath()->size();
 		file->endContent = file->beginContent + length;
 		stream->seekg(beg);

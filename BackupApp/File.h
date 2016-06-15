@@ -24,7 +24,7 @@ public:
 	std::streamoff beginMeta;
 	///Begin of file
 	std::streamoff beginContent;
-	///End of file
+	///End of file (first byte out of range)
 	std::streamoff endContent;
 	///End of file content + reserve
 	std::streamoff endFile;
