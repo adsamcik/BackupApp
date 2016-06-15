@@ -4,6 +4,8 @@
 #include <fstream>
 #include <ctime>
 
+#define DBG
+
 File::File(const std::string & path) {
 	if (!ext::isValidPath(path))
 		throw std::exception("path is invalid!");
@@ -40,6 +42,10 @@ File::File(std::fstream &stream) {
 
 	delete[] mTimeData;
 	delete[] mLengthData;
+
+#ifdef DBG
+	std::cout << std::endl << path << std::endl << lastEdited << std::endl << "Begin: " << beginMeta << " End: " << endContent << std::endl;
+#endif
 }
 
 File::~File() {
