@@ -175,7 +175,7 @@ namespace ext {
 				delete message;
 		}
 
-		operator bool() {
+		bool operator!() {
 			return success;
 		}
 
