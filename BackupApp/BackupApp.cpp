@@ -3,7 +3,7 @@
 #include "Config.h"
 #include "FileManager.h"
 
-//Secret hidden much change line
+using std::string;
 
 FileManager fm;
 
@@ -12,27 +12,26 @@ FileManager fm;
 bool ResolveInput() {
 	std::cout << "What do you want to do?" << std::endl;
 
-	std::string s;
-	std::string sLower;
+	std::vector<string> input;
+	string s;
 	std::getline(std::cin, s);
+	std::istringstream tss(s);
+	while (tss >> s)
+		input.push_back(s);
 
-	//Console::Clear();
+	string cmd = ext::tolower(input[0]);
 
-	s = ext::trim(s);
-	sLower = s;
-	ext::tolower(sLower);
-
-	if (ext::startsWith(sLower, "backup")) {
-		if (ext::trim(sLower.substr(6)) == "force")
+	if (ext::startsWith(cmd, "backup")) {
+		if (input[1] == "-force")
 			std::cout << "force" << std::endl;
-		fm.BackupAll();
+		//fm.BackupAll();
 	}
-	else if (ext::startsWith(sLower, "exit")) {
-		if (sLower != "exit") {
+	else if (ext::difference(cmd, "exit") < 2) {
+		if (cmd != "exit") {
 			std::cout << "Did you really mean to exit? (yes/NO)" << std::endl;
 			while (true) {
 				std::cin >> s;
-				ext::tolower(s);
+				ext::tolower_r(s);
 				if (ext::startsWith(s, "yes"))
 					return false;
 				else if (ext::startsWith(s, "no")) {
@@ -45,10 +44,10 @@ bool ResolveInput() {
 		}
 		return false;
 	}
-	else if (ext::startsWith(sLower, "config")) {
+	else if (ext::startsWith(cmd, "config")) {
 		Config::Edit(fm);
 	}
-	else if (ext::startsWith(sLower, "help")) {
+	else if (ext::startsWith(cmd, "help")) {
 		Console cns(2, 4);
 		cns.AddLine("backup <path>\tsupports relative and absolute paths");
 		cns.AddLine("restore <path>\tsupports relative and absolute paths");
@@ -58,7 +57,7 @@ bool ResolveInput() {
 		cns.Print();
 	}
 	else {
-		std::cout << s << " is not a command. Type 'help' for list of commands" << std::endl << std::endl;
+		std::cout << cmd << " is not a command. Type 'help' for list of commands" << std::endl << std::endl;
 	}
 
 	std::cout << std::endl;
