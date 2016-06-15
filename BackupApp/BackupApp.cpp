@@ -66,6 +66,7 @@ bool ResolveInput() {
 }
 
 int main() {
+	Console::Clear();
 	Config::Initialize();
 
 	while (ResolveInput()) {}
