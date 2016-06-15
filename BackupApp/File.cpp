@@ -82,7 +82,9 @@ void File::WriteMeta(std::fstream *stream) {
 }
 
 bool File::IsValid() const {
-	return ext::isValidPath(GetPath());
+	bool valid = ext::isValidPath(GetPath());
+	delete GetPath();
+	return valid;
 }
 
 char* File::GetPath() const {
