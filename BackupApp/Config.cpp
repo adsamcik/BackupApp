@@ -76,7 +76,7 @@ void Config::Edit(FileManager &fm) {
 		std::string sLower;
 		std::getline(std::cin, s);
 		//Console::Clear();
-		ext::tolower(ext::trim(sLower = s));
+		ext::tolower_r(ext::trim(sLower = s));
 
 		if (ext::startsWith(sLower, "day")) {
 			if (sLower[3] != '=')

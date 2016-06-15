@@ -41,7 +41,7 @@ namespace ext {
 		@param s source string
 		@return lowercase copy of source string
 	*/
-	static inline std::string& tolower(const std::string& s) {
+	static inline std::string tolower(const std::string& s) {
 		std::string ns = s;
 		for (size_t i = 0; i < ns.length(); i++)
 			ns[i] = std::tolower(ns[i]);
