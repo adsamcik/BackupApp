@@ -83,7 +83,7 @@ void File::WriteMeta(std::fstream *stream) {
 
 bool File::IsValid() const {
 	bool valid = ext::isValidPath(GetPath());
-	delete GetPath();
+	delete[] GetPath();
 	return valid;
 }
 
