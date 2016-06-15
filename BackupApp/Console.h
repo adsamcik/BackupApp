@@ -6,17 +6,19 @@
 class Console {
 public:
 	/** Constructor
-	* @param columnCount number of columns
-	* @param spaces number of spaces between columns
+		@param columnCount number of columns
+		@param spaces number of spaces between columns
 	*/
 	Console(const uint16_t& columnCount, const uint16_t& spaces = 4);
 	~Console();
-	/** Add new line to console
-	* @param text Line to be displayed, columns seperated with tabs (\\t)
+	/** 
+		Add new line to console
+		@param text Line to be displayed, columns seperated with tabs (\\t)
 	*/
 	void AddLine(const std::string& text);
 
-	/** Prints all added lines to cout
+	/** 
+		Prints all added lines to cout
 	*/
 	void Print();
 
