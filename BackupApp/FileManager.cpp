@@ -24,18 +24,18 @@ FileManager::FileManager() {
 	stream->seekg(0, stream->end);
 	fileEnd = stream->tellg();
 	stream->seekg(0, stream->beg);
-	auto beg = stream->tellg();
+	/*auto beg = stream->tellg();
 	if (fileEnd != stream->tellg()) {
 		File *f;
 		do {
 			f = new File(*stream);
 			files.push_back(f);	
 		} while (stream->seekg(f->endContent).peek() != EOF);
-	}
+	}*/
 	Close();
 
-	for (auto f : files)
-		std::cout << "Loaded " << f->GetPath()->c_str() << std::endl;
+	//for (auto f : files)
+	//	std::cout << "Loaded " << f->GetPath()->c_str() << std::endl;
 }
 
 
@@ -122,6 +122,7 @@ void FileManager::RebuildBackups() {}
 
 void FileManager::BackupAll() {
 	Open();
+	
 	for (auto file : files) {
 		if (!file->IsValid())
 			Console::PrintError(*file->GetPath() + " is not a valid path!");

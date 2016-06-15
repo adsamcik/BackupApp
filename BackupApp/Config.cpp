@@ -4,8 +4,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-
-Config::Config() {
+void Config::Initialize() {
 	std::ifstream stream(CONFIG_FILE);
 	std::string line;
 
@@ -32,8 +31,6 @@ Config::Config() {
 			AddPath(line);
 	}
 }
-
-Config::~Config() {}
 
 const ext::Success Config::AddPath(const std::string & path) {
 	for (size_t i = 0; i < paths.size(); i++) {
@@ -165,9 +162,9 @@ void Config::URemove(FileManager &fm, const std::string & line) {}
 
 void Config::SetDay(const int day) {
 	if (day > 0 && day < 8)
-		this->day = static_cast<ext::DayOfWeek>(day);
+		Config::day = static_cast<ext::DayOfWeek>(day);
 	else
-		this->day = ext::Undefined;
+		Config::day = ext::Undefined;
 }
 
 void Config::PrintOptions() {
@@ -179,3 +176,6 @@ void Config::PrintOptions() {
 	c.AddLine("help\tto print this help again");
 	c.Print();
 }
+
+std::vector<std::string> Config::paths;
+ext::DayOfWeek Config::day;

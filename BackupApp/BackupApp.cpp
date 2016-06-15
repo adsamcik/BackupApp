@@ -5,7 +5,6 @@
 
 //Secret hidden much change line
 
-Config cfg;
 FileManager fm;
 
 /// <summary>Handles command recognition from user input
@@ -24,6 +23,8 @@ bool ResolveInput() {
 	ext::tolower(sLower);
 
 	if (ext::startsWith(sLower, "backup")) {
+		if (ext::trim(sLower.substr(6)) == "force")
+			std::cout << "force" << std::endl;
 		fm.BackupAll();
 	}
 	else if (ext::startsWith(sLower, "exit")) {
@@ -45,7 +46,7 @@ bool ResolveInput() {
 		return false;
 	}
 	else if (ext::startsWith(sLower, "config")) {
-		cfg.Edit(fm);
+		Config::Edit(fm);
 	}
 	else if (ext::startsWith(sLower, "help")) {
 		Console cns(2, 4);
@@ -65,9 +66,7 @@ bool ResolveInput() {
 }
 
 int main() {
-	//Console::Clear();
-	for (size_t i = 0; i < cfg.paths.size(); i++)
-		fm.AddPath(cfg.paths[i]);
+	Config::Initialize();
 
 	while (ResolveInput()) {}
 	return 0;
