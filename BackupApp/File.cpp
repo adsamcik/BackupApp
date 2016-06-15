@@ -18,9 +18,8 @@ File::File(const std::string & path) {
 	this->endContent = -1;
 }
 
-File::File(std::fstream &stream, const std::streampos &begin) {
-	this->beginMeta = begin;
-	stream.seekg(begin);
+File::File(std::fstream &stream) {
+	this->beginMeta = stream.tellg();
 	//Load string
 	char* mLengthData = new char[4];
 	stream.get(mLengthData, 4);
@@ -35,7 +34,8 @@ File::File(std::fstream &stream, const std::streampos &begin) {
 	localtime_s(lastEdited, t);
 
 	//Load content begin and end
-	stream.get(reinterpret_cast<char*>(&endContent), 8);
+	stream.get(reinterpret_cast<char*>(&endContent), sizeof(endContent));
+	std::cout << endContent << std::endl;
 
 	auto x = 0;
 

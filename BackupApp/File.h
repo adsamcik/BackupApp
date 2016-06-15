@@ -32,7 +32,7 @@ public:
 	tm* lastEdited;
 
 	File(const std::string& path);
-	File(std::fstream& stream, const std::streampos& beginMeta);
+	File(std::fstream& stream);
 	~File();
 
 	/**

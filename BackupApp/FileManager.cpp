@@ -27,10 +27,9 @@ FileManager::FileManager() {
 	auto beg = stream->tellg();
 	if (fileEnd != stream->tellg()) {
 		while (!stream->eof()) {
-			auto f = new File(*stream, beg);
+			auto f = new File(*stream);
 			files.push_back(f);
-			beg = f->endContent;
-			//stream->seekg(f->endContent);
+			stream->seekg(f->endContent);
 		}
 	}
 	Close();
