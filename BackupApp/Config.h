@@ -57,19 +57,26 @@ public:
 	*/
 	static void URemove(FileManager &fm, const size_t& index);
 
-	///paths to back up
+	/**
+		paths to back up
+	*/
 	static std::vector<std::string> paths;
 private:
 	/**
-	@return Success true if 
+		@return Success true if successful
 	*/
 	static const ext::Success Save();
 
-	///Auto backup enabled
+	/**
+		Auto backup enabled
+	*/
 	static bool abEnabled;
 
 	static void SetDay(const int day);
-	///Day on which files should be backed up
+
+	/**
+		Day on which files should be backed up
+	*/
 	static ext::DayOfWeek day;
 
 	/**

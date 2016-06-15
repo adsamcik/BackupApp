@@ -5,9 +5,11 @@
 
 #define ws " \t\n\r\f\v"
 
-//Namespace ext is generally list of short functions that are used all around the app
-//Functions shorter or equal to 3 lines are inline
-//because it's still easy to read and it's quite short anyway
+/**
+	Namespace ext is generally list of short functions that are used all around the app
+	Functions shorter or equal to 3 lines are inline
+	because it's still easy to read and it's quite short anyway
+*/
 namespace ext {
 	/**
 		DayOfWeek starting with Monday

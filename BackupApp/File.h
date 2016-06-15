@@ -12,23 +12,35 @@ FILE STRUCTURE
 ---Path										XB
 ---Time										8B
 ---ContentEnd								sizeof(std::streamoff) most probably 8B == 0 if no content is saved
---Content												
+--Content
 
 */
-class File { 
+class File {
 private:
-	///Original path
+	/**
+		Cached path to file, can be null
+	*/
 	std::string* path;
 public:
-	///Begin of meta
+	/*
+		Begin of meta
+	*/
 	std::streamoff beginMeta;
-	///Begin of file
+	/*
+		Begin of file
+	*/
 	std::streamoff beginContent;
-	///End of file (first byte out of range)
+	/*
+		End of file (first byte out of range)
+	*/
 	std::streamoff endContent;
-	///End of file content + reserve
+	/**
+		End of file content + reserve
+	*/
 	std::streamoff endFile;
-	///Last edited
+	/**
+		Last edited
+	*/
 	tm* lastEdited;
 
 	File(const std::string& path);
@@ -66,11 +78,16 @@ public:
 	void ClearPath();
 };
 
-///Has additional function and is used to identify directories.
+/**
+	Has additional function and is used to identify directories.
+*/
 class Dir : public File {
-public:	
+public:
 	Dir(const std::string& path);
 
+	/**
+		Restores file to it's original location
+	*/
 	void Restore(std::fstream & stream) const override;
 
 	/**

@@ -26,11 +26,11 @@ bool ResolveInput() {
 			std::cout << "force" << std::endl;
 		//fm.BackupAll();
 	}
-	else if (ext::difference(cmd, "exit") < 2) {
+	else if (ext::startsWith(cmd, "exit")) {
 		if (cmd != "exit") {
 			std::cout << "Did you really mean to exit? (yes/NO)" << std::endl;
 			while (true) {
-				std::cin >> s;
+				std::getline(std::cin, s);
 				ext::tolower_r(s);
 				if (ext::startsWith(s, "yes"))
 					return false;

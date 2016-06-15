@@ -76,7 +76,7 @@ void File::Restore(std::fstream& stream) const {
 
 void File::WriteMeta(std::fstream *stream) {
 	auto path = GetPath();
-	///path big or bigger than 4GB is unimaginable
+	//path big or bigger than 4GB is unimaginable
 	uint32_t size = static_cast<uint32_t>(path->size());
 	stream->write(reinterpret_cast<char*>(&size), sizeof(size));
 	stream->write(path->c_str(), path->length());
