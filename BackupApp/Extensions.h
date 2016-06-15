@@ -9,6 +9,11 @@
 //Functions shorter or equal to 3 lines are inline
 //because it's still easy to read and it's quite short anyway
 namespace ext {
+	/**
+		DayOfWeek starting with Monday
+		Keeps actual day of the week values (1-7)
+		Value 0 (undefined) is used as null
+	*/
 	enum DayOfWeek {
 		Undefined,
 		Monday,
@@ -23,11 +28,24 @@ namespace ext {
 	/**
 		Converts all chars in string to lower case
 		@param s string to convert
+		@return lower case source string
 	*/
-	static inline std::string& tolower(std::string& s) {
+	static inline std::string& tolower_r(std::string& s) {
 		for (size_t i = 0; i < s.length(); i++)
 			s[i] = std::tolower(s[i]);
 		return s;
+	}
+
+	/**
+		Creates new lowercase string from source string
+		@param s source string
+		@return lowercase copy of source string
+	*/
+	static inline std::string& tolower(const std::string& s) {
+		std::string ns = s;
+		for (size_t i = 0; i < ns.length(); i++)
+			ns[i] = std::tolower(ns[i]);
+		return ns;
 	}
 
 	/**
