@@ -95,7 +95,7 @@ void Config::Edit(FileManager &fm) {
 			else if (sLower.length() == 3)
 				Console::PrintError("You did not enter path");
 			else
-				UAdd(fm, sLower.substr(4));
+				UAdd(sLower.substr(4));
 		}
 		else if (ext::startsWith(sLower, "exit") || ext::startsWith(sLower, "return"))
 			break;
@@ -143,7 +143,7 @@ void Config::UList() {
 	}
 }
 
-void Config::UAdd(FileManager &fm, const std::string & path) {
+void Config::UAdd(const std::string & path) {
 	if (!ext::isValidPath(path)) {
 		Console::PrintError("Invalid path");
 		return;
@@ -152,13 +152,11 @@ void Config::UAdd(FileManager &fm, const std::string & path) {
 	auto s = AddPath(last == '/' ||  last == '\\' ? path.substr(0, path.length() - 1) : path);
 	if (!s.success)
 		Console::PrintError(*s.message);
-	else {
-		fm.AddPath(path);
+	else
 		Save();
-	}
 }
 
-void Config::URemove(FileManager &fm, const std::string & line) {}
+void Config::URemove(const std::string & line) {}
 
 void Config::SetDay(const int day) {
 	if (day > 0 && day < 8)

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include <cctype>
 #include <algorithm>
+#include <stdio.h>
 #pragma once
 
 #define ws " \t\n\r\f\v"
@@ -137,7 +138,7 @@ namespace ext {
 	static bool ComparePaths(const std::string &s1, const std::string &s2) {
 #ifdef _WIN32 
 		return s1 == s2;
-#elif __linux__
+#elif linux
 		char* r1, r2;
 		realpath(s1.c_str(), r1);
 		realpath(s2.c_str(), r2);

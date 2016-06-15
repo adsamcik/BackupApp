@@ -42,19 +42,6 @@ FileManager::FileManager() {
 FileManager::~FileManager() {
 	stream->close();
 	delete stream;
-	for (auto file : files)
-		delete file;
-}
-
-bool FileManager::DeletePath(const std::string &) {
-	return false;
-}
-
-void FileManager::AddPath(const std::string &path) {
-	if (ext::isDir(path.c_str()))
-		files.push_back(new Dir(path));
-	else
-		files.push_back(new File(path));
 }
 
 void FileManager::Backup(File *file, const std::streampos &beg) {
@@ -85,8 +72,6 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 	auto pos = stream->tellg();
 	if (pos > fileEnd)
 		fileEnd = pos;
-
-	//file->ClearPath();
 }
 
 void FileManager::Backup(Dir *dir) {

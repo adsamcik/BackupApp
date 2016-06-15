@@ -41,21 +41,21 @@ public:
 		Checks if path is valid and if so adds it to backed up list
 		@param param parameters (without function call)
 	*/
-	static void UAdd(FileManager &fm, const std::string& param);
+	static void UAdd(const std::string& param);
 
 	/**
 		User input function
 		Remove path by string
 		@param param parameters (without function call)
 	*/
-	static void URemove(FileManager &fm, const std::string& param);
+	static void URemove(const std::string& param);
 
 	/**
 		User input function
 		Remove path by index
 		@param index index (can be found with list function)
 	*/
-	static void URemove(FileManager &fm, const size_t& index);
+	static void URemove(const size_t& index);
 
 	/**
 		paths to back up
