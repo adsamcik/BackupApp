@@ -11,6 +11,7 @@ private:
 
 	void Open();
 	void Close();
+	void PickRestore(std::vector<File*>& files) const;
 public:
 	FileManager();
 	~FileManager();

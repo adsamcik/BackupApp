@@ -26,6 +26,11 @@ bool ResolveInput() {
 			std::cout << "force" << std::endl;
 		//fm.BackupAll();
 	}
+	else if (ext::startsWith(cmd, "restore")) {
+		if (input.size() > 1)
+			fm.Restore(input[1]);
+		//fm.BackupAll();
+	}
 	else if (ext::startsWith(cmd, "exit")) {
 		if (cmd != "exit") {
 			std::cout << "Did you really mean to exit? (yes/NO)" << std::endl;
