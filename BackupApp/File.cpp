@@ -6,7 +6,7 @@
 
 #define DBG
 
-File::File(const std::string & path) {
+File::File(const std::string &path) {
 	if (!ext::isValidPath(path))
 		throw std::exception("path is invalid!");
 	this->path = new std::string(path);

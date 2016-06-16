@@ -6,6 +6,7 @@
 
 class FileManager {
 private:
+	bool isEmpty;
 	std::fstream* stream;
 	std::streampos fileEnd;
 
@@ -17,7 +18,17 @@ public:
 	~FileManager();
 
 	/**
+		Checks if file is empty, if so prints error
+	*/
+	bool IsEmpty() const;
+
+	/**
 		Backs up file
+	*/
+	void Backup(File *file);
+
+	/**
+		Backs up file at given position
 	*/
 	void Backup(File *file, const std::streampos& beg);
 
@@ -27,7 +38,8 @@ public:
 	void Backup(Dir* dir);
 
 	/**
-		Backs up all paths 
+		Backs up all the files
+		Uses incremental backup
 	*/
 	void BackupAll();
 
@@ -40,6 +52,7 @@ public:
 
 	/**
 		Regenerates backup file with proper reserves
+		And cleares unecessary empty space
 	*/
 	void RebuildBackups();
 

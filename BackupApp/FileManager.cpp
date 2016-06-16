@@ -4,6 +4,8 @@
 #include "Config.h"
 #include "Console.h"
 
+using std::string;
+
 void FileManager::Open() {
 	stream->open(BACKUP_FILE, std::fstream::in | std::fstream::out | std::fstream::binary);
 }
@@ -18,30 +20,34 @@ FileManager::FileManager() {
 	if (!ext::isValidPath(BACKUP_FILE)) {
 		std::ofstream outfile(BACKUP_FILE);
 		outfile.close();
+		isEmpty = true;
 	}
 
 	stream = new std::fstream(BACKUP_FILE, std::fstream::in | std::fstream::binary);
+	auto beg = stream->tellg();
 	stream->seekg(0, stream->end);
 	fileEnd = stream->tellg();
-	stream->seekg(0, stream->beg);
-	/*auto beg = stream->tellg();
-	if (fileEnd != stream->tellg()) {
-		File *f;
-		do {
-			f = new File(*stream);
-			files.push_back(f);
-		} while (stream->seekg(f->endContent).peek() != EOF);
-	}*/
+	isEmpty = beg == fileEnd;
 	Close();
-
-	//for (auto f : files)
-	//	std::cout << "Loaded " << f->GetPath()->c_str() << std::endl;
 }
 
 
 FileManager::~FileManager() {
 	stream->close();
 	delete stream;
+}
+
+bool FileManager::IsEmpty() const {
+	if (isEmpty)
+		Console::PrintError("Nothing is backed up yet.");
+	return isEmpty;
+}
+
+void FileManager::Backup(File * file) {
+	if (file->beginMeta >= 0)
+		Backup(file, file->beginMeta);
+	else
+		Backup(file, fileEnd);
 }
 
 void FileManager::Backup(File *file, const std::streampos &beg) {
@@ -51,16 +57,11 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 	std::streamoff length = ostream.tellg();
 	ostream.seekg(ostream.beg);
 
-	if (file->beginMeta == -1) {
-		file->beginMeta = beg;
-		file->beginContent = sizeof(uint32_t) + sizeof(time_t) + sizeof(file->endContent) + file->GetPath()->size();
-		file->endContent = file->beginContent + length;
-		stream->seekg(beg);
-		file->WriteMeta(stream);
-	}
-	else
-		stream->seekg(file->beginContent);
-
+	file->beginMeta = beg;
+	file->beginContent = sizeof(uint32_t) + sizeof(time_t) + sizeof(file->endContent) + file->GetPath()->size();
+	file->endContent = file->beginContent + length;
+	stream->seekg(beg);
+	file->WriteMeta(stream);
 
 	if (file->endContent != -1 && length > file->endContent - file->beginContent) {
 		auto off = static_cast<std::streamoff>(length * 1.1 - (file->endContent - file->beginContent));
@@ -127,21 +128,53 @@ void FileManager::OffsetData(const std::streampos &beg, const std::streamoff &of
 //Creates new backup file with restored reserves
 void FileManager::RebuildBackups() {}
 
+void FileManager::Restore(const std::string &name) const {
+	if (IsEmpty())
+		return;
+	File *f;
+	std::streamoff end;
+	std::vector<File*> files;
+	do {
+		f = new File(*stream);
+		end = f->endContent;
+		if (f->GetPath()->find(name) != string::npos)
+			files.push_back(f);
+		else
+			delete f;
+	} while (stream->seekg(end).peek() != EOF);
+	PickRestore(files);
+}
+
+
+void FileManager::PickRestore(std::vector<File*>& files) const {
+	if (files.size() == 0)
+		Console::PrintError("No files found");
+	else if (files.size() == 1)
+		files[0]->Restore(*stream);
+	else {
+		Console c(2);
+		for (int i = 0; i < files.size(); i++)
+			c.AddLine(std::to_string(i) + '\t' + *files[i]->GetPath());
+		c.Print();
+	}
+}
+
 void FileManager::BackupAll() {
 	auto paths = Config::paths;
 	Open();
-	/*for (auto file : paths) {
-		if (!file->IsValid())
-			Console::PrintError(*file->GetPath() + " is not a valid path!");
-		else {
-			//Checks whether file is directory or file
-			auto r = dynamic_cast<Dir*>(file);
-			if (r != nullptr)
-				Backup(r);
-			else
-				Backup(file, fileEnd);
+	for (auto path : paths) {
+		if (ext::isDir(path.c_str())) {
+			Dir *d = new Dir(path);
+			Backup(d);
+			delete d;
 		}
-		//file->ClearPath();
-	}*/
+		else if (ext::isValidPath(path)) {
+			File *f = new File(path);
+			Backup(f);
+			delete f;
+		}
+		else
+			Console::PrintError(path + " is not a valid path!");
+	}
 	Close();
 }

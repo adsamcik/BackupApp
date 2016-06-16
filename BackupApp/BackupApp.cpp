@@ -22,7 +22,7 @@ bool ResolveInput() {
 	string cmd = ext::tolower(input[0]);
 
 	if (ext::startsWith(cmd, "backup")) {
-		if (input[1] == "-force")
+		if (input.size() > 1 && input[1] == "-force")
 			std::cout << "force" << std::endl;
 		//fm.BackupAll();
 	}
