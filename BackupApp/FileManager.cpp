@@ -15,6 +15,13 @@ void FileManager::Close() {
 	stream->close();
 }
 
+int FileManager::CompareDates(const tm * td1, const tm * td2) const {
+	tm* first = new tm(*td1);
+	tm* second = new tm(*td2);
+	auto diff = timegm(first) - timegm(second);
+	return diff > 0 ? 1 : diff < 0 ? -1 : 0;
+}
+
 FileManager::FileManager() {
 	//fstream does not create file with fstream::in flag
 	//this ensures the file exists
@@ -52,7 +59,18 @@ void FileManager::Backup(File * file) {
 }
 
 void FileManager::Backup(File *file, const std::streampos &beg) {
-	std::cout << "Backing up " << file->GetPath()->c_str() << std::endl;
+	if (file->beginMeta != -1) {
+		struct stat s;
+		auto r = stat(file->GetPath()->c_str(), &s);
+		tm* t = new tm();
+		gmtime_s(t, &s.st_mtime);
+		int diff = CompareDates(file->lastEdited, t);
+		if (diff != 1) {
+			std::cout << file->GetPath() << " is up to date" << std::endl;
+			file->ClearPath();
+			return;
+		}
+	}
 
 	std::ifstream ostream(*file->GetPath(), std::ifstream::ate | std::ifstream::binary);
 	std::streamoff length = ostream.tellg();
@@ -74,22 +92,34 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 	auto pos = stream->tellg();
 	if (pos > fileEnd)
 		fileEnd = pos;
+	std::cout << "Backed up " << file->GetPath()->c_str() << std::endl;
 }
 
 void FileManager::Backup(Dir *dir) {
 	auto v = dir->GetFiles();
-	for (auto path : *v) {
-		if (ext::isDir(path.c_str())) {
-			auto d = new Dir(path);
+	for (auto filename : *v) {
+		if (ext::isDir(filename.c_str())) {
+			auto d = new Dir(filename);
 			Backup(d);
 			delete d;
 		}
 		else {
-			auto f = new File(*dir->GetPath() + '/' + path);
+			File *f = nullptr;
+			auto pos = stream->tellg();
+			auto tf = new File(*stream);
+			if (stream->peek() != EOF) {
+				auto index = tf->GetPath()->find_last_of("/\\");
+				if (tf->GetPath()->substr(index) == filename && tf->GetPath()->substr(0, index) == *dir->GetPath())
+					f = tf;
+			}
+			if (f == nullptr)
+				f = new File(*dir->GetPath() + '/' + filename);
+
+			stream->seekg(pos);
 			Backup(f, stream->tellg());
 			delete f;
+			delete tf;
 		}
-
 	}
 	delete v;
 }
@@ -166,16 +196,16 @@ void FileManager::PrintContent(const int contentLimit) {
 				throw std::exception(("FILE " + *path + " has incorrect end content position").c_str());
 			char* buffer = new char[80];
 			auto ptr = strftime(buffer, 80, "%c", f->lastEdited);
-			std::cout << std::endl << *path << std::endl 
-				<< buffer << std::endl 
-				<< "Begin position: " << f->beginMeta << std::endl 
-				<< "Begin content: " << f->beginContent << std::endl 
+			std::cout << std::endl << *path << std::endl
+				<< buffer << std::endl
+				<< "Begin position: " << f->beginMeta << std::endl
+				<< "Begin content: " << f->beginContent << std::endl
 				<< "Content length: " << f->endContent - f->beginContent << std::endl;
 			delete[] buffer;
 			stream->seekg(f->beginMeta + f->beginContent);
 			if (contentLimit > 0) {
 				int64_t toLoad = (contentLimit > f->endContent - f->beginContent) ? f->endContent - f->beginContent : contentLimit;
-				buffer = new char[toLoad+1];
+				buffer = new char[toLoad + 1];
 				stream->read(buffer, toLoad);
 				buffer[toLoad] = '\0';
 				std::cout << buffer << std::endl;

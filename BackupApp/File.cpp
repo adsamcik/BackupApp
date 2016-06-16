@@ -31,7 +31,7 @@ File::File(std::fstream &stream) {
 	stream.get(mTimeData, 9);
 	auto t = reinterpret_cast<time_t*>(mTimeData);
 	lastEdited = new tm();
-	localtime_s(lastEdited, t);
+	gmtime_s(lastEdited, t);
 
 	//Load content begin and end
 	stream.get(reinterpret_cast<char*>(&endContent), sizeof(endContent));
@@ -95,7 +95,7 @@ char* File::GetPath() const {
 		is.read(buff, 4);
 		auto length = *reinterpret_cast<int*>(buff);
 		delete[] buff;
-		if (length < 0)
+		if (length < 0 || length == 0xcdcdcdcd)
 			throw std::exception("Error occured during loading of length");
 		buff = new char[length+1];
 		buff[length] = '\0';
