@@ -16,6 +16,8 @@ Console::Console(const uint16_t& length, const uint16_t& spaces) {
 
 Console::~Console() {
 	delete[] columns;
+	for (int i = 0; i < content.size(); i++)
+		delete[] content[i];
 }
 
 void Console::AddLine(const std::string & text) {
