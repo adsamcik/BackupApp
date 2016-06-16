@@ -10,7 +10,7 @@ FileManager fm;
 /// <summary>Handles command recognition from user input
 /// </summary>
 bool ResolveInput() {
-	std::cout << "What do you want to do?" << std::endl;
+	std::cout << "::::";
 
 	std::vector<string> input;
 	string s;
@@ -24,7 +24,7 @@ bool ResolveInput() {
 	if (ext::startsWith(cmd, "backup")) {
 		if (input.size() > 1 && input[1] == "-force")
 			std::cout << "force" << std::endl;
-		//fm.BackupAll();
+		fm.BackupAll();
 	}
 	else if (ext::startsWith(cmd, "restore")) {
 		if (input.size() > 1)
@@ -61,6 +61,9 @@ bool ResolveInput() {
 		cns.AddLine("remove all/<path>\tremoves all or set path from backup");
 		cns.AddLine("exit\tto close the app");
 		cns.Print();
+	}
+	else if (ext::startsWith(cmd, "test")) {
+		fm.PrintContent();
 	}
 	else {
 		std::cout << cmd << " is not a command. Type 'help' for list of commands" << std::endl << std::endl;
