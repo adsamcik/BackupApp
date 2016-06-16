@@ -55,6 +55,7 @@ bool ResolveInput() {
 	else if (ext::startsWith(cmd, "help")) {
 		Console cns(2, 4);
 		cns.AddLine("backup <path>\tsupports relative and absolute paths");
+		cns.AddLine("\t-force forces full backup");
 		cns.AddLine("restore <path>\tsupports relative and absolute paths");
 		cns.AddLine("restore all (<path>)\trestores all files to their default or set paths");
 		cns.AddLine("remove all/<path>\tremoves all or set path from backup");

@@ -34,12 +34,12 @@ public:
 
 private:
 	///Number of columns
-	uint16_t columnsLength;
+	uint16_t columnsCount;
 	///Array of max number of chars in column
 	uint16_t* columns;
 	///Number of seperation spaces
 	uint16_t spaces;
 	///Actual strings
-	std::vector<std::string> content;
+	std::vector<std::string*> content;
 };
 
