@@ -63,7 +63,7 @@ bool ResolveInput() {
 		cns.Print();
 	}
 	else if (ext::startsWith(cmd, "test")) {
-		fm.PrintContent();
+		fm.PrintContent(20);
 	}
 	else {
 		std::cout << cmd << " is not a command. Type 'help' for list of commands" << std::endl << std::endl;

@@ -65,6 +65,6 @@ public:
 	/**
 		Debug function used to print data about backed up files
 	*/
-	void PrintContent();
+	void PrintContent(const int contentLimit);
 };
 
