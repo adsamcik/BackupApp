@@ -13,7 +13,7 @@ private:
 	std::fstream* stream;
 	std::streampos fileEnd;
 
-	void Open();
+	bool Open();
 	void Close();
 
 	void PickRestore(std::vector<File*>& files) const;
@@ -31,6 +31,8 @@ public:
 		Checks if file is empty, if so prints error
 	*/
 	bool IsEmpty() const;
+
+	void Clear();
 
 	/**
 		Backs up file

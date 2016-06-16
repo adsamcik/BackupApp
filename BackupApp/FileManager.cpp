@@ -7,8 +7,12 @@
 
 using std::string;
 
-void FileManager::Open() {
+bool FileManager::Open() {
 	stream->open(BACKUP_FILE, std::fstream::in | std::fstream::out | std::fstream::binary);
+	bool isOpen = stream->is_open();
+	if (!isOpen)
+		Console::PrintError("Failed to open backup file!");
+	return isOpen;
 }
 
 void FileManager::Close() {
@@ -51,6 +55,10 @@ bool FileManager::IsEmpty() const {
 	return isEmpty;
 }
 
+void FileManager::Clear() {
+	stream->open(BACKUP_FILE, std::ios::trunc);
+}
+
 void FileManager::Backup(File * file) {
 	if (file->beginMeta >= 0)
 		Backup(file, file->beginMeta);
@@ -71,7 +79,6 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 			return;
 		}
 	}
-
 	std::ifstream ostream(*file->GetPath(), std::ifstream::ate | std::ifstream::binary);
 	std::streamoff length = ostream.tellg();
 	ostream.seekg(ostream.beg);
@@ -81,6 +88,8 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 	file->endContent = file->beginContent + length;
 	stream->seekg(beg);
 	file->WriteMeta(stream);
+
+	
 
 	if (file->endContent != -1 && length > file->endContent - file->beginContent) {
 		auto off = static_cast<std::streamoff>(length * 1.1 - (file->endContent - file->beginContent));
@@ -114,9 +123,8 @@ void FileManager::Backup(Dir *dir) {
 			}
 			if (f == nullptr)
 				f = new File(*dir->GetPath() + '/' + filename);
-
-			stream->seekg(pos);
-			Backup(f, stream->tellg());
+			stream->clear();
+			Backup(f, pos);
 			delete f;
 			delete tf;
 		}
@@ -177,7 +185,8 @@ void FileManager::Restore(const std::string &name) const {
 }
 
 void FileManager::PrintContent(const int contentLimit) {
-	Open();
+	if (!Open())
+		return;
 	File* f = nullptr;
 	std::streampos beg;
 	std::streamoff end;
@@ -240,8 +249,9 @@ void FileManager::PickRestore(std::vector<File*>& files) const {
 }
 
 void FileManager::BackupAll() {
+	if (!Open())
+		return;
 	auto paths = Config::paths;
-	Open();
 	for (auto path : paths) {
 		if (ext::isDir(path.c_str())) {
 			Dir *d = new Dir(path);
