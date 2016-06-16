@@ -76,6 +76,7 @@ public:
 		Clears path from memory if cached
 	*/
 	void ClearPath();
+
 };
 
 /**

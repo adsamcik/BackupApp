@@ -4,8 +4,6 @@
 #include <fstream>
 #include <ctime>
 
-#define DBG
-
 File::File(const std::string &path) {
 	if (!ext::isValidPath(path))
 		throw std::exception("path is invalid!");
@@ -38,19 +36,17 @@ File::File(std::fstream &stream) {
 	//Load content begin and end
 	stream.get(reinterpret_cast<char*>(&endContent), sizeof(endContent));
 
+	beginContent = sizeof(sLength) + sLength + sizeof(time_t) + sizeof(std::streamoff);
+
 	auto x = 0;
 
 	delete[] mTimeData;
 	delete[] mLengthData;
-
-#ifdef DBG
-	std::cout << std::endl << path << std::endl << lastEdited << std::endl << "Begin: " << beginMeta << " End: " << endContent << std::endl;
-#endif
 }
 
 File::~File() {
 	delete lastEdited;
-	delete path;
+	ClearPath();
 }
 
 void File::Restore(std::fstream& stream) const {
@@ -99,6 +95,8 @@ char* File::GetPath() const {
 		is.read(buff, 4);
 		auto length = *reinterpret_cast<int*>(buff);
 		delete[] buff;
+		if (length < 0)
+			throw std::exception("Error occured during loading of length");
 		buff = new char[length+1];
 		buff[length] = '\0';
 		is.read(buff, length);

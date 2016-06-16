@@ -61,5 +61,10 @@ public:
 		If more than one file matches the name a selection with indexes is given
 	*/
 	void Restore(const std::string& name) const;
+
+	/**
+		Debug function used to print data about backed up files
+	*/
+	void PrintContent();
 };
 

@@ -3,6 +3,7 @@
 #include "stdlib.h"
 #include "Config.h"
 #include "Console.h"
+#include <ctime>
 
 using std::string;
 
@@ -143,6 +144,37 @@ void FileManager::Restore(const std::string &name) const {
 			delete f;
 	} while (stream->seekg(end).peek() != EOF);
 	PickRestore(files);
+}
+
+void FileManager::PrintContent() {
+	Open();
+	File* f = nullptr;
+	do {
+		auto pos = stream->tellg();
+		if (f != nullptr)
+			delete f;
+		f = new File(*stream);
+		try {
+			auto path = f->GetPath();
+			if (f->lastEdited->tm_hour == -1) {
+				if (ext::isValidPath(path->c_str()))
+					throw std::exception(("DATE FOR FILE \"" + *path + "\" IS CORRUPTED").c_str());
+				else
+					throw std::exception(("BACKUP FILE IS CORRUPTED. Detected at " + std::to_string(static_cast<std::streamoff>(pos))).c_str());
+			}
+			else if (f->endContent < 0)
+				throw std::exception(("FILE " + *path + " has incorrect end content position").c_str());
+			char* buffer = new char[80];
+			auto ptr = strftime(buffer, 80, "%c", f->lastEdited);
+			std::cout << std::endl << *path << std::endl << buffer << std::endl << "Begin: " << f->beginMeta << " End: " << f->endContent << std::endl;
+			delete[] buffer;
+		}
+		catch(std::exception e) {
+			Console::PrintError(string(e.what()));
+			break;
+		}
+	} while (stream->seekg(f->endContent - f->beginContent + 1, std::ios::cur).peek() != EOF);
+	Close();
 }
 
 
