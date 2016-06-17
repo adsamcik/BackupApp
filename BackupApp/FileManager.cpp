@@ -119,6 +119,30 @@ void FileManager::Restore(const std::string &name) const {
 	PickRestore(files);
 }
 
+void FileManager::Remove(const std::string & path) {
+	File* f;
+	bool found = false;
+	std::streampos beg;
+	std::streampos pos;
+	std::streampos end;
+	do {
+		pos = stream->tellg();
+		f = new File(*stream);
+		if (ext::startsWith(*f->GetPath(), path)) {
+			if (!found) {
+				beg = pos;
+				found = true;
+			}
+		}
+		else if (found) {
+			found = false;
+			OffsetData(pos, beg - pos);
+		}
+		end = f->endContent;
+		delete f;
+	} while (stream->seekg(end).peek() != EOF);
+}
+
 void FileManager::PickRestore(std::vector<File*>& files) const {
 	if (files.size() == 0)
 		Console::PrintError("No files found");
@@ -127,8 +151,8 @@ void FileManager::PickRestore(std::vector<File*>& files) const {
 	else {
 		Console c(2);
 		for (int i = 0; i < files.size(); i++)
-			c.AddLine(std::to_string(i) + '\t' + *files[i]->GetPath());
-		c.Print();
+			c.Add(*files[i]->GetPath());
+		c.Print(true);
 	}
 }
 
@@ -225,8 +249,6 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 	file->endContent = file->beginContent + length;
 	stream->seekg(beg);
 	file->WriteMeta(stream);
-
-
 
 	if (file->endContent != -1 && length > file->endContent - file->beginContent) {
 		auto off = static_cast<std::streamoff>(length * 1.1 - (file->endContent - file->beginContent));

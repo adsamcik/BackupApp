@@ -75,6 +75,11 @@ public:
 	void Restore(const std::string& name) const;
 
 	/**
+		Removes all files on this path
+	*/
+	void Remove(const std::string& path);
+
+	/**
 		Debug function used to print data about backed up files
 	*/
 	void PrintContent(const int contentLimit);
