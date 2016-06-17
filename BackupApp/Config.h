@@ -16,11 +16,8 @@ public:
 	static const ext::Success AddPath(const std::string& path);
 
 	/**
-	@return Success Clears files from backup
+	@return Success Removes path by name
 	*/
-	static const ext::Success RemovePath(FileManager & fm, const std::string & path);
-
-
 	static const ext::Success RemovePath(const std::string& path);
 
 	/**
@@ -55,7 +52,7 @@ public:
 		Remove path by string
 		@param param parameters (without function call)
 	*/
-	static void URemove(const std::string& param);
+	static void URemove(FileManager &fm, const std::string& param);
 
 	/**
 		User input function

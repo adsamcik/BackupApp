@@ -44,33 +44,6 @@ const ext::Success Config::AddPath(const string & path) {
 	return ext::Success();
 }
 
-const ext::Success Config::RemovePath(FileManager &fm, const std::string &path) {
-	std::vector<string> cand;
-	for (size_t i = 0; i < paths.size(); i++) {
-		if (paths[i] == path) {
-			fm.Remove(path);
-			RemovePath(i);
-			return ext::Success();
-		}
-		else if (ext::startsWith(paths[i], path))
-			cand.push_back(paths[i]);
-	}
-	std::cout << "Write index of path you want to remove. Invalid index will abort removal." << std::endl;
-	Console c(2);
-	c.Add(cand).Print(true);
-	string in;
-	getline(std::cin, in);
-	if (ext::isDigit(in)) {
-		int v = atoi(in.c_str());
-		if (v >= 0 && v < cand.size()) {
-			fm.Remove(cand[v]);
-			RemovePath(cand[v]);
-			return ext::Success();
-		}
-	}
-	return ext::Success(false, "no path was removed");
-}
-
 const ext::Success Config::RemovePath(const std::string & path) {
 	for (size_t i = 0; i < paths.size(); i++) {
 		if (paths[i] == path) {
@@ -147,7 +120,7 @@ void Config::Edit(FileManager &fm) {
 				string spath;
 				auto index = in.find_first_of("-p");
 				spath = ext::ltrim(in.substr(index + 2));
-				URemove(spath);
+				URemove(fm, spath);
 			}
 			else if (input[1] == "-i") {
 				if (input.size() > 3)
@@ -224,16 +197,16 @@ void Config::UAdd(const string & path) {
 		Save();
 }
 
-void Config::URemove(const string & line) {
+void Config::URemove(FileManager &fm, const string &line) {
 	std::vector<string*> closeMatches;
 	for (size_t i = 0; i < paths.size(); i++) {
-		auto lower = ext::tolower(paths[i]);
 		if (paths[i] == line) {
-			paths.erase(paths.begin() + i);
+			fm.Remove(line);
+			RemovePath(i);
 			std::cout << "Removed successfully" << std::endl;
 			return;
 		}
-		if (lower.find(line) != string::npos)
+		if (paths[i].find(line) != string::npos)
 			closeMatches.push_back(&paths[i]);
 	}
 
@@ -244,21 +217,25 @@ void Config::URemove(const string & line) {
 		string response;
 		getline(std::cin, response);
 		ext::tolower_r(response);
-		if (response == "yes")
-			URemove(*closeMatches[0]);
+		if (response == "yes") {
+			fm.Remove(*closeMatches[0]);
+			RemovePath(*closeMatches[0]);
+		}
 		else
 			return;
 	}
 	else {
-		std::cout << std::endl << "Found these close matches. Use index to pick which one you want to remove anything else to skip." << std::endl;
+		std::cout << std::endl << "Write index of path you want to remove. Invalid index will abort removal." << std::endl;
 		Console c(2);
 		c.Add(closeMatches).Print(true);
 		string response;
 		getline(std::cin, response);
 		if (ext::isDigit(response)) {
 			auto val = atoi(response.c_str());
-			if (val > 0 && val < closeMatches.size())
-				URemove(*closeMatches[val]);
+			if (val > 0 && val < closeMatches.size()) {
+				fm.Remove(*closeMatches[val]);
+				RemovePath(*closeMatches[val]);
+			}
 			else
 				std::cout << "Invalid index. Ending." << std::endl;
 		}
@@ -270,7 +247,7 @@ void Config::URemove(const string & line) {
 }
 
 void Config::URemove(const size_t & index) {
-	paths.erase(paths.begin() + index);
+	RemovePath(index);
 }
 
 void Config::PrintOptions() {
