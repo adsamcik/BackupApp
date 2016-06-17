@@ -64,7 +64,8 @@ bool ResolveInput() {
 		cns.AddLine("\t-force forces full backup");
 		cns.AddLine("restore <path>\tsupports relative and absolute paths");
 		cns.AddLine("restore all (<path>)\trestores all files to their default or set paths");
-		cns.AddLine("remove all/<path>\tremoves all or set path from backup");
+		cns.AddLine("remove <path>\tremoves all or set path from backup");
+		cns.AddLine("clear\tclears all backups");
 		cns.AddLine("exit\tto close the app");
 		cns.Print();
 	}
