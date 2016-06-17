@@ -69,7 +69,7 @@ bool ResolveInput() {
 		.Add("remove <path>\tremoves all or set path from backup")
 		.Add("clear\tclears all backups")
 		.Add("exit\tto close the app")
-		.Print();
+		.Print(false);
 	}
 	else if (ext::startsWith(cmd, "test")) {
 		fm.PrintContent(20);
