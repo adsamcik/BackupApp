@@ -16,13 +16,13 @@ public:
 		Add new line to console
 		@param text Line to be displayed, columns seperated with tabs (\\t)
 	*/
-	void Add(const std::string& text);
+	Console& Add(const std::string& text);
 
 	/**
 	Add multiple new line to console
 	@param text Line to be displayed, columns seperated with tabs (\\t)
 	*/
-	void Add(const std::vector<std::string>& vec);
+	Console& Add(const std::vector<std::string>& vec);
 
 	/** 
 		Prints all added lines to cout
