@@ -4,16 +4,18 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
+using std::string;
+
 void Config::Initialize() {
 	std::ifstream stream(CONFIG_FILE);
-	std::string line;
+	string line;
 
-	std::getline(stream, line);
+	getline(stream, line);
 	if (line.empty())
 		return;
 	try {
 		auto frst = line.find_first_of('=');
-		if (frst == std::string::npos)
+		if (frst == string::npos)
 			throw std::exception("Day is incorrectly saved");
 		day = static_cast<ext::DayOfWeek>(std::stoi(line.substr(frst + 1)));
 	}
@@ -22,7 +24,7 @@ void Config::Initialize() {
 		return;
 	}
 
-	while (std::getline(stream, line)) {
+	while (getline(stream, line)) {
 		if (ext::startsWith(line, "#"))
 			continue;
 		if (!ext::isValidPath(line))
@@ -32,7 +34,7 @@ void Config::Initialize() {
 	}
 }
 
-const ext::Success Config::AddPath(const std::string & path) {
+const ext::Success Config::AddPath(const string & path) {
 	auto fullPath = ext::fullPath(path);
 	for (size_t i = 0; i < paths.size(); i++) {
 		if (ext::comparePaths(fullPath, paths[i]))
@@ -42,7 +44,7 @@ const ext::Success Config::AddPath(const std::string & path) {
 	return ext::Success();
 }
 
-const ext::Success Config::RemovePath(const std::string & path) {
+const ext::Success Config::RemovePath(const string & path) {
 	return ext::Success();
 }
 
@@ -73,9 +75,9 @@ void Config::Edit(FileManager &fm) {
 	std::cout << "OPTIONS" << std::endl;
 	PrintOptions();
 	while (true) {
-		std::string s;
-		std::string sLower;
-		std::getline(std::cin, s);
+		string s;
+		string sLower;
+		getline(std::cin, s);
 		//Console::Clear();
 		ext::tolower_r(ext::trim(sLower = s));
 
@@ -106,7 +108,7 @@ void Config::Edit(FileManager &fm) {
 	}
 }
 
-void Config::USetDay(const std::string & params) {
+void Config::USetDay(const string & params) {
 	auto tmp = day;
 	try {
 		if (!ext::isDigit(params))
@@ -144,7 +146,7 @@ void Config::UList() {
 	}
 }
 
-void Config::UAdd(const std::string & path) {
+void Config::UAdd(const string & path) {
 	if (!ext::isValidPath(path)) {
 		Console::PrintError("Invalid path");
 		return;
@@ -157,7 +159,52 @@ void Config::UAdd(const std::string & path) {
 		Save();
 }
 
-void Config::URemove(const std::string & line) {}
+void Config::URemove(const string & line) {
+	std::vector<string*> closeMatches;
+	for (size_t i = 0; i < paths.size(); i++) {
+		auto diff = ext::difference(paths[i], line);
+		if (diff == 0) {
+			paths.erase(paths.begin() + i);
+			std::cout << "Removed successfully" << std::endl;
+			break;
+		}
+		if (diff < 4)
+			closeMatches.push_back(&paths[i]);
+	}
+
+	if (closeMatches.size() == 0)
+		std::cout << "Did not find any matches" << std::endl;
+	else if (closeMatches.size() == 1) {
+		std::cout << "Did you mean " << closeMatches[0] << " yes/NO" << std::endl;
+		string response;
+		getline(std::cin, response);
+		ext::tolower_r(response);
+		if (response == "yes")
+			URemove(*closeMatches[0]);
+		else
+			return;
+	}
+	else {
+		std::cout << "Found these close matches. Use index to pick which one you want to remove anything else to skip." << std::endl;
+		Console c(2);
+		for (size_t i = 0; i < closeMatches.size(); i++)
+			c.AddLine(std::to_string(i) + '\t' + *closeMatches[i]);
+		c.Print();
+		string response;
+		getline(std::cin, response);
+		if (ext::isDigit(response)) {
+			auto val = atoi(response.c_str());
+			if (val > 0 && val < closeMatches.size())
+				URemove(*closeMatches[val]);
+			else
+				std::cout << "Invalid index. Ending.";
+		}
+		else
+			std::cout << "No index detected. Ending.";
+
+	}
+
+}
 
 void Config::SetDay(const int day) {
 	if (day > 0 && day < 8)
@@ -176,5 +223,5 @@ void Config::PrintOptions() {
 	c.Print();
 }
 
-std::vector<std::string> Config::paths;
+std::vector<string> Config::paths;
 ext::DayOfWeek Config::day;
