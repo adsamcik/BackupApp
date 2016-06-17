@@ -210,6 +210,8 @@ void FileManager::BackupAll() {
 	if (!Open())
 		return;
 	auto paths = Config::paths;
+	if (paths.size() > 0)
+		isEmpty = false;
 	for (auto path : paths) {
 		if (ext::isDir(path.c_str())) {
 			Dir *d = new Dir(path);
