@@ -40,8 +40,6 @@ File::File(std::fstream &stream) {
 
 	beginContent = BHEADER_SIZE + sLength;
 
-	auto x = 0;
-
 	delete[] mTimeData;
 	delete[] mLengthData;
 }
