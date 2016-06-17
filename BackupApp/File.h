@@ -15,7 +15,7 @@ FILE STRUCTURE
 --Content
 
 */
-#define BHEADER_SIZE sizeof(uint32_t) + sizeof(time_t) + sizeof(std::streamoff)
+#define BHEADER_SIZE sizeof(uint32_t) + sizeof(time_t) + 2* sizeof(std::streamoff)
 
 class File {
 private:
@@ -35,11 +35,14 @@ public:
 	/*
 		End of file (first byte out of range)
 	*/
+
 	std::streamoff endContent;
+
 	/**
-		End of file content + reserve
+	Number of bytes in reserve
 	*/
-	std::streamoff endFile;
+	std::streamoff reserve;
+
 	/**
 		Last edited
 	*/

@@ -16,6 +16,7 @@ File::File(const std::string &path) {
 	this->beginMeta = -1;
 	this->beginContent = -1;
 	this->endContent = -1;
+	this->reserve = -1;
 }
 
 File::File(std::fstream &stream) {
@@ -35,6 +36,7 @@ File::File(std::fstream &stream) {
 
 	//Load content begin and end
 	stream.get(reinterpret_cast<char*>(&endContent), sizeof(endContent));
+	stream.get(reinterpret_cast<char*>(&reserve), sizeof(reserve));
 
 	beginContent = BHEADER_SIZE + sLength;
 
@@ -79,6 +81,7 @@ void File::WriteMeta(std::fstream *stream) {
 	auto le = mktime(lastEdited);
 	stream->write(reinterpret_cast<char*>(&le), sizeof(le));
 	stream->write(reinterpret_cast<char*>(&endContent), sizeof(endContent));
+	stream->write(reinterpret_cast<char*>(&reserve), sizeof(reserve));
 }
 
 bool File::IsValid() const {

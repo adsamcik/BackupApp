@@ -279,7 +279,7 @@ void FileManager::Backup(Dir *dir) {
 				auto tf = new File(*stream);
 				if (stream->peek() != EOF) {
 					if (tf->GetPath()->length() == 0)
-						Console::PrintError("File path is 0, something is wrong?");
+						Console::PrintError("File path is 0, is something wrong?");
 					else {
 						auto index = ext::fullPath(*tf->GetPath()).find_last_of("/\\");
 						if (tf->GetPath()->substr(index) == filename && tf->GetPath()->substr(0, index) == *dir->GetPath())
