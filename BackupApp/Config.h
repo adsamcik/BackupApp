@@ -15,7 +15,7 @@ public:
 	*/
 	static const ext::Success AddPath(const std::string& path);
 
-	const ext::Success RemovePath(FileManager & fm, const std::string & path);
+	static const ext::Success RemovePath(FileManager & fm, const std::string & path);
 
 	/**
 		@return Success Clears files from backup
