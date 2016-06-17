@@ -33,8 +33,7 @@ bool ResolveInput() {
 	}
 	else if (ext::startsWith(cmd, "restore")) {
 		if (input.size() > 1)
-			fm.Restore(input[1]);
-		//fm.BackupAll();
+			fm.Restore(ext::fullPath(input[1]));
 	}
 	else if (ext::startsWith(cmd, "exit")) {
 		if (cmd != "exit") {

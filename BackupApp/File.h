@@ -5,9 +5,11 @@
 #include <dirent.h>
 #endif
 
+#define STATIC_FILE_SIZE sizeof(uint32_t) + sizeof(time_t) + sizeof(std::streamoff)
+
 /**
 FILE STRUCTURE
---Meta										12B + sizeof(std::streamoff)B + sizeof(string)B
+--Meta										STATIC_FILE_SIZE + string length
 ---PathLength (possibly faster loading)		4B (should every imaginable path, can't imagine 4gb large path)
 ---Path										XB
 ---Time										8B

@@ -36,7 +36,7 @@ File::File(std::fstream &stream) {
 	//Load content begin and end
 	stream.get(reinterpret_cast<char*>(&endContent), sizeof(endContent));
 
-	beginContent = sizeof(sLength) + sLength + sizeof(time_t) + sizeof(std::streamoff);
+	beginContent = STATIC_FILE_SIZE + sLength;
 
 	auto x = 0;
 

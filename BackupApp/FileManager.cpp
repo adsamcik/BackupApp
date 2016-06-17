@@ -84,7 +84,7 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 	ostream.seekg(ostream.beg);
 
 	file->beginMeta = beg;
-	file->beginContent = sizeof(uint32_t) + sizeof(time_t) + sizeof(file->endContent) + file->GetPath()->size();
+	file->beginContent = STATIC_FILE_SIZE + file->GetPath()->size();
 	file->endContent = file->beginContent + length;
 	stream->seekg(beg);
 	file->WriteMeta(stream);
