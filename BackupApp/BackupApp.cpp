@@ -37,6 +37,8 @@ bool ResolveInput() {
 		else
 			Console::PrintError("Invalid number of arguments");
 	}
+	else if (ext::startsWith(cmd, "clear"))
+			 fm.Clear();
 	else if (ext::startsWith(cmd, "exit")) {
 		if (cmd != "exit") {
 			std::cout << "Did you really mean to exit? (yes/NO)" << std::endl;
