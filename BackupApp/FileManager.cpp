@@ -251,27 +251,28 @@ void FileManager::Backup(Dir *dir) {
 			else {
 				File *f = nullptr, *tf;
 				std::streampos pos = stream->tellg();
-				if (stream->eof()) {
-					std::streampos end;
-					do {
-						tf = new File(*stream);
-						if (tf->GetPath()->length() == 0)
-							Console::PrintError("File path length is 0");
-						else {
-							if (ext::startsWith(*tf->GetPath(), *dir->GetPath())) {
-								int cmp = strcmp(tf->GetPath()->c_str(), filename.c_str());
-								if (cmp == 0)
-									f = tf;
-								else if (cmp < 0)
-									break;
-							}
-							else
+				std::streampos end;
+				stream->clear();
+				do {
+					tf = new File(*stream);
+					if (stream->fail())
+						break;
+					if (tf->GetPath()->length() == 0)
+						Console::PrintError("File path length is 0");
+					else {
+						if (ext::startsWith(*tf->GetPath(), *dir->GetPath())) {
+							int cmp = strcmp(tf->GetPath()->c_str(), filename.c_str());
+							if (cmp == 0)
+								f = tf;
+							else if (cmp < 0)
 								break;
 						}
-						end = tf->endContent;
-						delete tf;
-					} while (stream->seekg(end).peek() != EOF);
-				}
+						else
+							break;
+					}
+					end = tf->endContent;
+					delete tf;
+				} while (stream->seekg(end).peek());
 				if (f == nullptr)
 					f = new File(fullname);
 				stream->clear();
