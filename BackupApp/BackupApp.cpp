@@ -62,14 +62,14 @@ bool ResolveInput() {
 	}
 	else if (ext::startsWith(cmd, "help")) {
 		Console cns(2, 4);
-		cns.AddLine("backup <path>\tsupports relative and absolute paths");
-		cns.AddLine("\t-force forces full backup");
-		cns.AddLine("restore <path>\tsupports relative and absolute paths");
-		cns.AddLine("restore all (<path>)\trestores all files to their default or set paths");
-		cns.AddLine("remove <path>\tremoves all or set path from backup");
-		cns.AddLine("clear\tclears all backups");
-		cns.AddLine("exit\tto close the app");
-		cns.Print();
+		cns.Add("backup <path>\tsupports relative and absolute paths")
+		.Add("\t-force forces full backup")
+		.Add("restore <path>\tsupports relative and absolute paths")
+		.Add("restore all (<path>)\trestores all files to their default or set paths")
+		.Add("remove <path>\tremoves all or set path from backup")
+		.Add("clear\tclears all backups")
+		.Add("exit\tto close the app")
+		.Print();
 	}
 	else if (ext::startsWith(cmd, "test")) {
 		fm.PrintContent(20);
