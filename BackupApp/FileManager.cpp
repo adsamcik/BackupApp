@@ -56,7 +56,7 @@ bool FileManager::IsEmpty() const {
 }
 
 void FileManager::Clear() {
-	stream->open(BACKUP_FILE, std::ios::trunc);
+	stream->open(BACKUP_FILE, std::ios::trunc | std::ios::out);
 	Close();
 }
 
