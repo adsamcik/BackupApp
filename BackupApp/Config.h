@@ -15,12 +15,10 @@ public:
 	*/
 	static const ext::Success AddPath(const std::string& path);
 
-	static const ext::Success RemovePath(FileManager & fm, const std::string & path);
-
 	/**
-		@return Success Clears files from backup
+	@return Success Clears files from backup
 	*/
-	static const ext::Success RemovePath(const std::string& path);
+	static const ext::Success RemovePath(FileManager & fm, const std::string & path);
 
 	/**
 	@return Success
