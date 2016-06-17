@@ -179,7 +179,7 @@ void Config::UList() {
 	if (paths.size() == 0)
 		std::cout << "Nothing is being backed up." << std::endl;
 	else {
-		Console c(2);
+		Console c(1);
 		c.Add(paths).Print(true);
 	}
 }
