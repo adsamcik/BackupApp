@@ -286,6 +286,7 @@ void FileManager::Backup(Dir *dir) {
 					f = new File(fullname);
 				stream->clear();
 				Backup(f, pos);
+				stream->seekg(f->beginMeta + f->endContent);
 				delete f;
 			}
 		}
