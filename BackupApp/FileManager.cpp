@@ -256,8 +256,10 @@ void FileManager::Backup(Dir *dir) {
 				stream->clear();
 				do {
 					tf = new File(*stream);
-					if (stream->fail())
+					if (stream->fail()) {
+						delete tf;
 						break;
+					}
 					if (tf->GetPath()->length() == 0)
 						Console::PrintError("File path length is 0");
 					else {
@@ -267,11 +269,15 @@ void FileManager::Backup(Dir *dir) {
 								f = tf;
 								break;
 							}
-							else if (cmp < 0)
+							else if (cmp < 0) {
+								delete tf;
 								break;
+							}
 						}
-						else
+						else {
+							delete tf;
 							break;
+						}
 					}
 					end = tf->endContent;
 					delete tf;
