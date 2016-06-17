@@ -9,6 +9,8 @@
 
 #define ws " \t\n\r\f\v"
 
+using std::string;
+
 /**
 	Namespace ext is generally list of short functions that are used all around the app
 	Functions shorter or equal to 3 lines are inline
@@ -36,7 +38,7 @@ namespace ext {
 		@param s string to convert
 		@return lower case source string
 	*/
-	static inline std::string& tolower_r(std::string& s) {
+	static inline string& tolower_r(string& s) {
 		for (size_t i = 0; i < s.length(); i++)
 			s[i] = std::tolower(s[i]);
 		return s;
@@ -47,8 +49,8 @@ namespace ext {
 		@param s source string
 		@return lowercase copy of source string
 	*/
-	static inline std::string tolower(const std::string& s) {
-		std::string ns = s;
+	static inline string tolower(const string& s) {
+		string ns = s;
 		for (size_t i = 0; i < ns.length(); i++)
 			ns[i] = std::tolower(ns[i]);
 		return ns;
@@ -59,7 +61,7 @@ namespace ext {
 		@param s string to trim from the right
 		@param t white characters which should be trimmed (default " \t\n\r\f\v")
 	*/
-	static inline std::string& rtrim(std::string& s, const char* t = ws) {
+	static inline string& rtrim(string& s, const char* t = ws) {
 		return s.erase(s.find_last_not_of(t) + 1);;
 	}
 
@@ -68,7 +70,7 @@ namespace ext {
 	@param s string to trim from the left
 	@param t white characters which should be trimmed (default " \t\n\r\f\v")
 	*/
-	static inline std::string& ltrim(std::string& s, const char* t = ws) {
+	static inline string& ltrim(string& s, const char* t = ws) {
 		return s.erase(0, s.find_first_not_of(t));
 	}
 
@@ -77,7 +79,7 @@ namespace ext {
 	@param s string to trim
 	@param t white characters which should be trimmed (default " \t\n\r\f\v")
 	*/
-	static inline std::string& trim(std::string& s, const char* t = ws) {
+	static inline string& trim(string& s, const char* t = ws) {
 		return ltrim(rtrim(s, t), t);
 	}
 
@@ -86,11 +88,11 @@ namespace ext {
 	@param string string to check
 	@param what what should the string start with
 	*/
-	static bool startsWith(const std::string& string, const std::string& what) {
-		if (string.length() < what.length())
+	static bool startsWith(const string& str, const string& what) {
+		if (str.length() < what.length())
 			return false;
 		for (size_t i = 0; i < what.length(); i++) {
-			if (string[i] != what[i])
+			if (str[i] != what[i])
 				return false;
 		}
 		return true;
@@ -100,7 +102,7 @@ namespace ext {
 	Checks if all characters in string are digits
 	@param str string to check
 	*/
-	static inline bool isDigit(const std::string &str) {
+	static inline bool isDigit(const string &str) {
 		return std::all_of(str.begin(), str.end(), ::isdigit);
 	}
 
@@ -129,11 +131,18 @@ namespace ext {
 	@param path path to check (converted to char*)
 	@return true if dir false if not dir or does not exists
 	*/
-	static inline bool isValidPath(const std::string& path) {
+	static inline bool isValidPath(const string& path) {
 		return isValidPath(path.c_str());
 	}
 
-	static inline std::string fullPath(const std::string relPath) {
+	static inline string parent(const string& path) {
+		auto index = path.find_last_of("/\\");
+		if (index == string::npos)
+			return "\\";
+		return path.substr(0, index);
+	}
+
+	static inline string fullPath(const string relPath) {
 		char* p;
 #ifdef _WIN32 
 		p = new char[4096];
@@ -141,7 +150,7 @@ namespace ext {
 #elif linux
 		realpath(s1.c_str(), p);
 #endif
-		std::string ret = std::string(p);
+		string ret = string(p);
 		delete[] p;
 		return ret;
 	}
@@ -151,7 +160,7 @@ namespace ext {
 	Accurate check should be ran on linux
 	Contains only simple check on Windows due to requirement of rather bigger lib to ensure crossplatform compatibility
 	*/
-	static inline bool comparePaths(const std::string &s1, const std::string &s2) {
+	static inline bool comparePaths(const string &s1, const string &s2) {
 		char *r1, *r2;
 #ifdef _WIN32 
 		r1 = new char[4096];
@@ -172,7 +181,7 @@ namespace ext {
 		Compares 2 strings
 		@return number of different characters (including difference in lengths)
 	*/
-	static inline uint32_t difference(const std::string& str, const std::string& source) {
+	static inline uint32_t difference(const string& str, const string& source) {
 		size_t slength;
 		uint32_t diff;
 		if (str.length() > source.length()) {
@@ -199,7 +208,7 @@ namespace ext {
 	*/
 	struct Success {
 		Success(const Success& val) {
-			this->message = new std::string(*val.message);
+			this->message = new string(*val.message);
 			this->success = val.success;
 		}
 
@@ -208,8 +217,8 @@ namespace ext {
 			this->message = nullptr;
 		}
 
-		Success(const bool& success, const std::string& message) {
-			this->message = new std::string(message);
+		Success(const bool& success, const string& message) {
+			this->message = new string(message);
 			this->success = success;
 		}
 
@@ -223,7 +232,7 @@ namespace ext {
 		}
 
 		bool success;
-		std::string *message;
+		string *message;
 	};
 }
 
