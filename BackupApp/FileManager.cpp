@@ -66,7 +66,7 @@ void FileManager::Backup(File * file) {
 		Backup(file, fileEnd);
 }
 
-void FileManager::OffsetData(const std::streampos &beg, const std::streamoff &off) {
+void FileManager::Offset(const std::streampos &beg, const std::streamoff &off) {
 	//is signed to save on conversion when using in seek
 	const int32_t bufferSize = 512;
 	char *buffer = new char[bufferSize];
@@ -120,6 +120,7 @@ void FileManager::Remove(const std::string & path) {
 	std::streampos beg;
 	std::streampos pos;
 	std::streampos end;
+	stream->seekg(stream->beg);
 	do {
 		pos = stream->tellg();
 		f = new File(*stream);
@@ -131,7 +132,7 @@ void FileManager::Remove(const std::string & path) {
 		}
 		else if (found) {
 			found = false;
-			OffsetData(pos, beg - pos);
+			Offset(pos, beg - pos);
 		}
 		end = f->endContent;
 		delete f;
@@ -227,7 +228,7 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 
 	if (file->endContent != -1 && length > file->endContent - file->beginContent) {
 		auto off = static_cast<std::streamoff>(length * 1.1 - (file->endContent - file->beginContent));
-		OffsetData(file->endContent, off);
+		Offset(file->endContent, off);
 		std::cout << "Offsetting data" << std::endl;
 	}
 

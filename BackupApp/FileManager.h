@@ -13,6 +13,16 @@ private:
 	void Close();
 
 	void PickRestore(std::vector<File*>& files) const;
+
+	/**
+	Handles offset forward
+	*/
+	void OffsetForward(const std::streampos &beg, const std::streamoff &off);
+
+	/**
+	Handles offset backward
+	*/
+	void OffsetBackward(const std::streampos &beg, const std::streamoff &off);
 public:
 	FileManager();
 	~FileManager();
@@ -50,7 +60,7 @@ public:
 		@param beg beginning of the first file to offset
 		@param off offset
 	*/
-	void OffsetData(const std::streampos &beg, const std::streamoff &off);
+	void Offset(const std::streampos &beg, const std::streamoff &off);
 
 	/**
 		Regenerates backup file with proper reserves
