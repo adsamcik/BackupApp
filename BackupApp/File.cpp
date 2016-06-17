@@ -96,7 +96,7 @@ char* File::GetPath() const {
 		auto length = *reinterpret_cast<int*>(buff);
 		delete[] buff;
 		if (length < 0 || length == 0xcdcdcdcd)
-			throw std::exception("Error occured during loading of length");
+			throw std::exception("Invalid length of string");
 		buff = new char[length+1];
 		buff[length] = '\0';
 		is.read(buff, length);
