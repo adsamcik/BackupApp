@@ -55,9 +55,30 @@ const ext::Success Config::RemovePath(FileManager &fm, const std::string &path) 
 		else if (ext::startsWith(paths[i], path))
 			cand.push_back(paths[i]);
 	}
+	std::cout << "Write index of path you want to remove. Invalid index will abort removal." << std::endl;
 	Console c(2);
 	c.Add(cand).Print(true);
-	return ext::Success();
+	string in;
+	getline(std::cin, in);
+	if (ext::isDigit(in)) {
+		int v = atoi(in.c_str());
+		if (v >= 0 && v < cand.size()) {
+			fm.Remove(cand[v]);
+			RemovePath(cand[v]);
+			return ext::Success();
+		}
+	}
+	return ext::Success(false, "no path was removed");
+}
+
+const ext::Success Config::RemovePath(const std::string & path) {
+	for (size_t i = 0; i < paths.size(); i++) {
+		if (paths[i] == path) {
+			RemovePath(i);
+			return ext::Success();
+		}
+	}
+	return ext::Success(false, "path not found");
 }
 
 const ext::Success Config::RemovePath(const size_t & index) {
