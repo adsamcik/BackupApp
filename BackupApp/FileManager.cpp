@@ -57,6 +57,10 @@ bool FileManager::IsEmpty() const {
 
 void FileManager::Clear() {
 	stream->open(BACKUP_FILE, std::ios::trunc | std::ios::out);
+	if (stream->is_open())
+		std::cout << "Cleared all backups" << std::endl;
+	else
+		Console::PrintError("Failed to clear backups");
 	Close();
 }
 
