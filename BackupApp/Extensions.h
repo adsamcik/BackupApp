@@ -2,6 +2,9 @@
 #include <cctype>
 #include <algorithm>
 #include <stdio.h>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 #pragma once
 
 #define ws " \t\n\r\f\v"
@@ -130,20 +133,34 @@ namespace ext {
 		return isValidPath(path.c_str());
 	}
 
+	static inline std::string fullPath(const std::string relPath) {
+		char* p;
+#ifdef _WIN32 
+		p = new char[4096];
+		_fullpath(p, relPath.c_str(), 4096);
+#elif linux
+		realpath(s1.c_str(), p);
+#endif
+		return std::string(p);
+	}
+
 	/**
 	Compares 2 paths
 	Accurate check should be ran on linux
 	Contains only simple check on Windows due to requirement of rather bigger lib to ensure crossplatform compatibility
 	*/
-	static bool ComparePaths(const std::string &s1, const std::string &s2) {
+	static inline bool comparePaths(const std::string &s1, const std::string &s2) {
+		char *r1, *r2;
 #ifdef _WIN32 
-		return s1 == s2;
+		r1 = new char[4096];
+		r2 = new char[4096];
+		_fullpath(r1, s1.c_str(), 4096);
+		_fullpath(r2, s2.c_str(), 4096);
 #elif linux
-		char* r1, r2;
 		realpath(s1.c_str(), r1);
 		realpath(s2.c_str(), r2);
-		return strcmp(r1, r2) == 0;
 #endif
+		return strcmp(r1, r2) == 0;
 	}
 
 	/**

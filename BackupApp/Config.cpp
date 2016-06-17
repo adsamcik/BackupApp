@@ -33,11 +33,12 @@ void Config::Initialize() {
 }
 
 const ext::Success Config::AddPath(const std::string & path) {
+	auto fullPath = ext::fullPath(path);
 	for (size_t i = 0; i < paths.size(); i++) {
-		if (ext::ComparePaths(path, paths[i]))
+		if (ext::comparePaths(fullPath, paths[i]))
 			return ext::Success(false, "Path is already backed up");
 	}
-	paths.push_back(path);
+	paths.push_back(fullPath);
 	return ext::Success();
 }
 

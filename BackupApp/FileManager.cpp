@@ -117,7 +117,7 @@ void FileManager::Backup(Dir *dir) {
 			auto pos = stream->tellg();
 			auto tf = new File(*stream);
 			if (stream->peek() != EOF) {
-				auto index = tf->GetPath()->find_last_of("/\\");
+				auto index = ext::fullPath(*tf->GetPath()).find_last_of("/\\");
 				if (tf->GetPath()->substr(index) == filename && tf->GetPath()->substr(0, index) == *dir->GetPath())
 					f = tf;
 			}
