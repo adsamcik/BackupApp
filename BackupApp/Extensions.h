@@ -141,7 +141,9 @@ namespace ext {
 #elif linux
 		realpath(s1.c_str(), p);
 #endif
-		return std::string(p);
+		std::string ret = std::string(p);
+		delete[] p;
+		return ret;
 	}
 
 	/**
@@ -160,7 +162,10 @@ namespace ext {
 		realpath(s1.c_str(), r1);
 		realpath(s2.c_str(), r2);
 #endif
-		return strcmp(r1, r2) == 0;
+		bool areTheSame = strcmp(r1, r2) == 0;
+		delete[] r1;
+		delete[] r2;
+		return areTheSame;
 	}
 
 	/**
