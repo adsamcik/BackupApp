@@ -197,15 +197,13 @@ void Config::URemove(const string & line) {
 	std::vector<string*> closeMatches;
 	for (size_t i = 0; i < paths.size(); i++) {
 		auto lower = ext::tolower(paths[i]);
-		auto diff = lower.find(line);
-		if (diff != string::npos) {
-			if (paths[i] == line) {
-				paths.erase(paths.begin() + i);
-				std::cout << "Removed successfully" << std::endl;
-				return;
-			}
-			else
-				closeMatches.push_back(&paths[i]);
+		if (paths[i] == line) {
+			paths.erase(paths.begin() + i);
+			std::cout << "Removed successfully" << std::endl;
+			return;
+		}
+		if (lower.find(line) != string::npos) {
+			closeMatches.push_back(&paths[i]);
 		}
 
 	}
