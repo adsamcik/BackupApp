@@ -30,6 +30,7 @@ public:
 	void Print();
 
 	static void PrintError(const std::string& message);
+	static void PrintWarning(const std::string& message);
 
 	static inline void Clear() {
 #ifdef _WIN32 
