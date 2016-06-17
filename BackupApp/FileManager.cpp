@@ -7,25 +7,6 @@
 
 using std::string;
 
-bool FileManager::Open() {
-	stream->open(BACKUP_FILE, std::fstream::in | std::fstream::out | std::fstream::binary);
-	bool isOpen = stream->is_open();
-	if (!isOpen)
-		Console::PrintError("Failed to open backup file!");
-	return isOpen;
-}
-
-void FileManager::Close() {
-	stream->close();
-}
-
-int FileManager::CompareDates(const tm * td1, const tm * td2) const {
-	tm* first = new tm(*td1);
-	tm* second = new tm(*td2);
-	auto diff = timegm(first) - timegm(second);
-	return diff > 0 ? 1 : diff < 0 ? -1 : 0;
-}
-
 FileManager::FileManager() {
 	//fstream does not create file with fstream::in flag
 	//this ensures the file exists
@@ -49,6 +30,25 @@ FileManager::~FileManager() {
 	delete stream;
 }
 
+bool FileManager::Open() {
+	stream->open(BACKUP_FILE, std::fstream::in | std::fstream::out | std::fstream::binary);
+	bool isOpen = stream->is_open();
+	if (!isOpen)
+		Console::PrintError("Failed to open backup file!");
+	return isOpen;
+}
+
+void FileManager::Close() {
+	stream->close();
+}
+
+int FileManager::CompareDates(const tm * td1, const tm * td2) const {
+	tm* first = new tm(*td1);
+	tm* second = new tm(*td2);
+	auto diff = timegm(first) - timegm(second);
+	return diff > 0 ? 1 : diff < 0 ? -1 : 0;
+}
+
 bool FileManager::IsEmpty() const {
 	if (isEmpty)
 		Console::PrintError("Nothing is backed up yet.");
@@ -69,6 +69,138 @@ void FileManager::Backup(File * file) {
 		Backup(file, file->beginMeta);
 	else
 		Backup(file, fileEnd);
+}
+
+void FileManager::OffsetData(const std::streampos &beg, const std::streamoff &off) {
+	//is signed to save on conversion when using in seek
+	const int32_t bufferSize = 512;
+	char *buffer = new char[bufferSize];
+	stream->seekg(fileEnd);
+	auto pos = fileEnd;
+	stream->seekg(-bufferSize, std::ios::end);
+	do {
+		stream->seekg(-bufferSize, std::ios::cur);
+		pos = stream->tellg();
+		stream->read(buffer, bufferSize);
+		stream->seekg(off - bufferSize, std::ios::cur);
+		stream->write(buffer, bufferSize);
+		stream->seekg(pos);
+	} while (stream->tellg() - beg > bufferSize);
+	delete[] buffer;
+
+	auto diff = stream->tellg() - beg;
+	if (diff > 0) {
+		stream->seekg(beg);
+		buffer = new char[diff];
+		stream->read(buffer, diff);
+		stream->seekg(off - diff, std::ios::cur);
+		stream->write(buffer, diff);
+		delete[] buffer;
+	}
+}
+
+//Creates new backup file with restored reserves
+void FileManager::RebuildBackups() {}
+
+void FileManager::Restore(const std::string &name) const {
+	if (IsEmpty())
+		return;
+	File *f;
+	std::streamoff end;
+	std::vector<File*> files;
+	do {
+		f = new File(*stream);
+		end = f->endContent;
+		if (f->GetPath()->find(name) != string::npos)
+			files.push_back(f);
+		else
+			delete f;
+	} while (stream->seekg(end).peek() != EOF);
+	PickRestore(files);
+}
+
+void FileManager::PickRestore(std::vector<File*>& files) const {
+	if (files.size() == 0)
+		Console::PrintError("No files found");
+	else if (files.size() == 1)
+		files[0]->Restore(*stream);
+	else {
+		Console c(2);
+		for (int i = 0; i < files.size(); i++)
+			c.AddLine(std::to_string(i) + '\t' + *files[i]->GetPath());
+		c.Print();
+	}
+}
+
+void FileManager::PrintContent(const int contentLimit) {
+	if (!Open() || IsEmpty())
+		return;
+	File* f = nullptr;
+	std::streampos beg;
+	std::streamoff end;
+	do {
+		beg = stream->tellg();
+		f = new File(*stream);
+		try {
+			auto path = f->GetPath();
+			if (f->lastEdited->tm_hour == -1) {
+				if (ext::isValidPath(path->c_str()))
+					throw std::exception(("DATE FOR FILE \"" + *path + "\" IS CORRUPTED").c_str());
+				else
+					throw std::exception(("BACKUP FILE IS CORRUPTED. Detected at " + std::to_string(static_cast<std::streamoff>(beg))).c_str());
+			}
+			else if (f->endContent < 0)
+				throw std::exception(("FILE " + *path + " has incorrect end content position").c_str());
+			char* buffer = new char[80];
+			auto ptr = strftime(buffer, 80, "%c", f->lastEdited);
+			std::cout << std::endl << *path << std::endl
+				<< buffer << std::endl
+				<< "Begin position: " << f->beginMeta << std::endl
+				<< "Begin content: " << f->beginContent << std::endl
+				<< "Content length: " << f->endContent - f->beginContent << std::endl;
+			delete[] buffer;
+			stream->seekg(f->beginMeta + f->beginContent);
+			if (contentLimit > 0) {
+				int64_t toLoad = (contentLimit > f->endContent - f->beginContent) ? f->endContent - f->beginContent : contentLimit;
+				buffer = new char[toLoad + 1];
+				stream->read(buffer, toLoad);
+				buffer[toLoad] = '\0';
+				std::cout << buffer << std::endl;
+				delete[] buffer;
+				stream->seekg(-toLoad, std::ios::cur);
+			}
+		}
+		catch (std::exception e) {
+			Console::PrintError(string(e.what()));
+			delete f;
+			break;
+		}
+		beg = f->beginContent;
+		end = f->endContent;
+		delete f;
+	} while (stream->seekg(end - beg, std::ios::cur).peek() != EOF);
+	Close();
+}
+
+void FileManager::BackupAll() {
+	if (!Open())
+		return;
+	auto paths = Config::paths;
+	for (auto path : paths) {
+		if (ext::isDir(path.c_str())) {
+			Dir *d = new Dir(path);
+			Backup(d);
+			delete d;
+		}
+		else if (ext::isValidPath(path)) {
+			File *f = new File(path);
+			Backup(f);
+			delete f;
+		}
+		else
+			Console::PrintError(path + " is not a valid path!");
+	}
+	Close();
 }
 
 void FileManager::Backup(File *file, const std::streampos &beg) {
@@ -94,7 +226,7 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 	stream->seekg(beg);
 	file->WriteMeta(stream);
 
-	
+
 
 	if (file->endContent != -1 && length > file->endContent - file->beginContent) {
 		auto off = static_cast<std::streamoff>(length * 1.1 - (file->endContent - file->beginContent));
@@ -144,141 +276,4 @@ void FileManager::Backup(Dir *dir) {
 			Console::PrintError(filename + " is invalid path");
 	}
 	delete v;
-}
-
-/**
-	Offset all data till the end of file
-	Will cause terrible problems if beg is not at the beginning of a file!
-*/
-void FileManager::OffsetData(const std::streampos &beg, const std::streamoff &off) {
-	//is signed to save on conversion when using in seek
-	const int32_t bufferSize = 512;
-	char *buffer = new char[bufferSize];
-	stream->seekg(fileEnd);
-	auto pos = fileEnd;
-	stream->seekg(-bufferSize, std::ios::end);
-	do {
-		stream->seekg(-bufferSize, std::ios::cur);
-		pos = stream->tellg();
-		stream->read(buffer, bufferSize);
-		stream->seekg(off - bufferSize, std::ios::cur);
-		stream->write(buffer, bufferSize);
-		stream->seekg(pos);
-	} while (stream->tellg() - beg > bufferSize);
-	delete[] buffer;
-
-	auto diff = stream->tellg() - beg;
-	if (diff > 0) {
-		stream->seekg(beg);
-		buffer = new char[diff];
-		stream->read(buffer, diff);
-		stream->seekg(off - diff, std::ios::cur);
-		stream->write(buffer, diff);
-		delete[] buffer;
-	}
-}
-
-//Creates new backup file with restored reserves
-void FileManager::RebuildBackups() {}
-
-void FileManager::Restore(const std::string &name) const {
-	if (IsEmpty())
-		return;
-	File *f;
-	std::streamoff end;
-	std::vector<File*> files;
-	do {
-		f = new File(*stream);
-		end = f->endContent;
-		if (f->GetPath()->find(name) != string::npos)
-			files.push_back(f);
-		else
-			delete f;
-	} while (stream->seekg(end).peek() != EOF);
-	PickRestore(files);
-}
-
-void FileManager::PrintContent(const int contentLimit) {
-	if (!Open())
-		return;
-	File* f = nullptr;
-	std::streampos beg;
-	std::streamoff end;
-	do {
-		beg = stream->tellg();
-		f = new File(*stream);
-		try {
-			auto path = f->GetPath();
-			if (f->lastEdited->tm_hour == -1) {
-				if (ext::isValidPath(path->c_str()))
-					throw std::exception(("DATE FOR FILE \"" + *path + "\" IS CORRUPTED").c_str());
-				else
-					throw std::exception(("BACKUP FILE IS CORRUPTED. Detected at " + std::to_string(static_cast<std::streamoff>(beg))).c_str());
-			}
-			else if (f->endContent < 0)
-				throw std::exception(("FILE " + *path + " has incorrect end content position").c_str());
-			char* buffer = new char[80];
-			auto ptr = strftime(buffer, 80, "%c", f->lastEdited);
-			std::cout << std::endl << *path << std::endl
-				<< buffer << std::endl
-				<< "Begin position: " << f->beginMeta << std::endl
-				<< "Begin content: " << f->beginContent << std::endl
-				<< "Content length: " << f->endContent - f->beginContent << std::endl;
-			delete[] buffer;
-			stream->seekg(f->beginMeta + f->beginContent);
-			if (contentLimit > 0) {
-				int64_t toLoad = (contentLimit > f->endContent - f->beginContent) ? f->endContent - f->beginContent : contentLimit;
-				buffer = new char[toLoad + 1];
-				stream->read(buffer, toLoad);
-				buffer[toLoad] = '\0';
-				std::cout << buffer << std::endl;
-				delete[] buffer;
-				stream->seekg(-toLoad, std::ios::cur);
-			}
-		}
-		catch (std::exception e) {
-			Console::PrintError(string(e.what()));
-			delete f;
-			break;
-		}
-		beg = f->beginContent;
-		end = f->endContent;
-		delete f;
-	} while (stream->seekg(end - beg, std::ios::cur).peek() != EOF);
-	Close();
-}
-
-
-void FileManager::PickRestore(std::vector<File*>& files) const {
-	if (files.size() == 0)
-		Console::PrintError("No files found");
-	else if (files.size() == 1)
-		files[0]->Restore(*stream);
-	else {
-		Console c(2);
-		for (int i = 0; i < files.size(); i++)
-			c.AddLine(std::to_string(i) + '\t' + *files[i]->GetPath());
-		c.Print();
-	}
-}
-
-void FileManager::BackupAll() {
-	if (!Open())
-		return;
-	auto paths = Config::paths;
-	for (auto path : paths) {
-		if (ext::isDir(path.c_str())) {
-			Dir *d = new Dir(path);
-			Backup(d);
-			delete d;
-		}
-		else if (ext::isValidPath(path)) {
-			File *f = new File(path);
-			Backup(f);
-			delete f;
-		}
-		else
-			Console::PrintError(path + " is not a valid path!");
-	}
-	Close();
 }
