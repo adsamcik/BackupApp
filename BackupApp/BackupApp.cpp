@@ -10,7 +10,7 @@ FileManager fm;
 /// <summary>Handles command recognition from user input
 /// </summary>
 bool ResolveInput() {
-	std::cout << "::";
+	std::cout << ":: ";
 
 	std::vector<string> input;
 	string s;

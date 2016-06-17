@@ -75,7 +75,7 @@ void Config::Edit(FileManager &fm) {
 	std::cout << "OPTIONS" << std::endl;
 	PrintOptions();
 	while (true) {
-		std::cout << "::CONFIG::";
+		std::cout << std::endl << "::CONFIG:: ";
 		string s;
 		string in;
 		std::vector<string> input;
