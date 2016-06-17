@@ -99,6 +99,20 @@ namespace ext {
 	}
 
 	/**
+		Number of digits in number
+	*/
+	template <class T>
+	int numDigits(T number) {
+		int digits = 0;
+		if (number < 0) digits = 1; // remove this line if '-' counts as a digit
+		while (number) {
+			number /= 10;
+			digits++;
+		}
+		return digits;
+	}
+
+	/**
 	Checks if all characters in string are digits
 	@param str string to check
 	*/
