@@ -210,7 +210,7 @@ void FileManager::PrintContent(const int contentLimit) {
 void FileManager::Backup(File *file, const std::streampos &beg) {
 	if (file->beginMeta != -1) {
 		if (!file->IsNewer()) {
-			std::cout << file->GetPath() << " is up to date" << std::endl;
+			std::cout << *file->GetPath() << " is up to date" << std::endl;
 			file->ClearPath();
 			return;
 		}
@@ -228,6 +228,7 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 	if (file->endContent != -1 && length > file->endContent - file->beginContent) {
 		auto off = static_cast<std::streamoff>(length * 1.1 - (file->endContent - file->beginContent));
 		OffsetData(file->endContent, off);
+		std::cout << "Offsetting data" << std::endl;
 	}
 
 	*stream << ostream.rdbuf();
@@ -261,9 +262,11 @@ void FileManager::Backup(Dir *dir) {
 						Console::PrintError("File path length is 0");
 					else {
 						if (ext::startsWith(*tf->GetPath(), *dir->GetPath())) {
-							int cmp = strcmp(tf->GetPath()->c_str(), filename.c_str());
-							if (cmp == 0)
+							int cmp = strcmp(tf->GetPath()->c_str(), fullname.c_str());
+							if (cmp == 0) {
 								f = tf;
+								break;
+							}
 							else if (cmp < 0)
 								break;
 						}
