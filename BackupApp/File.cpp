@@ -12,7 +12,7 @@ File::File(const std::string &path) {
 	struct stat t_stat;
 	auto r = stat(path.c_str(), &t_stat);
 	this->lastEdited = new tm();
-	gmtime_s(this->lastEdited, &t_stat.st_mtime);
+	localtime_s(this->lastEdited, &t_stat.st_mtime);
 	this->beginMeta = -1;
 	this->beginContent = -1;
 	this->endContent = -1;
@@ -26,13 +26,13 @@ File::File(std::fstream &stream) {
 	stream.get(mLengthData, 4);
 	uint32_t sLength = uint32_t(*reinterpret_cast<uint32_t*>(mLengthData));
 	//path is loaded on demand
-	stream.seekg(sLength+1, std::ios::cur);
+	stream.seekg(sLength + 1, std::ios::cur);
 	//Load time
 	char* mTimeData = new char[9];
 	stream.get(mTimeData, 9);
 	auto t = reinterpret_cast<time_t*>(mTimeData);
 	lastEdited = new tm();
-	gmtime_s(lastEdited, t);
+	localtime_s(lastEdited, t);
 
 	//Load content begin and end
 	stream.get(reinterpret_cast<char*>(&endContent), sizeof(endContent));
@@ -49,6 +49,13 @@ File::File(std::fstream &stream) {
 File::~File() {
 	delete lastEdited;
 	ClearPath();
+}
+
+bool File::IsNewer() {
+	struct stat s;
+	if (stat(GetPath()->c_str(), &s) != 0)
+		return false;
+	return s.st_mtime > timegm(lastEdited);
 }
 
 void File::Restore(std::fstream& stream) const {
@@ -73,11 +80,10 @@ void File::Restore(std::fstream& stream) const {
 }
 
 void File::WriteMeta(std::fstream *stream) {
-	auto path = GetPath();
 	//path big or bigger than 4GB is unimaginable
-	uint32_t size = static_cast<uint32_t>(path->size());
+	uint32_t size = static_cast<uint32_t>(GetPath()->size());
 	stream->write(reinterpret_cast<char*>(&size), sizeof(size));
-	stream->write(path->c_str(), path->length());
+	stream->write(GetPath()->c_str(), GetPath()->length());
 	auto le = mktime(lastEdited);
 	stream->write(reinterpret_cast<char*>(&le), sizeof(le));
 	stream->write(reinterpret_cast<char*>(&endContent), sizeof(endContent));
@@ -100,7 +106,7 @@ char* File::GetPath() const {
 		delete[] buff;
 		if (length < 0 || length == 0xcdcdcdcd)
 			throw std::exception("Invalid length of string");
-		buff = new char[length+1];
+		buff = new char[length + 1];
 		buff[length] = '\0';
 		is.read(buff, length);
 		is.close();

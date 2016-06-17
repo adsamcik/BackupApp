@@ -42,13 +42,6 @@ void FileManager::Close() {
 	stream->close();
 }
 
-int FileManager::CompareDates(const tm * td1, const tm * td2) const {
-	tm* first = new tm(*td1);
-	tm* second = new tm(*td2);
-	auto diff = timegm(first) - timegm(second);
-	return diff > 0 ? 1 : diff < 0 ? -1 : 0;
-}
-
 bool FileManager::IsEmpty() const {
 	if (isEmpty)
 		Console::PrintError("Nothing is backed up yet.");
@@ -57,11 +50,13 @@ bool FileManager::IsEmpty() const {
 
 void FileManager::Clear() {
 	stream->open(BACKUP_FILE, std::ios::trunc | std::ios::out);
-	if (stream->is_open())
+	if (stream->is_open()) {
 		std::cout << "Cleared all backups" << std::endl;
+		isEmpty = true;
+		Close();
+	}
 	else
 		Console::PrintError("Failed to clear backups");
-	Close();
 }
 
 void FileManager::Backup(File * file) {
@@ -177,12 +172,14 @@ void FileManager::PrintContent(const int contentLimit) {
 				throw std::exception(("FILE " + *path + " has incorrect end content position").c_str());
 			char* buffer = new char[80];
 			auto ptr = strftime(buffer, 80, "%c", f->lastEdited);
+			string newer = f->IsNewer() ? "true" : "false";
 			Console c(2);
 			c.Add("Path:\t" + *path)
 				.Add("Last edited:\t" + string(buffer))
 				.Add("Begin position:\t" + std::to_string(f->beginMeta))
 				.Add("Begin content:\t" + std::to_string(f->beginContent))
 				.Add("Reserve:\t" + std::to_string(f->reserve))
+				.Add("Is newer version available:\t" + newer)
 				.Add("Content length:\t" + std::to_string(f->endContent - f->beginContent))
 				.Print(false);
 			delete[] buffer;
@@ -210,37 +207,9 @@ void FileManager::PrintContent(const int contentLimit) {
 	Close();
 }
 
-void FileManager::BackupAll() {
-	if (!Open())
-		return;
-	auto paths = Config::paths;
-	if (paths.size() > 0)
-		isEmpty = false;
-	for (auto path : paths) {
-		if (ext::isDir(path.c_str())) {
-			Dir *d = new Dir(path);
-			Backup(d);
-			delete d;
-		}
-		else if (ext::isValidPath(path)) {
-			File *f = new File(path);
-			Backup(f);
-			delete f;
-		}
-		else
-			Console::PrintError(path + " is not a valid path!");
-	}
-	Close();
-}
-
 void FileManager::Backup(File *file, const std::streampos &beg) {
 	if (file->beginMeta != -1) {
-		struct stat s;
-		auto r = stat(file->GetPath()->c_str(), &s);
-		tm* t = new tm();
-		gmtime_s(t, &s.st_mtime);
-		int diff = CompareDates(file->lastEdited, t);
-		if (diff != 1) {
+		if (!file->IsNewer()) {
 			std::cout << file->GetPath() << " is up to date" << std::endl;
 			file->ClearPath();
 			return;
@@ -280,28 +249,62 @@ void FileManager::Backup(Dir *dir) {
 				delete d;
 			}
 			else {
-				File *f = nullptr;
-				auto pos = stream->tellg();
-				auto tf = new File(*stream);
-				if (stream->peek() != EOF) {
-					if (tf->GetPath()->length() == 0)
-						Console::PrintError("File path is 0, is something wrong?");
-					else {
-						auto index = ext::fullPath(*tf->GetPath()).find_last_of("/\\");
-						if (tf->GetPath()->substr(index) == filename && tf->GetPath()->substr(0, index) == *dir->GetPath())
-							f = tf;
-					}
+				File *f = nullptr, *tf;
+				std::streampos pos = stream->tellg();
+				if (stream->eof()) {
+					std::streampos end;
+					do {
+						tf = new File(*stream);
+						if (tf->GetPath()->length() == 0)
+							Console::PrintError("File path length is 0");
+						else {
+							if (ext::startsWith(*tf->GetPath(), *dir->GetPath())) {
+								int cmp = strcmp(tf->GetPath()->c_str(), filename.c_str());
+								if (cmp == 0)
+									f = tf;
+								else if (cmp < 0)
+									break;
+							}
+							else
+								break;
+						}
+						end = tf->endContent;
+						delete tf;
+					} while (stream->seekg(end).peek() != EOF);
 				}
 				if (f == nullptr)
 					f = new File(fullname);
 				stream->clear();
 				Backup(f, pos);
 				delete f;
-				delete tf;
 			}
 		}
 		else
 			Console::PrintError(filename + " is invalid path");
 	}
 	delete v;
+}
+
+
+void FileManager::BackupAll() {
+	if (!Open())
+		return;
+	auto paths = Config::paths;
+	if (paths.size() > 0)
+		isEmpty = false;
+	for (auto path : paths) {
+		if (ext::isDir(path.c_str())) {
+			Dir *d = new Dir(path);
+			Backup(d);
+			delete d;
+		}
+		else if (ext::isValidPath(path)) {
+			File *f = new File(path);
+			Backup(f);
+			delete f;
+		}
+		else
+			Console::PrintError(path + " is not a valid path!");
+	}
+	Close();
 }

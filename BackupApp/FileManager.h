@@ -3,10 +3,6 @@
 #include <iostream>
 #include "File.h"
 
-#ifdef _WIN32
-#define timegm _mkgmtime
-#endif
-
 class FileManager {
 private:
 	bool isEmpty;
@@ -17,12 +13,6 @@ private:
 	void Close();
 
 	void PickRestore(std::vector<File*>& files) const;
-
-	/**
-		Compares 2 dates
-		@return -1 if first is older, 0 if equal, +1 if first is newer
-	*/
-	int CompareDates(const tm* tm1, const tm* tm2) const;
 public:
 	FileManager();
 	~FileManager();

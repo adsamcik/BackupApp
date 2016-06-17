@@ -16,6 +16,9 @@ FILE STRUCTURE
 
 */
 #define BHEADER_SIZE sizeof(uint32_t) + sizeof(time_t) + 2* sizeof(std::streamoff)
+#ifdef _WIN32
+#define timegm _mkgmtime
+#endif
 
 class File {
 private:
@@ -58,7 +61,15 @@ public:
 	*/
 	virtual void Restore(std::fstream &stream) const;
 
+	/**
+		Writes metadata to stream
+	*/
 	void WriteMeta(std::fstream *stream);
+
+	/**
+		Checks if newer version of file is available
+	*/
+	bool IsNewer();
 
 	/**
 		Checks whether the path still exists or not
