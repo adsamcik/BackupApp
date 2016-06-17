@@ -44,10 +44,6 @@ const ext::Success Config::AddPath(const string & path) {
 	return ext::Success();
 }
 
-const ext::Success Config::RemovePath(const string & path) {
-	return ext::Success();
-}
-
 const ext::Success Config::RemovePath(const size_t & index) {
 	if (index < paths.size()) {
 		paths.erase(paths.begin() + index);

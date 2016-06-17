@@ -16,9 +16,8 @@ public:
 	static const ext::Success AddPath(const std::string& path);
 
 	/**
-		@return Success (Successfull when path is found)
+		@return Success
 	*/
-	static const ext::Success RemovePath(const std::string& path);
 	static const ext::Success RemovePath(const size_t& path);
 
 	static void Edit(FileManager &fm);

@@ -107,27 +107,36 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 void FileManager::Backup(Dir *dir) {
 	auto v = dir->GetFiles();
 	for (auto filename : *v) {
-		if (ext::isDir(filename.c_str())) {
-			auto d = new Dir(filename);
-			Backup(d);
-			delete d;
-		}
-		else {
-			File *f = nullptr;
-			auto pos = stream->tellg();
-			auto tf = new File(*stream);
-			if (stream->peek() != EOF) {
-				auto index = ext::fullPath(*tf->GetPath()).find_last_of("/\\");
-				if (tf->GetPath()->substr(index) == filename && tf->GetPath()->substr(0, index) == *dir->GetPath())
-					f = tf;
+		auto fullname = *dir->GetPath() + '\\' + filename;
+		if (ext::isValidPath(fullname.c_str())) {
+			if (ext::isDir(fullname.c_str())) {
+				auto d = new Dir(fullname);
+				Backup(d);
+				delete d;
 			}
-			if (f == nullptr)
-				f = new File(*dir->GetPath() + '/' + filename);
-			stream->clear();
-			Backup(f, pos);
-			delete f;
-			delete tf;
+			else {
+				File *f = nullptr;
+				auto pos = stream->tellg();
+				auto tf = new File(*stream);
+				if (stream->peek() != EOF) {
+					if (tf->GetPath()->length() == 0)
+						Console::PrintError("File path is 0, something is wrong?");
+					else {
+						auto index = ext::fullPath(*tf->GetPath()).find_last_of("/\\");
+						if (tf->GetPath()->substr(index) == filename && tf->GetPath()->substr(0, index) == *dir->GetPath())
+							f = tf;
+					}
+				}
+				if (f == nullptr)
+					f = new File(fullname);
+				stream->clear();
+				Backup(f, pos);
+				delete f;
+				delete tf;
+			}
 		}
+		else
+			Console::PrintError(filename + " is invalid path");
 	}
 	delete v;
 }
