@@ -10,7 +10,7 @@ FileManager fm;
 /// <summary>Handles command recognition from user input
 /// </summary>
 bool ResolveInput() {
-	std::cout << "::::";
+	std::cout << "::";
 
 	std::vector<string> input;
 	string s;
@@ -18,6 +18,11 @@ bool ResolveInput() {
 	std::istringstream tss(s);
 	while (tss >> s)
 		input.push_back(s);
+
+	if (input.size() == 0) {
+		Console::PrintError("No command detected");
+		return true;
+	}
 
 	string cmd = ext::tolower(input[0]);
 

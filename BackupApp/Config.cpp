@@ -75,14 +75,20 @@ void Config::Edit(FileManager &fm) {
 	std::cout << "OPTIONS" << std::endl;
 	PrintOptions();
 	while (true) {
+		std::cout << "::CONFIG::";
 		string s;
-		string sLower;
+		string in;
 		std::vector<string> input;
-		getline(std::cin, s);
+		getline(std::cin, in);
 		//Console::Clear();
-		std::istringstream tss(s);
+		std::istringstream tss(in);
 		while (tss >> s)
 			input.push_back(s);
+
+		if (input.size() == 0) {
+			Console::PrintError("No command detected");
+			continue;
+		}
 
 		string cmd = ext::tolower(input[0]);
 
@@ -96,21 +102,43 @@ void Config::Edit(FileManager &fm) {
 			UList();
 		}
 		else if (ext::startsWith(cmd, "add")) {
-			if (ext::ltrim(s)[3] != ' ')
-				Console::PrintError("Command and value need to be seperated with space");
-			else if (sLower.length() == 3)
+			if (input.size() < 2)
 				Console::PrintError("You did not enter path");
 			else
-				UAdd(sLower.substr(4));
+				UAdd(in.substr(4));
 		}
 		else if (ext::startsWith(cmd, "remove")) {
-
+			if (input.size() < 3)
+				Console::PrintError("Too few arguments. See help.");
+			else if (input[1] == "-p") {
+				string spath;
+				auto index = in.find_first_of("-p");
+				spath = ext::ltrim(in.substr(index + 2));
+				URemove(spath);
+			}
+			else if (input[1] == "-i") {
+				if (input.size() > 3)
+					Console::PrintError("Too many arguments");
+				else if (!ext::isDigit(input[3]))
+					Console::PrintError("Argument must be a number");
+				else {
+					int val = atoi(input[3].c_str());
+					if (val >= paths.size() || val < 0)
+						Console::PrintError("Index must be between 0 and " + std::to_string(paths.size()));
+					else
+						URemove(val);
+				}
+			}
+			else {
+				Console::PrintError("After remove you must choose whether you use path (-p) or index (-i). See help.");
+			}
 		}
-		else if (ext::startsWith(cmd, "exit") || ext::startsWith(sLower, "return"))
+		else if (ext::startsWith(cmd, "return"))
 			break;
-		else {
+		else if (ext::startsWith(cmd, "exit"))
+			exit(0);
+		else
 			std::cout << "Unknown command" << std::endl;
-		}
 	}
 }
 
@@ -158,7 +186,7 @@ void Config::UAdd(const string & path) {
 		return;
 	}
 	char last = path[path.length() - 1];
-	auto s = AddPath(last == '/' ||  last == '\\' ? path.substr(0, path.length() - 1) : path);
+	auto s = AddPath(last == '/' || last == '\\' ? path.substr(0, path.length() - 1) : path);
 	if (!s.success)
 		Console::PrintError(*s.message);
 	else
@@ -168,20 +196,24 @@ void Config::UAdd(const string & path) {
 void Config::URemove(const string & line) {
 	std::vector<string*> closeMatches;
 	for (size_t i = 0; i < paths.size(); i++) {
-		auto diff = ext::difference(paths[i], line);
-		if (diff == 0) {
-			paths.erase(paths.begin() + i);
-			std::cout << "Removed successfully" << std::endl;
-			break;
+		auto lower = ext::tolower(paths[i]);
+		auto diff = lower.find(line);
+		if (diff != string::npos) {
+			if (paths[i] == line) {
+				paths.erase(paths.begin() + i);
+				std::cout << "Removed successfully" << std::endl;
+				return;
+			}
+			else
+				closeMatches.push_back(&paths[i]);
 		}
-		if (diff < 4)
-			closeMatches.push_back(&paths[i]);
+
 	}
 
 	if (closeMatches.size() == 0)
 		std::cout << "Did not find any matches" << std::endl;
 	else if (closeMatches.size() == 1) {
-		std::cout << "Did you mean " << closeMatches[0] << " yes/NO" << std::endl;
+		std::cout << "Did you mean " << *closeMatches[0] << " yes/NO" << std::endl;
 		string response;
 		getline(std::cin, response);
 		ext::tolower_r(response);
@@ -191,7 +223,7 @@ void Config::URemove(const string & line) {
 			return;
 	}
 	else {
-		std::cout << "Found these close matches. Use index to pick which one you want to remove anything else to skip." << std::endl;
+		std::cout << std::endl << "Found these close matches. Use index to pick which one you want to remove anything else to skip." << std::endl;
 		Console c(2);
 		for (size_t i = 0; i < closeMatches.size(); i++)
 			c.AddLine(std::to_string(i) + '\t' + *closeMatches[i]);
@@ -203,13 +235,17 @@ void Config::URemove(const string & line) {
 			if (val > 0 && val < closeMatches.size())
 				URemove(*closeMatches[val]);
 			else
-				std::cout << "Invalid index. Ending.";
+				std::cout << "Invalid index. Ending." << std::endl;
 		}
 		else
-			std::cout << "No index detected. Ending.";
+			std::cout << "No index detected. Ending." << std::endl;
 
 	}
 
+}
+
+void Config::URemove(const size_t & index) {
+	paths.erase(paths.begin() + index);
 }
 
 void Config::PrintOptions() {
@@ -217,7 +253,7 @@ void Config::PrintOptions() {
 	c.AddLine("day <0-7>\tsets day of auto-backup. 0 disables autobackup, 1 is Monday");
 	c.AddLine("list\treturns list of backed up folders and files with their indexes for easier removal");
 	c.AddLine("add <path>\tadds path to backup");
-	c.AddLine("remove <path/index>\tremoves path");
+	c.AddLine("remove <-p/-i> <path/index>\tremoves path. Use -p for path or -i for index");
 	c.AddLine("help\tto print this help again");
 	c.Print();
 }
