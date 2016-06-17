@@ -28,7 +28,7 @@ void Config::Initialize() {
 		if (ext::startsWith(line, "#"))
 			continue;
 		if (!ext::isValidPath(line))
-			Console::PrintError(line + " is invalid path");
+			Console::PrintWarning(line + " is invalid path");
 		else
 			AddPath(line);
 	}
@@ -41,6 +41,22 @@ const ext::Success Config::AddPath(const string & path) {
 			return ext::Success(false, "Path is already backed up");
 	}
 	paths.push_back(fullPath);
+	return ext::Success();
+}
+
+const ext::Success Config::RemovePath(FileManager &fm, const std::string &path) {
+	std::vector<string> cand;
+	for (size_t i = 0; i < paths.size(); i++) {
+		if (paths[i] == path) {
+			fm.Remove(path);
+			RemovePath(i);
+			return ext::Success();
+		}
+		else if (ext::startsWith(paths[i], path))
+			cand.push_back(paths[i]);
+	}
+	Console c(2);
+	c.Add(cand).Print(true);
 	return ext::Success();
 }
 
@@ -170,9 +186,7 @@ void Config::UList() {
 		std::cout << "Nothing is being backed up." << std::endl;
 	else {
 		Console c(2);
-		for (size_t i = 0; i < paths.size(); i++)
-			c.AddLine(std::to_string(i) + "\t" + paths[i]);
-		c.Print();
+		c.Add(paths).Print(true);
 	}
 }
 
@@ -198,10 +212,8 @@ void Config::URemove(const string & line) {
 			std::cout << "Removed successfully" << std::endl;
 			return;
 		}
-		if (lower.find(line) != string::npos) {
+		if (lower.find(line) != string::npos)
 			closeMatches.push_back(&paths[i]);
-		}
-
 	}
 
 	if (closeMatches.size() == 0)
@@ -219,9 +231,7 @@ void Config::URemove(const string & line) {
 	else {
 		std::cout << std::endl << "Found these close matches. Use index to pick which one you want to remove anything else to skip." << std::endl;
 		Console c(2);
-		for (size_t i = 0; i < closeMatches.size(); i++)
-			c.AddLine(std::to_string(i) + '\t' + *closeMatches[i]);
-		c.Print();
+		c.Add(closeMatches).Print(true);
 		string response;
 		getline(std::cin, response);
 		if (ext::isDigit(response)) {
@@ -244,12 +254,12 @@ void Config::URemove(const size_t & index) {
 
 void Config::PrintOptions() {
 	Console c(2);
-	c.AddLine("day <0-7>\tsets day of auto-backup. 0 disables autobackup, 1 is Monday");
-	c.AddLine("list\treturns list of backed up folders and files with their indexes for easier removal");
-	c.AddLine("add <path>\tadds path to backup");
-	c.AddLine("remove <-p/-i> <path/index>\tremoves path. Use -p for path or -i for index");
-	c.AddLine("help\tto print this help again");
-	c.Print();
+	c.Add("day <0-7>\tsets day of auto-backup. 0 disables autobackup, 1 is Monday")
+	.Add("list\treturns list of backed up folders and files with their indexes for easier removal")
+	.Add("add <path>\tadds path to backup")
+	.Add("remove <-p/-i> <path/index>\tremoves path. Use -p for path or -i for index")
+	.Add("help\tto print this help again")
+	.Print(false);
 }
 
 std::vector<string> Config::paths;
