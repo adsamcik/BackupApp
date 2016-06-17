@@ -20,7 +20,7 @@ Console::~Console() {
 		delete[] content[i];
 }
 
-void Console::AddLine(const std::string &text) {
+void Console::Add(const std::string &text) {
 	size_t prev = 0, last = 0;
 	string* arr = new string[columnsCount];
 	for (size_t i = 0; i < columnsCount; i++) {
@@ -39,6 +39,11 @@ void Console::AddLine(const std::string &text) {
 		prev = last++;
 	}
 	content.push_back(arr);
+}
+
+void Console::Add(const std::vector<std::string>& vec) {
+	for (auto line : vec)
+		Add(line);
 }
 
 void Console::Print() {
