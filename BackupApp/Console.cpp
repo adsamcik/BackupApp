@@ -48,12 +48,21 @@ Console& Console::Add(const std::vector<std::string>& vec) {
 	return *this;
 }
 
-void Console::Print() {
-	for (auto r : content) {
+Console& Console::Add(const std::vector<std::string*>& vec) {
+	for (auto line : vec)
+		Add(*line);
+	return *this;
+}
+
+void Console::Print(const bool showIndexes)const {
+	for (int i = 0; i < content.size(); i++) {
 		size_t tabIndex = 0;
 		size_t nextTab = 0;
+		auto row = content[i];
+		if (showIndexes)
+			std::cout << std::to_string(i);
 		for (size_t i = 0; i < columnsCount; i++) {
-			std::cout << r[i] << std::string(columns[i] - r[i].size() + spaces, ' ');
+			std::cout << row[i] << std::string(columns[i] - row[i].size() + spaces, ' ');
 			tabIndex = nextTab;
 		}
 		std::cout << std::endl;
