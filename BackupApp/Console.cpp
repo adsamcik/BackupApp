@@ -59,8 +59,11 @@ void Console::Print(const bool showIndexes)const {
 		size_t tabIndex = 0;
 		size_t nextTab = 0;
 		auto row = content[i];
-		if (showIndexes)
-			std::cout << std::to_string(i);
+		if (showIndexes) {
+			int size = ext::numDigits(content.size());
+			auto index = std::to_string(i);
+			std::cout << index << std::string(size - index.length() + spaces, ' ');
+		}
 		for (size_t i = 0; i < columnsCount; i++) {
 			std::cout << row[i] << std::string(columns[i] - row[i].size() + spaces, ' ');
 			tabIndex = nextTab;
