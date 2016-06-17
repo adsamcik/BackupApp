@@ -77,22 +77,25 @@ void Config::Edit(FileManager &fm) {
 	while (true) {
 		string s;
 		string sLower;
+		std::vector<string> input;
 		getline(std::cin, s);
 		//Console::Clear();
-		ext::tolower_r(ext::trim(sLower = s));
+		std::istringstream tss(s);
+		while (tss >> s)
+			input.push_back(s);
 
-		if (ext::startsWith(sLower, "day")) {
-			if (sLower[3] != '=')
-				Console::PrintError("Variable and value need to be seperated with =");
-			if (sLower.length() == 4)
-				Console::PrintError("You need to enter some value");
+		string cmd = ext::tolower(input[0]);
+
+		if (ext::startsWith(cmd, "day")) {
+			if (input.size() != 2)
+				Console::PrintError("Invalid number of arguments. Required 1 number.");
 			else
-				USetDay(sLower.substr(4));
+				USetDay(input[1]);
 		}
-		else if (sLower == "list") {
+		else if (cmd == "list") {
 			UList();
 		}
-		else if (ext::startsWith(sLower, "add")) {
+		else if (ext::startsWith(cmd, "add")) {
 			if (ext::ltrim(s)[3] != ' ')
 				Console::PrintError("Command and value need to be seperated with space");
 			else if (sLower.length() == 3)
@@ -100,7 +103,10 @@ void Config::Edit(FileManager &fm) {
 			else
 				UAdd(sLower.substr(4));
 		}
-		else if (ext::startsWith(sLower, "exit") || ext::startsWith(sLower, "return"))
+		else if (ext::startsWith(cmd, "remove")) {
+
+		}
+		else if (ext::startsWith(cmd, "exit") || ext::startsWith(sLower, "return"))
 			break;
 		else {
 			std::cout << "Unknown command" << std::endl;
@@ -206,16 +212,9 @@ void Config::URemove(const string & line) {
 
 }
 
-void Config::SetDay(const int day) {
-	if (day > 0 && day < 8)
-		Config::day = static_cast<ext::DayOfWeek>(day);
-	else
-		Config::day = ext::Undefined;
-}
-
 void Config::PrintOptions() {
 	Console c(2);
-	c.AddLine("day=<0-7>\tsets day of auto-backup. 0 disables autobackup, 1 is Monday");
+	c.AddLine("day <0-7>\tsets day of auto-backup. 0 disables autobackup, 1 is Monday");
 	c.AddLine("list\treturns list of backed up folders and files with their indexes for easier removal");
 	c.AddLine("add <path>\tadds path to backup");
 	c.AddLine("remove <path/index>\tremoves path");

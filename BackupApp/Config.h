@@ -72,7 +72,7 @@ private:
 	*/
 	static bool abEnabled;
 
-	static void SetDay(const int day);
+	static void SetDay(const ext::DayOfWeek day);
 
 	/**
 		Day on which files should be backed up
