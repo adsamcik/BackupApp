@@ -177,11 +177,14 @@ void FileManager::PrintContent(const int contentLimit) {
 				throw std::exception(("FILE " + *path + " has incorrect end content position").c_str());
 			char* buffer = new char[80];
 			auto ptr = strftime(buffer, 80, "%c", f->lastEdited);
-			std::cout << std::endl << *path << std::endl
-				<< buffer << std::endl
-				<< "Begin position: " << f->beginMeta << std::endl
-				<< "Begin content: " << f->beginContent << std::endl
-				<< "Content length: " << f->endContent - f->beginContent << std::endl;
+			Console c(2);
+			c.Add("Path:\t" + *path)
+				.Add("Last edited:\t" + string(buffer))
+				.Add("Begin position:\t" + std::to_string(f->beginMeta))
+				.Add("Begin content:\t" + std::to_string(f->beginContent))
+				.Add("Reserve:\t" + std::to_string(f->reserve))
+				.Add("Content length:\t" + std::to_string(f->endContent - f->beginContent))
+				.Print(false);
 			delete[] buffer;
 			stream->seekg(f->beginMeta + f->beginContent);
 			if (contentLimit > 0) {
@@ -189,10 +192,11 @@ void FileManager::PrintContent(const int contentLimit) {
 				buffer = new char[toLoad + 1];
 				stream->read(buffer, toLoad);
 				buffer[toLoad] = '\0';
-				std::cout << buffer << std::endl;
+				std::cout << "First " << toLoad << " symbols" << std::endl << buffer << std::endl;
 				delete[] buffer;
 				stream->seekg(-toLoad, std::ios::cur);
 			}
+			std::cout << std::endl;
 		}
 		catch (std::exception e) {
 			Console::PrintError(string(e.what()));
