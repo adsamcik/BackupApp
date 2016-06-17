@@ -36,7 +36,7 @@ File::File(std::fstream &stream) {
 	//Load content begin and end
 	stream.get(reinterpret_cast<char*>(&endContent), sizeof(endContent));
 
-	beginContent = STATIC_FILE_SIZE + sLength;
+	beginContent = BHEADER_SIZE + sLength;
 
 	auto x = 0;
 

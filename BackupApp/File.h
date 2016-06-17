@@ -5,8 +5,6 @@
 #include <dirent.h>
 #endif
 
-#define STATIC_FILE_SIZE sizeof(uint32_t) + sizeof(time_t) + sizeof(std::streamoff)
-
 /**
 FILE STRUCTURE
 --Meta										STATIC_FILE_SIZE + string length
@@ -17,6 +15,8 @@ FILE STRUCTURE
 --Content
 
 */
+#define BHEADER_SIZE sizeof(uint32_t) + sizeof(time_t) + sizeof(std::streamoff)
+
 class File {
 private:
 	/**
