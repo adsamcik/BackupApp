@@ -31,6 +31,7 @@ File::File(std::fstream &stream) {
 	char* mLengthData = new char[4];
 	stream.get(mLengthData, 4);
 	uint32_t sLength = uint32_t(*reinterpret_cast<uint32_t*>(mLengthData));
+	path = nullptr;
 	//path is loaded on demand
 	stream.seekg(sLength + 1, std::ios::cur);
 	//Load time
