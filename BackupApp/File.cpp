@@ -53,6 +53,7 @@ bool File::IsNewer() {
 	struct stat s;
 	if (stat(GetPath()->c_str(), &s) != 0)
 		return false;
+#ifdef DBG
 	auto t = new tm();
 	gmtime_s(t, &s.st_mtime);
 	std::cout << "Comparing time of " << *GetPath() << std::endl << s.st_mtime << " new vs old " << timegm(lastEdited) << std::endl;
@@ -61,6 +62,9 @@ bool File::IsNewer() {
 	std::cout << "new " << buffer << std::endl;
 	ptr = strftime(buffer, 80, "%c", lastEdited);
 	std::cout << "old " << buffer << std::endl;
+	delete[] buffer;
+	delete t;
+#endif
 	return s.st_mtime > timegm(lastEdited);
 }
 
