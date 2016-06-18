@@ -57,7 +57,7 @@ const ext::Success Config::RemovePath(const std::string & path) {
 const ext::Success Config::RemovePath(const size_t & index) {
 	if (index < paths.size()) {
 		paths.erase(paths.begin() + index);
-		//Save();
+		Save();
 		return ext::Success();
 	}
 	return ext::Success(false, "Invalid index");
