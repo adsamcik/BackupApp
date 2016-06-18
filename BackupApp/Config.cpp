@@ -132,7 +132,7 @@ void Config::Edit(FileManager &fm) {
 					if (val >= paths.size() || val < 0)
 						Console::PrintError("Index must be between 0 and " + std::to_string(paths.size() - 1));
 					else
-						URemove(val);
+						URemove(fm, val);
 				}
 			}
 			else {
