@@ -94,8 +94,9 @@ void File::WriteMeta(std::fstream *stream) {
 	uint32_t size = static_cast<uint32_t>(GetPath()->size());
 	stream->write(reinterpret_cast<char*>(&size), sizeof(size));
 	stream->write(GetPath()->c_str(), GetPath()->length());
-	auto le = timegm(lastEdited);
-	stream->write(reinterpret_cast<char*>(&le), sizeof(le));
+	struct stat t_stat;
+	auto r = stat(path->c_str(), &t_stat);
+	stream->write(reinterpret_cast<char*>(&t_stat.st_mtime), sizeof(t_stat.st_mtime));
 	stream->write(reinterpret_cast<char*>(&endContent), sizeof(endContent));
 	stream->write(reinterpret_cast<char*>(&reserve), sizeof(reserve));
 }
