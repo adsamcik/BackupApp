@@ -228,7 +228,7 @@ void Config::URemove(FileManager &fm, const string &line) {
 	}
 	else {
 		std::cout << std::endl << "Write index of path you want to remove. Invalid index will abort removal." << std::endl;
-		Console c(2);
+		Console c(1);
 		c.Add(closeMatches).Print(true);
 		string response;
 		getline(std::cin, response);
