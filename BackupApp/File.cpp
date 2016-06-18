@@ -169,13 +169,12 @@ std::vector<std::string>* Dir::GetFiles() {
 	auto v = new std::vector<std::string>();
 
 	dir = opendir(GetPath()->c_str());
-	//skip .
-	readdir(dir);
-	//skip ..
-	readdir(dir);
 	if (dir != NULL) {
 		while ((ent = readdir(dir))) {
-			v->push_back(std::string(ent->d_name));
+			string name = std::string(ent->d_name);
+			if (name == "." || name == "..")
+				continue;
+			v->push_back(name);
 		}
 	}
 	closedir(dir);
