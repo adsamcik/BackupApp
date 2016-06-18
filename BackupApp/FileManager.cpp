@@ -183,7 +183,7 @@ void FileManager::Restore(const std::string &name) const {
 }
 
 void FileManager::Remove(const std::string & path) {
-	if (!Open())
+	if (!Open() || isEmpty)
 		return;
 	File* f;
 	bool found = false;

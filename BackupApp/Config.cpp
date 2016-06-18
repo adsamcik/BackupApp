@@ -220,8 +220,9 @@ void Config::URemove(FileManager &fm, const string &line) {
 		getline(std::cin, response);
 		ext::tolower_r(response);
 		if (response == "yes") {
-			fm.Remove(*closeMatches[0]);
-			RemovePath(*closeMatches[0]);
+			string path = *closeMatches[0];
+			RemovePath(path);
+			fm.Remove(path);
 		}
 		else
 			return;
@@ -234,9 +235,10 @@ void Config::URemove(FileManager &fm, const string &line) {
 		getline(std::cin, response);
 		if (ext::isDigit(response)) {
 			auto val = atoi(response.c_str());
-			if (val > 0 && val < static_cast<int>(closeMatches.size())) {
-				fm.Remove(*closeMatches[val]);
-				RemovePath(*closeMatches[val]);
+			if (val >= 0 && val < static_cast<int>(closeMatches.size())) {
+				string path = *closeMatches[val];
+				RemovePath(path);
+				fm.Remove(path);
 			}
 			else
 				std::cout << "Invalid index. Ending." << std::endl;

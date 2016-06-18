@@ -124,10 +124,11 @@ char* File::GetPath() const {
 		std::ifstream is(BACKUP_FILE);
 		is.seekg(beginMeta);
 		char* buff = new char[4];
-		is.read(buff, 4);
+		if (is.read(buff, 4).fail())
+			throw std::runtime_error("Failed to read length");
 		auto length = *reinterpret_cast<int*>(buff);
 		delete[] buff;
-		if (length < 0)
+		if (length <= 0)
 			throw std::runtime_error("Invalid length of string");
 		buff = new char[length + 1];
 		buff[length] = '\0';
