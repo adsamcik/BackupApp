@@ -17,12 +17,12 @@ private:
 	/**
 	Handles offset forward
 	*/
-	void OffsetForward(const std::streampos &beg, const std::streamoff &off);
+	void OffsetForward(const std::streampos &beg, const std::streamoff &off, const int32_t bufferSize);
 
 	/**
 	Handles offset backward
 	*/
-	void OffsetBackward(const std::streampos &beg, const std::streamoff &off);
+	void OffsetBackward(const std::streampos &beg, const std::streamoff &off, const int32_t bufferSize);
 public:
 	FileManager();
 	~FileManager();

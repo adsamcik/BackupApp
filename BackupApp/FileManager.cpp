@@ -7,6 +7,55 @@
 
 using std::string;
 
+void FileManager::OffsetForward(const std::streampos & beg, const std::streamoff & off, const int32_t bufferSize) {
+	char *buffer = new char[bufferSize];
+	auto pos = beg;
+	do {
+		stream->seekg(pos);
+		stream->read(buffer, bufferSize);
+		stream->seekg(-bufferSize + off, std::ios::cur);
+		stream->write(buffer, bufferSize);
+		pos += bufferSize;
+	} while (fileEnd - pos > bufferSize);
+	delete[] buffer;
+
+	auto diff = fileEnd - pos;
+	if (diff > 0) {
+		stream->seekg(pos);
+		buffer = new char[diff];
+		stream->read(buffer, diff);
+		stream->seekg(-bufferSize + off, std::ios::cur);
+		stream->write(buffer, diff);
+		delete[] buffer;
+	}
+}
+
+void FileManager::OffsetBackward(const std::streampos & beg, const std::streamoff & off, const int32_t bufferSize) {
+	char *buffer = new char[bufferSize];
+	stream->seekg(fileEnd);
+	auto pos = fileEnd;
+	stream->seekg(-bufferSize, std::ios::end);
+	do {
+		stream->seekg(-bufferSize, std::ios::cur);
+		pos = stream->tellg();
+		stream->read(buffer, bufferSize);
+		stream->seekg(off - bufferSize, std::ios::cur);
+		stream->write(buffer, bufferSize);
+		stream->seekg(pos);
+	} while (stream->tellg() - beg > bufferSize);
+	delete[] buffer;
+
+	auto diff = stream->tellg() - beg;
+	if (diff > 0) {
+		stream->seekg(beg);
+		buffer = new char[diff];
+		stream->read(buffer, diff);
+		stream->seekg(off - diff, std::ios::cur);
+		stream->write(buffer, diff);
+		delete[] buffer;
+	}
+}
+
 FileManager::FileManager() {
 	//fstream does not create file with fstream::in flag
 	//this ensures the file exists
@@ -69,29 +118,13 @@ void FileManager::Backup(File * file) {
 void FileManager::Offset(const std::streampos &beg, const std::streamoff &off) {
 	//is signed to save on conversion when using in seek
 	const int32_t bufferSize = 512;
-	char *buffer = new char[bufferSize];
-	stream->seekg(fileEnd);
-	auto pos = fileEnd;
-	stream->seekg(-bufferSize, std::ios::end);
-	do {
-		stream->seekg(-bufferSize, std::ios::cur);
-		pos = stream->tellg();
-		stream->read(buffer, bufferSize);
-		stream->seekg(off - bufferSize, std::ios::cur);
-		stream->write(buffer, bufferSize);
-		stream->seekg(pos);
-	} while (stream->tellg() - beg > bufferSize);
-	delete[] buffer;
 
-	auto diff = stream->tellg() - beg;
-	if (diff > 0) {
-		stream->seekg(beg);
-		buffer = new char[diff];
-		stream->read(buffer, diff);
-		stream->seekg(off - diff, std::ios::cur);
-		stream->write(buffer, diff);
-		delete[] buffer;
-	}
+	if (off > 0)
+		OffsetBackward(beg, off, bufferSize);
+	else if (off < 0)
+		OffsetForward(beg, off, bufferSize);
+	else
+		Console::PrintError("Offset is set to 0, this can't be right.");
 }
 
 //Creates new backup file with restored reserves
