@@ -1,9 +1,6 @@
 #pragma once
-#ifdef _WIN32 
+
 #include "dirent.h"
-#elif __linux__
-#include <dirent.h>
-#endif
 
 /**
 FILE STRUCTURE
@@ -53,7 +50,7 @@ public:
 
 	File(const std::string& path);
 	File(std::fstream& stream);
-	~File();
+	virtual ~File();
 
 	/**
 		Restores file to the original location

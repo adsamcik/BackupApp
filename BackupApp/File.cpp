@@ -3,16 +3,22 @@
 #include <istream>
 #include <fstream>
 #include <ctime>
+#include <time.h> 
 
 File::File(const std::string &path) {
 	if (!ext::isValidPath(path))
-		throw std::exception("path is invalid!");
+		throw std::runtime_error("path is invalid!");
 	this->path = new std::string(path);
 
 	struct stat t_stat;
-	auto r = stat(path.c_str(), &t_stat);
+	//todo
+	stat(path.c_str(), &t_stat);
 	this->lastEdited = new tm();
+#ifdef  _WIN32
 	gmtime_s(this->lastEdited, &t_stat.st_mtime);
+#else
+	gmtime_r(&t_stat.st_mtime, this->lastEdited);
+#endif
 	this->beginMeta = -1;
 	this->beginContent = -1;
 	this->endContent = -1;
@@ -32,7 +38,12 @@ File::File(std::fstream &stream) {
 	stream.get(mTimeData, 9);
 	auto t = reinterpret_cast<time_t*>(mTimeData);
 	lastEdited = new tm();
+#ifdef  _WIN32
 	gmtime_s(lastEdited, t);
+#else
+	gmtime_r(t, lastEdited);
+#endif
+
 
 	//Load content begin and end
 	stream.get(reinterpret_cast<char*>(&endContent), sizeof(endContent));
@@ -90,12 +101,13 @@ void File::Restore(std::fstream& stream) const {
 }
 
 void File::WriteMeta(std::fstream *stream) {
+	struct stat t_stat;
+	if (stat(path->c_str(), &t_stat) != 0)
+		throw std::runtime_error("Failed to open source file");
 	//path big or bigger than 4GB is unimaginable
 	uint32_t size = static_cast<uint32_t>(GetPath()->size());
 	stream->write(reinterpret_cast<char*>(&size), sizeof(size));
 	stream->write(GetPath()->c_str(), GetPath()->length());
-	struct stat t_stat;
-	auto r = stat(path->c_str(), &t_stat);
 	stream->write(reinterpret_cast<char*>(&t_stat.st_mtime), sizeof(t_stat.st_mtime));
 	stream->write(reinterpret_cast<char*>(&endContent), sizeof(endContent));
 	stream->write(reinterpret_cast<char*>(&reserve), sizeof(reserve));
@@ -115,8 +127,8 @@ char* File::GetPath() const {
 		is.read(buff, 4);
 		auto length = *reinterpret_cast<int*>(buff);
 		delete[] buff;
-		if (length < 0 || length == 0xcdcdcdcd)
-			throw std::exception("Invalid length of string");
+		if (length < 0)
+			throw std::runtime_error("Invalid length of string");
 		buff = new char[length + 1];
 		buff[length] = '\0';
 		is.read(buff, length);
@@ -161,8 +173,8 @@ std::vector<std::string>* Dir::GetFiles() {
 	//skip ..
 	readdir(dir);
 	if (dir != NULL) {
-		while (ent = readdir(dir)) {
-			v->push_back(std::string(ent->d_name, ent->d_namlen));
+		while ((ent = readdir(dir))) {
+			v->push_back(std::string(ent->d_name));
 		}
 	}
 	closedir(dir);

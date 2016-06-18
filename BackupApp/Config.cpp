@@ -16,7 +16,7 @@ void Config::Initialize() {
 	try {
 		auto frst = line.find_first_of('=');
 		if (frst == string::npos)
-			throw std::exception("Day is incorrectly saved");
+			throw std::runtime_error("Day is incorrectly saved");
 		day = static_cast<ext::DayOfWeek>(std::stoi(line.substr(frst + 1)));
 	}
 	catch (const std::exception e) {
@@ -119,7 +119,8 @@ void Config::Edit(FileManager &fm) {
 			else if (input[1] == "-p") {
 				string spath;
 				auto index = in.find_first_of("-p");
-				spath = ext::ltrim(in.substr(index + 2));
+				auto substr = in.substr(index + 2);
+				spath = ext::ltrim(substr);
 				URemove(fm, spath);
 			}
 			else if (input[1] == "-i") {
@@ -129,7 +130,7 @@ void Config::Edit(FileManager &fm) {
 					Console::PrintError("Argument must be a number");
 				else {
 					int val = atoi(input[2].c_str());
-					if (val >= paths.size() || val < 0)
+					if (val >= static_cast<int>(paths.size()) || val < 0)
 						Console::PrintError("Index must be between 0 and " + std::to_string(paths.size() - 1));
 					else
 						URemove(fm, val);
@@ -159,7 +160,7 @@ void Config::USetDay(const string & params) {
 		day = static_cast<ext::DayOfWeek>(d);
 		auto save = Save();
 		if (!save.success)
-			throw std::exception(save.message->c_str());
+			throw std::runtime_error(save.message->c_str());
 		std::cout << "Day updated" << std::endl;
 	}
 	catch (std::invalid_argument e) {
@@ -232,7 +233,7 @@ void Config::URemove(FileManager &fm, const string &line) {
 		getline(std::cin, response);
 		if (ext::isDigit(response)) {
 			auto val = atoi(response.c_str());
-			if (val > 0 && val < closeMatches.size()) {
+			if (val > 0 && val < static_cast<int>(closeMatches.size())) {
 				fm.Remove(*closeMatches[val]);
 				RemovePath(*closeMatches[val]);
 			}

@@ -42,7 +42,7 @@ public:
 	static inline void Clear() {
 #ifdef _WIN32 
 		std::system("cls");
-#elif __linux__
+#elif __linux
 		std::system("clear");
 #endif
 	}

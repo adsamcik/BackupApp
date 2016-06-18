@@ -2,14 +2,18 @@
 #include <cctype>
 #include <algorithm>
 #include <stdio.h>
+#include <cstring>
 #ifdef _WIN32
 #include <windows.h>
 #endif
+#include <sys/stat.h>
 #pragma once
 
 #define ws " \t\n\r\f\v"
 
 using std::string;
+
+#define MAX_PATH_LENGTH 4096
 
 /**
 	Namespace ext is generally list of short functions that are used all around the app
@@ -88,7 +92,7 @@ namespace ext {
 	@param string string to check
 	@param what what should the string start with
 	*/
-	static bool startsWith(const string& str, const string& what) {
+	static inline bool startsWith(const string& str, const string& what) {
 		if (str.length() < what.length())
 			return false;
 		for (size_t i = 0; i < what.length(); i++) {
@@ -102,7 +106,7 @@ namespace ext {
 		Number of digits in number
 	*/
 	template <class T>
-	int numDigits(T number) {
+	static inline int numDigits(T number) {
 		int digits = 0;
 		if (number < 0) digits = 1; // remove this line if '-' counts as a digit
 		while (number) {
@@ -157,12 +161,11 @@ namespace ext {
 	}
 
 	static inline string fullPath(const string relPath) {
-		char* p;
+		char* p = new char[MAX_PATH_LENGTH];
 #ifdef _WIN32 
-		p = new char[4096];
-		_fullpath(p, relPath.c_str(), 4096);
-#elif linux
-		realpath(s1.c_str(), p);
+		_fullpath(p, relPath.c_str(), MAX_PATH_LENGTH);
+#elif __linux
+		realpath(relPath.c_str(), p);
 #endif
 		string ret = string(p);
 		delete[] p;
@@ -175,13 +178,12 @@ namespace ext {
 	Contains only simple check on Windows due to requirement of rather bigger lib to ensure crossplatform compatibility
 	*/
 	static inline bool comparePaths(const string &s1, const string &s2) {
-		char *r1, *r2;
+		char *r1 = new char[MAX_PATH_LENGTH];
+		char *r2 = new char[MAX_PATH_LENGTH];
 #ifdef _WIN32 
-		r1 = new char[4096];
-		r2 = new char[4096];
-		_fullpath(r1, s1.c_str(), 4096);
-		_fullpath(r2, s2.c_str(), 4096);
-#elif linux
+		_fullpath(r1, s1.c_str(), MAX_PATH_LENGTH);
+		_fullpath(r2, s2.c_str(), MAX_PATH_LENGTH);
+#elif __linux
 		realpath(s1.c_str(), r1);
 		realpath(s2.c_str(), r2);
 #endif

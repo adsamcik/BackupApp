@@ -4,7 +4,7 @@
 #include "Config.h"
 #include "Console.h"
 #include <ctime>
-#ifdef linux
+#ifdef __linux
 #include <unistd.h>
 #endif
 #ifdef _WIN32
@@ -67,10 +67,11 @@ void FileManager::OffsetBackward(const std::streampos & beg, const std::streamof
 }
 
 void FileManager::Truncate(const off_t shrinkBy) const {
-#if linux
-	shrinkBy = fileEnd + shrinkBy;
-#endif
+#ifdef __linux
+	truncate(BACKUP_FILE, static_cast<off_t>(fileEnd) + shrinkBy);
+#else
 	truncate(BACKUP_FILE, shrinkBy);
+#endif
 }
 
 
@@ -222,7 +223,7 @@ void FileManager::PickRestore(std::vector<File*>& files) const {
 		files[0]->Restore(*stream);
 	else {
 		Console c(2);
-		for (int i = 0; i < files.size(); i++)
+		for (size_t i = 0; i < files.size(); i++)
 			c.Add(*files[i]->GetPath());
 		c.Print(true);
 	}
@@ -241,14 +242,14 @@ void FileManager::PrintContent(const int contentLimit) {
 			auto path = f->GetPath();
 			if (f->lastEdited->tm_hour == -1) {
 				if (ext::isValidPath(path->c_str()))
-					throw std::exception(("DATE FOR FILE \"" + *path + "\" IS CORRUPTED").c_str());
+					throw std::runtime_error(("DATE FOR FILE \"" + *path + "\" IS CORRUPTED").c_str());
 				else
-					throw std::exception(("BACKUP FILE IS CORRUPTED. Detected at " + std::to_string(static_cast<std::streamoff>(beg))).c_str());
+					throw std::runtime_error(("BACKUP FILE IS CORRUPTED. Detected at " + std::to_string(static_cast<std::streamoff>(beg))).c_str());
 			}
 			else if (f->endContent < 0)
-				throw std::exception(("FILE " + *path + " has incorrect end content position").c_str());
+				throw std::runtime_error(("FILE " + *path + " has incorrect end content position").c_str());
 			char* buffer = new char[80];
-			auto ptr = strftime(buffer, 80, "%c", f->lastEdited);
+			strftime(buffer, 80, "%c", f->lastEdited);
 			string newer = f->IsNewer() ? "true" : "false";
 			Console c(2);
 			c.Add("Path:\t" + *path)

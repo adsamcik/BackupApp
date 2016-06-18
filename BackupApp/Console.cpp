@@ -5,7 +5,7 @@ using std::string;
 
 Console::Console(const uint16_t& length, const uint16_t& spaces) {
 	if (length == 0)
-		throw std::exception("Length cannot be 0");
+		throw std::runtime_error("Length cannot be 0");
 	this->columnsCount = length;
 	this->columns = new uint16_t[length];
 	for (size_t i = 0; i < length; i++)
@@ -16,7 +16,7 @@ Console::Console(const uint16_t& length, const uint16_t& spaces) {
 
 Console::~Console() {
 	delete[] columns;
-	for (int i = 0; i < content.size(); i++)
+	for (size_t i = 0; i < content.size(); i++)
 		delete[] content[i];
 }
 
@@ -55,19 +55,15 @@ Console& Console::Add(const std::vector<std::string*>& vec) {
 }
 
 void Console::Print(const bool showIndexes)const {
-	for (int i = 0; i < content.size(); i++) {
-		size_t tabIndex = 0;
-		size_t nextTab = 0;
+	for (size_t i = 0; i < content.size(); i++) {
 		auto row = content[i];
 		if (showIndexes) {
 			int size = ext::numDigits(content.size());
 			auto index = std::to_string(i);
 			std::cout << index << std::string(size - index.length() + spaces, ' ');
 		}
-		for (size_t i = 0; i < columnsCount; i++) {
-			std::cout << row[i] << std::string(columns[i] - row[i].size() + spaces, ' ');
-			tabIndex = nextTab;
-		}
+		for (size_t ii = 0; ii < columnsCount; ii++)
+			std::cout << row[ii] << std::string(columns[ii] - row[ii].size() + spaces, ' ');
 		std::cout << std::endl;
 	}
 }
