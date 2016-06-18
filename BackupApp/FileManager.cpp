@@ -78,7 +78,7 @@ void FileManager::Truncate(const off_t shrinkBy) const {
 #ifdef _WIN32
 int FileManager::truncate(const char *path, const off_t shrinkBy) const {
 	string fullPath = ext::fullPath(path);
-	wchar_t *wtext =  new wchar_t[fullPath.length()+1];
+	wchar_t *wtext = new wchar_t[fullPath.length() + 1];
 	mbstowcs(wtext, fullPath.c_str(), fullPath.length() + 1);//Plus null
 	LPWSTR ptr = wtext;
 
@@ -333,14 +333,17 @@ void FileManager::Backup(Dir *dir) {
 				delete d;
 			}
 			else {
-				File *f = nullptr, *tf;
+				File *f = nullptr, *tf = nullptr;
 				std::streampos pos = stream->tellg();
 				std::streampos end;
 				stream->clear();
 				do {
-					tf = new File(*stream);
-					if (stream->fail()) {
-						delete tf;
+					try {
+						tf = new File(*stream);
+					}
+					catch (std::exception e) {
+						if (tf != nullptr)
+							delete tf;
 						break;
 					}
 					if (tf->GetPath()->length() == 0)
@@ -364,6 +367,7 @@ void FileManager::Backup(Dir *dir) {
 					}
 					end = tf->endContent;
 					delete tf;
+					tf = nullptr;
 				} while (stream->seekg(end).peek());
 				if (f == nullptr)
 					f = new File(fullname);
