@@ -71,7 +71,7 @@ void FileManager::OffsetBackward(const std::streampos & beg, const std::streamof
 void FileManager::Offset(const std::streampos &beg, const std::streamoff &off) {
 	//is signed to save on conversion when using in seek
 	const int32_t bufferSize = 512;
-
+	std::cout << "Offsetting data by " << off << std::endl;
 	if (off > 0)
 		OffsetBackward(beg, off, bufferSize);
 	else if (off < 0)
@@ -260,7 +260,7 @@ void FileManager::PrintContent(const int contentLimit) {
 				.Add("Begin content:\t" + std::to_string(f->beginContent))
 				.Add("Reserve:\t" + std::to_string(f->reserve))
 				.Add("Is newer version available:\t" + newer)
-				.Add("Content length:\t" + std::to_string(f->endContent - f->beginContent))
+				.Add("Content length:\t" + std::to_string(f->endContent - f->beginContent - f->reserve))
 				.Print(false);
 			delete[] buffer;
 			stream->seekg(f->beginMeta + f->beginContent);
@@ -354,6 +354,9 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 			return;
 		}
 	}
+	else {
+		file->reserve = FILE_RESERVE;
+	}
 	std::ifstream ostream(*file->GetPath(), std::ifstream::ate | std::ifstream::binary);
 	if (ostream.fail()) {
 		Console::PrintError("Failed to open " + *file->GetPath() + "  ...  Skipping");
@@ -362,20 +365,26 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 	std::streamoff length = ostream.tellg();
 	ostream.seekg(ostream.beg);
 
+	auto clength = file->endContent - file->beginContent;
+	if (file->endContent != -1 && length != clength) {
+		if (length - clength > file->reserve) {
+			Offset(file->endContent, length - clength + FILE_RESERVE);
+			file->reserve = FILE_RESERVE;
+		}
+		else {
+			file->reserve -= length - clength;
+		}
+	}
+
 	file->beginMeta = beg;
 	file->beginContent = BHEADER_SIZE + file->GetPath()->size();
-	file->endContent = file->beginContent + length;
+	file->endContent = file->beginContent + length + file->reserve;
 	stream->clear();
 	stream->seekg(beg);
 	file->WriteMeta(stream);
 
-	if (file->endContent != -1 && length > file->endContent - file->beginContent) {
-		auto off = static_cast<std::streamoff>(length * 1.1 - (file->endContent - file->beginContent));
-		Offset(file->endContent, off);
-		std::cout << "Offsetting data" << std::endl;
-	}
-
 	*stream << ostream.rdbuf();
+	stream->write(string(file->reserve, '\0').c_str(), file->reserve);
 
 	auto pos = stream->tellg();
 	if (pos > fileEnd)

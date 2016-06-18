@@ -17,6 +17,8 @@ FILE STRUCTURE
 #define timegm _mkgmtime
 #endif
 
+#define FILE_RESERVE 1024
+
 class File {
 private:
 	/**

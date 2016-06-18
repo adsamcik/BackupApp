@@ -29,16 +29,16 @@ File::File(std::fstream &stream) {
 	this->beginMeta = stream.tellg();
 	//Load string
 	char* mLengthData = new char[4];
-	stream.get(mLengthData, 4);
+	stream.read(mLengthData, 4);
 	uint32_t sLength = uint32_t(*reinterpret_cast<uint32_t*>(mLengthData));
 	delete[] mLengthData;
 	path = nullptr;
 	//path is loaded on demand
-	stream.seekg(sLength + 1, std::ios::cur);
+	stream.seekg(sLength, std::ios::cur);
 	//Load time
 	//Some weird shit here
-	char* mTimeData = new char[9];
-	if (stream.get(mTimeData, 9).fail()) {
+	char* mTimeData = new char[8];
+	if (stream.read(mTimeData, 8).fail()) {
 		delete[] mTimeData;
 		throw std::runtime_error("Failed to load last edit information");
 	}
@@ -52,8 +52,8 @@ File::File(std::fstream &stream) {
 
 
 	//Load content begin and end
-	stream.get(reinterpret_cast<char*>(&endContent), sizeof(endContent));
-	stream.get(reinterpret_cast<char*>(&reserve), sizeof(reserve));
+	stream.read(reinterpret_cast<char*>(&endContent), sizeof(endContent));
+	stream.read(reinterpret_cast<char*>(&reserve), sizeof(reserve));
 
 	beginContent = BHEADER_SIZE + sLength;
 
@@ -91,14 +91,14 @@ void File::Restore(std::fstream& stream) const {
 	auto count = size / 32;
 	char* cache = new char[32];
 	for (long long i = 0; i < count; i++) {
-		stream.get(cache, 32);
+		stream.read(cache, 32);
 		outfile << cache;
 	}
 	delete[] cache;
 	auto diff = size - (count * 32);
 	if (diff > 0) {
 		char* temp = new char[diff];
-		stream.get(temp, diff);
+		stream.read(temp, diff);
 		outfile << temp;
 		delete[] temp;
 	}
