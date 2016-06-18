@@ -4,6 +4,12 @@
 #include "Config.h"
 #include "Console.h"
 #include <ctime>
+#ifdef linux
+#include <unistd.h>
+#endif
+#ifdef _WIN32
+#include <io.h>
+#endif
 
 using std::string;
 
@@ -28,6 +34,10 @@ void FileManager::OffsetForward(const std::streampos & beg, const std::streamoff
 		stream->write(buffer, diff);
 		delete[] buffer;
 	}
+	std::cout << fileEnd << " / " << off << std::endl;
+	Close();
+	Truncate(static_cast<off_t>(off));
+	Open();
 }
 
 void FileManager::OffsetBackward(const std::streampos & beg, const std::streamoff & off, const int32_t bufferSize) {
@@ -55,6 +65,30 @@ void FileManager::OffsetBackward(const std::streampos & beg, const std::streamof
 		delete[] buffer;
 	}
 }
+
+void FileManager::Truncate(const off_t shrinkBy) const {
+#if linux
+	shrinkBy = fileEnd + shrinkBy;
+#endif
+	truncate(BACKUP_FILE, shrinkBy);
+}
+
+
+#ifdef _WIN32
+int FileManager::truncate(const char *path, const off_t shrinkBy) const {
+	string fullPath = ext::fullPath(path);
+	wchar_t *wtext =  new wchar_t[fullPath.length()+1];
+	mbstowcs(wtext, fullPath.c_str(), fullPath.length() + 1);//Plus null
+	LPWSTR ptr = wtext;
+
+	HANDLE hFile = CreateFile(ptr, GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, 0);
+	SetFilePointer(hFile, shrinkBy, 0, FILE_END);
+	SetEndOfFile(hFile);
+	CloseHandle(hFile);
+	delete[] wtext;
+	return 0;
+}
+#endif
 
 FileManager::FileManager() {
 	//fstream does not create file with fstream::in flag
@@ -148,16 +182,20 @@ void FileManager::Restore(const std::string &name) const {
 }
 
 void FileManager::Remove(const std::string & path) {
+	if (!Open())
+		return;
 	File* f;
 	bool found = false;
 	std::streampos beg;
 	std::streampos pos;
 	std::streampos end;
-	stream->seekg(stream->beg);
+
+	stream->seekg(0);
 	do {
 		pos = stream->tellg();
 		f = new File(*stream);
 		if (ext::startsWith(*f->GetPath(), path)) {
+			std::cout << "Found " << *f->GetPath() << std::endl;
 			if (!found) {
 				beg = pos;
 				found = true;
@@ -167,9 +205,14 @@ void FileManager::Remove(const std::string & path) {
 			found = false;
 			Offset(pos, beg - pos);
 		}
-		end = f->endContent;
+		end = f->beginMeta + f->endContent;
 		delete f;
 	} while (stream->seekg(end).peek() != EOF);
+
+	if (found)
+		Offset(fileEnd, beg - fileEnd);
+
+	Close();
 }
 
 void FileManager::PickRestore(std::vector<File*>& files) const {

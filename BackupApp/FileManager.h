@@ -23,6 +23,11 @@ private:
 	Handles offset backward
 	*/
 	void OffsetBackward(const std::streampos &beg, const std::streamoff &off, const int32_t bufferSize);
+
+	void Truncate(const off_t length) const;
+#ifdef  _WIN32
+	int truncate(const char *path, const off_t shrinkBy) const;
+#endif //  _WIN32
 public:
 	FileManager();
 	~FileManager();
