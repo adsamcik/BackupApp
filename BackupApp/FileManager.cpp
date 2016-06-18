@@ -294,6 +294,10 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 		}
 	}
 	std::ifstream ostream(*file->GetPath(), std::ifstream::ate | std::ifstream::binary);
+	if (ostream.fail()) {
+		Console::PrintError("Failed to open " + *file->GetPath() + "  ...  Skipping");
+		return;
+	}
 	std::streamoff length = ostream.tellg();
 	ostream.seekg(ostream.beg);
 
@@ -319,8 +323,9 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 
 void FileManager::Backup(Dir *dir) {
 	auto v = dir->GetFiles();
+	std::cout << "Backing up dir " << *dir->GetPath() << std::endl;
 	for (auto filename : *v) {
-		auto fullname = *dir->GetPath() + '\\' + filename;
+		auto fullname = *dir->GetPath() + '/' + filename;
 		if (ext::isValidPath(fullname.c_str())) {
 			if (ext::isDir(fullname.c_str())) {
 				auto d = new Dir(fullname);
@@ -369,7 +374,7 @@ void FileManager::Backup(Dir *dir) {
 			}
 		}
 		else
-			Console::PrintError(filename + " is invalid path");
+			Console::PrintError(fullname + " is invalid path");
 	}
 	delete v;
 }
@@ -384,6 +389,8 @@ void FileManager::BackupAll() {
 	for (auto path : paths) {
 		if (ext::isDir(path.c_str())) {
 			Dir *d = new Dir(path);
+			Console c(1);
+			//c.Add(*d->GetFiles()).Print(false);
 			Backup(d);
 			delete d;
 		}
