@@ -304,6 +304,7 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 	file->beginMeta = beg;
 	file->beginContent = BHEADER_SIZE + file->GetPath()->size();
 	file->endContent = file->beginContent + length;
+	stream->clear();
 	stream->seekg(beg);
 	file->WriteMeta(stream);
 
