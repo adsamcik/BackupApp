@@ -172,7 +172,13 @@ void FileManager::Restore(const std::string &name) const {
 	std::streamoff end;
 	std::vector<File*> files;
 	do {
-		f = new File(*stream);
+		try {
+			f = new File(*stream);
+		}
+		catch (std::exception e) {
+			Console::PrintError(string(e.what()) + "   Aborting");
+			return;
+		}
 		end = f->endContent;
 		if (f->GetPath()->find(name) != string::npos)
 			files.push_back(f);
