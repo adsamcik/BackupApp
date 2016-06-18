@@ -31,14 +31,17 @@ File::File(std::fstream &stream) {
 	char* mLengthData = new char[4];
 	stream.get(mLengthData, 4);
 	uint32_t sLength = uint32_t(*reinterpret_cast<uint32_t*>(mLengthData));
+	delete[] mLengthData;
 	path = nullptr;
 	//path is loaded on demand
 	stream.seekg(sLength + 1, std::ios::cur);
 	//Load time
 	//Some weird shit here
 	char* mTimeData = new char[9];
-	if (stream.get(mTimeData, 9).fail())
+	if (stream.get(mTimeData, 9).fail()) {
+		delete[] mTimeData;
 		throw std::runtime_error("Failed to load last edit information");
+	}
 	auto t = reinterpret_cast<time_t*>(mTimeData);
 	lastEdited = new tm();
 #ifdef  _WIN32
@@ -55,7 +58,6 @@ File::File(std::fstream &stream) {
 	beginContent = BHEADER_SIZE + sLength;
 
 	delete[] mTimeData;
-	delete[] mLengthData;
 }
 
 File::~File() {

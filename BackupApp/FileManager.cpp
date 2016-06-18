@@ -318,7 +318,7 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 	auto pos = stream->tellg();
 	if (pos > fileEnd)
 		fileEnd = pos;
-	std::cout << "Backed up " << file->GetPath()->c_str() << std::endl;
+	std::cout << "Backed up " << file->GetPath()->c_str() << " at pos " << beg << std::endl;
 }
 
 void FileManager::Backup(Dir *dir) {
@@ -342,10 +342,10 @@ void FileManager::Backup(Dir *dir) {
 						tf = new File(*stream);
 					}
 					catch (std::exception e) {
-						if (tf != nullptr)
-							delete tf;
+						delete tf;
 						break;
 					}
+
 					if (tf->GetPath()->length() == 0)
 						Console::PrintError("File path length is 0");
 					else {
@@ -367,7 +367,6 @@ void FileManager::Backup(Dir *dir) {
 					}
 					end = tf->endContent;
 					delete tf;
-					tf = nullptr;
 				} while (stream->seekg(end).peek());
 				if (f == nullptr)
 					f = new File(fullname);
