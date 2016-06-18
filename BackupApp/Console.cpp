@@ -29,7 +29,7 @@ Console& Console::Add(const std::string &text) {
 		else
 			last = text.find('\t', last);
 		if (last == string::npos)
-			throw std::invalid_argument("text has less rows than required");
+			throw std::invalid_argument("text " + text + " has less rows than required");
 
 		arr[i] = text.substr(prev, last - prev);
 
