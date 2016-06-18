@@ -11,6 +11,7 @@
 #include <io.h>
 #endif
 
+#define DBG
 using std::string;
 
 void FileManager::OffsetForward(const std::streampos & beg, const std::streamoff & off, const int32_t bufferSize) {
@@ -64,6 +65,19 @@ void FileManager::OffsetBackward(const std::streampos & beg, const std::streamof
 		stream->write(buffer, diff);
 		delete[] buffer;
 	}
+}
+
+
+void FileManager::Offset(const std::streampos &beg, const std::streamoff &off) {
+	//is signed to save on conversion when using in seek
+	const int32_t bufferSize = 512;
+
+	if (off > 0)
+		OffsetBackward(beg, off, bufferSize);
+	else if (off < 0)
+		OffsetForward(beg, off, bufferSize);
+	else
+		Console::PrintError("Offset is set to 0, this can't be right.");
 }
 
 void FileManager::Truncate(const off_t shrinkBy) const {
@@ -137,29 +151,11 @@ void FileManager::Clear() {
 	if (stream->is_open()) {
 		std::cout << "Cleared all backups" << std::endl;
 		isEmpty = true;
+		fileEnd = 0;
 		Close();
 	}
 	else
 		Console::PrintError("Failed to clear backups");
-}
-
-void FileManager::Backup(File * file) {
-	if (file->beginMeta >= 0)
-		Backup(file, file->beginMeta);
-	else
-		Backup(file, fileEnd);
-}
-
-void FileManager::Offset(const std::streampos &beg, const std::streamoff &off) {
-	//is signed to save on conversion when using in seek
-	const int32_t bufferSize = 512;
-
-	if (off > 0)
-		OffsetBackward(beg, off, bufferSize);
-	else if (off < 0)
-		OffsetForward(beg, off, bufferSize);
-	else
-		Console::PrintError("Offset is set to 0, this can't be right.");
 }
 
 //Creates new backup file with restored reserves
@@ -291,6 +287,56 @@ void FileManager::PrintContent(const int contentLimit) {
 	Close();
 }
 
+File* FileManager::GetFileFromStream(const string path)const {
+	File *ts = nullptr;
+	std::streampos end;
+	do {
+		try {
+			ts = new File(*stream);
+		}
+		catch (std::bad_alloc e) {
+			Console::PrintError(e.what());
+			break;
+		}
+		catch (std::exception e) {
+			delete ts;
+			break;
+		}
+
+		if (ts->GetPath()->length() == 0) {
+			ts->ClearPath();
+			Console::PrintError("File path length is 0");
+			break;
+		}
+		else {
+			if (ext::startsWith(*ts->GetPath(), ext::parent(path))) {
+				int cmp = strcmp(ts->GetPath()->c_str(), path.c_str());
+				if (cmp == 0) {
+					return ts;
+				}
+				else if (cmp < 0) {
+					delete ts;
+					break;
+				}
+			}
+			else {
+				delete ts;
+				break;
+			}
+		}
+		end = ts->endContent;
+		delete ts;
+	} while (stream->seekg(end).peek());
+	return new File(path);
+}
+
+void FileManager::Backup(File * file) {
+	if (file->beginMeta >= 0)
+		Backup(file, file->beginMeta);
+	else
+		Backup(file, fileEnd);
+}
+
 void FileManager::Backup(File *file, const std::streampos &beg) {
 	if (file->beginMeta != -1) {
 		if (!file->IsNewer()) {
@@ -325,7 +371,9 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 	auto pos = stream->tellg();
 	if (pos > fileEnd)
 		fileEnd = pos;
-	std::cout << "Backed up " << file->GetPath()->c_str() << " at pos " << beg << std::endl;
+#ifdef DBG
+	std::cout << "Backed up " << file->GetPath()->c_str() << std::endl;
+#endif
 }
 
 void FileManager::Backup(Dir *dir) {
@@ -340,45 +388,10 @@ void FileManager::Backup(Dir *dir) {
 				delete d;
 			}
 			else {
-				File *f = nullptr, *tf = nullptr;
-				std::streampos pos = stream->tellg();
-				std::streampos end;
 				stream->clear();
-				do {
-					try {
-						tf = new File(*stream);
-					}
-					catch (std::exception e) {
-						delete tf;
-						break;
-					}
-
-					if (tf->GetPath()->length() == 0)
-						Console::PrintError("File path length is 0");
-					else {
-						if (ext::startsWith(*tf->GetPath(), *dir->GetPath())) {
-							int cmp = strcmp(tf->GetPath()->c_str(), fullname.c_str());
-							if (cmp == 0) {
-								f = tf;
-								break;
-							}
-							else if (cmp < 0) {
-								delete tf;
-								break;
-							}
-						}
-						else {
-							delete tf;
-							break;
-						}
-					}
-					end = tf->endContent;
-					delete tf;
-				} while (stream->seekg(end).peek());
-				if (f == nullptr)
-					f = new File(fullname);
+				auto f = GetFileFromStream(fullname);
 				stream->clear();
-				Backup(f, pos);
+				Backup(f, stream->tellg());
 				stream->seekg(f->beginMeta + f->endContent);
 				delete f;
 			}
@@ -399,13 +412,13 @@ void FileManager::BackupAll() {
 	for (auto path : paths) {
 		if (ext::isDir(path.c_str())) {
 			Dir *d = new Dir(path);
-			Console c(1);
+			//Console c(1);
 			//c.Add(*d->GetFiles()).Print(false);
 			Backup(d);
 			delete d;
 		}
 		else if (ext::isValidPath(path)) {
-			File *f = new File(path);
+			File *f = GetFileFromStream(path);
 			Backup(f);
 			delete f;
 		}

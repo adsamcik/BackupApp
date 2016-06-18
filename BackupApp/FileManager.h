@@ -39,6 +39,8 @@ public:
 
 	void Clear();
 
+	File* GetFileFromStream(const string file) const;
+
 	/**
 		Backs up file
 	*/
