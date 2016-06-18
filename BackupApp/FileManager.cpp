@@ -303,9 +303,18 @@ File* FileManager::GetFileFromStream(const string path)const {
 			break;
 		}
 
+		try {
+			ts->GetPath();
+		}
+		catch (std::exception e) {
+			Console::PrintError(e.what());
+			delete ts;
+			break;
+		}
+
 		if (ts->GetPath()->length() == 0) {
-			ts->ClearPath();
 			Console::PrintError("File path length is 0");
+			delete ts;
 			break;
 		}
 		else {
