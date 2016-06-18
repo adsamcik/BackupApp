@@ -367,7 +367,7 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 
 	auto clength = file->endContent - file->beginContent;
 	if (file->endContent != -1 && length != clength) {
-		if (length - clength > file->reserve) {
+		if (length - (clength - file->reserve) > file->reserve) {
 			Offset(file->endContent, length - clength + FILE_RESERVE);
 			file->reserve = FILE_RESERVE;
 		}
