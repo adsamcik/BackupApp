@@ -225,7 +225,7 @@ namespace ext {
 		@parameter caseSensitive whether to care about case
 		@return true if exact match is found
 	*/
-	static inline bool findCloseMatch(const std::vector<string>& source, const std::string& searchFor, std::vector<const string*>& closeMatches, const bool caseSensitive) {
+	static inline bool findCloseMatch(std::vector<string>& source, const std::string& searchFor, std::vector<string*>& closeMatches, const bool caseSensitive) {
 		string target = caseSensitive ? searchFor : tolower(searchFor);
 		for (size_t i = 0; i < source.size(); i++) {
 			if (source[i] == target) {
