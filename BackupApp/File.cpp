@@ -34,8 +34,10 @@ File::File(std::fstream &stream) {
 	//path is loaded on demand
 	stream.seekg(sLength + 1, std::ios::cur);
 	//Load time
+	//Some weird shit here
 	char* mTimeData = new char[9];
-	stream.get(mTimeData, 9);
+	if (stream.get(mTimeData, 9).fail())
+		throw std::runtime_error("Failed to load last edit information");
 	auto t = reinterpret_cast<time_t*>(mTimeData);
 	lastEdited = new tm();
 #ifdef  _WIN32
