@@ -178,5 +178,6 @@ std::vector<std::string>* Dir::GetFiles() {
 		}
 	}
 	closedir(dir);
+	std::sort(v->begin(), v->end());
 	return v;
 }
