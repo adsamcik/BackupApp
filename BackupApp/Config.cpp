@@ -246,7 +246,8 @@ void Config::URemove(FileManager &fm, const string &line) {
 
 }
 
-void Config::URemove(const size_t & index) {
+void Config::URemove(FileManager &fm, const size_t & index) {
+	fm.Remove(paths[index]);
 	RemovePath(index);
 }
 

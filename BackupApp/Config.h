@@ -59,7 +59,7 @@ public:
 		Remove path by index
 		@param index index (can be found with list function)
 	*/
-	static void URemove(const size_t& index);
+	static void URemove(FileManager &fm, const size_t& index);
 
 	/**
 		paths to back up
