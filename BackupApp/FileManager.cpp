@@ -365,9 +365,9 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 	std::streamoff length = ostream.tellg();
 	ostream.seekg(ostream.beg);
 
-	auto clength = file->endContent - file->beginContent;
+	auto clength = file->endContent - file->beginContent - file->reserve;
 	if (file->endContent != -1 && length != clength) {
-		if (length - (clength - file->reserve) > file->reserve) {
+		if (length - clength > file->reserve) {
 			Offset(file->endContent, length - clength + FILE_RESERVE);
 			file->reserve = FILE_RESERVE;
 		}
@@ -409,7 +409,7 @@ void FileManager::Backup(Dir *dir) {
 				stream->clear();
 				auto f = GetFileFromStream(fullname);
 				stream->clear();
-				Backup(f, stream->tellg());
+				Backup(f, f->beginMeta != -1 ? f->beginMeta : stream->tellg());
 				stream->seekg(f->beginMeta + f->endContent);
 				delete f;
 			}
