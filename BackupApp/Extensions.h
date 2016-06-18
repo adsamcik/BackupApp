@@ -37,6 +37,29 @@ namespace ext {
 		Sunday
 	};
 
+	static string dayOfWeekToString(const DayOfWeek& day) {
+		switch (day) {
+		case DayOfWeek::Monday:
+			return "Monday";
+		case DayOfWeek::Tuesday:
+			return "Tusday";
+		case DayOfWeek::Wednesday:
+			return "Wednesday";
+		case DayOfWeek::Thursday:
+			return "Thursday";
+		case DayOfWeek::Friday:
+			return "Friday";
+		case DayOfWeek::Saturday:
+			return "Saturday";
+		case DayOfWeek::Sunday:
+			return "Sunday";
+		case DayOfWeek::Undefined:
+			return "Undefined";
+		default:
+			return "What?";
+		}
+	}
+
 	/**
 		Converts all chars in string to lower case
 		@param s string to convert

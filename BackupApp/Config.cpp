@@ -99,7 +99,14 @@ void Config::Edit(FileManager &fm) {
 		string cmd = ext::tolower(input[0]);
 
 		if (ext::startsWith(cmd, "day")) {
-			if (input.size() != 2)
+			if (input.size() == 1) {
+				if (day == ext::DayOfWeek::Undefined)
+					std::cout << "You have not set backup day yet." << std::endl;
+				else {
+					std::cout << "Your files will be backed up every " << ext::dayOfWeekToString(day) << ". If you don't forget to launch this app." << std::endl;
+				}
+			}
+			else if (input.size() > 2)
 				Console::PrintError("Invalid number of arguments. Required 1 number.");
 			else
 				USetDay(input[1]);
