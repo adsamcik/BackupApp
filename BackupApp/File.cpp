@@ -12,7 +12,7 @@ File::File(const std::string &path) {
 	struct stat t_stat;
 	auto r = stat(path.c_str(), &t_stat);
 	this->lastEdited = new tm();
-	localtime_s(this->lastEdited, &t_stat.st_mtime);
+	gmtime_s(this->lastEdited, &t_stat.st_mtime);
 	this->beginMeta = -1;
 	this->beginContent = -1;
 	this->endContent = -1;
@@ -32,7 +32,7 @@ File::File(std::fstream &stream) {
 	stream.get(mTimeData, 9);
 	auto t = reinterpret_cast<time_t*>(mTimeData);
 	lastEdited = new tm();
-	localtime_s(lastEdited, t);
+	gmtime_s(lastEdited, t);
 
 	//Load content begin and end
 	stream.get(reinterpret_cast<char*>(&endContent), sizeof(endContent));
@@ -53,6 +53,14 @@ bool File::IsNewer() {
 	struct stat s;
 	if (stat(GetPath()->c_str(), &s) != 0)
 		return false;
+	auto t = new tm();
+	gmtime_s(t, &s.st_mtime);
+	std::cout << "Comparing time of " << *GetPath() << std::endl << s.st_mtime << " new vs old " << timegm(lastEdited) << std::endl;
+	char* buffer = new char[80];
+	auto ptr = strftime(buffer, 80, "%c", t);
+	std::cout << "new " << buffer << std::endl;
+	ptr = strftime(buffer, 80, "%c", lastEdited);
+	std::cout << "old " << buffer << std::endl;
 	return s.st_mtime > timegm(lastEdited);
 }
 
@@ -82,7 +90,7 @@ void File::WriteMeta(std::fstream *stream) {
 	uint32_t size = static_cast<uint32_t>(GetPath()->size());
 	stream->write(reinterpret_cast<char*>(&size), sizeof(size));
 	stream->write(GetPath()->c_str(), GetPath()->length());
-	auto le = mktime(lastEdited);
+	auto le = timegm(lastEdited);
 	stream->write(reinterpret_cast<char*>(&le), sizeof(le));
 	stream->write(reinterpret_cast<char*>(&endContent), sizeof(endContent));
 	stream->write(reinterpret_cast<char*>(&reserve), sizeof(reserve));
