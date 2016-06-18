@@ -130,7 +130,7 @@ void Config::Edit(FileManager &fm) {
 				else {
 					int val = atoi(input[2].c_str());
 					if (val >= paths.size() || val < 0)
-						Console::PrintError("Index must be between 0 and " + std::to_string(paths.size()));
+						Console::PrintError("Index must be between 0 and " + std::to_string(paths.size() - 1));
 					else
 						URemove(val);
 				}
@@ -253,11 +253,11 @@ void Config::URemove(const size_t & index) {
 void Config::PrintOptions() {
 	Console c(2);
 	c.Add("day <0-7>\tsets day of auto-backup. 0 disables autobackup, 1 is Monday")
-	.Add("list\treturns list of backed up folders and files with their indexes for easier removal")
-	.Add("add <path>\tadds path to backup")
-	.Add("remove <-p/-i> <path/index>\tremoves path. Use -p for path or -i for index")
-	.Add("help\tto print this help again")
-	.Print(false);
+		.Add("list\treturns list of backed up folders and files with their indexes for easier removal")
+		.Add("add <path>\tadds path to backup")
+		.Add("remove <-p/-i> <path/index>\tremoves path. Use -p for path or -i for index")
+		.Add("help\tto print this help again")
+		.Print(false);
 }
 
 std::vector<string> Config::paths;
