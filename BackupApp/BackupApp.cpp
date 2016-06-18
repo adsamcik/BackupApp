@@ -32,7 +32,7 @@ bool ResolveInput() {
 		fm.BackupAll();
 	}
 	else if (ext::startsWith(cmd, "restore")) {
-		if (input.size() == 1)
+		if (input.size() == 2)
 			fm.Restore(input[1]);
 		else
 			Console::PrintError("Invalid number of arguments");
