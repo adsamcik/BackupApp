@@ -200,6 +200,7 @@ void Config::UAdd(const string & path) {
 
 void Config::URemove(FileManager &fm, const string &line) {
 	std::vector<string*> closeMatches;
+	auto lower = ext::tolower(line);
 	for (size_t i = 0; i < paths.size(); i++) {
 		if (paths[i] == line) {
 			fm.Remove(line);
@@ -207,7 +208,7 @@ void Config::URemove(FileManager &fm, const string &line) {
 			std::cout << "Removed successfully" << std::endl;
 			return;
 		}
-		if (paths[i].find(line) != string::npos)
+		if (ext::tolower(paths[i]).find(lower) != string::npos)
 			closeMatches.push_back(&paths[i]);
 	}
 
