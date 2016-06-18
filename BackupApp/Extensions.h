@@ -218,6 +218,27 @@ namespace ext {
 	}
 
 	/**
+		Looks for close matches
+		@parameter source source vector which will be searched.
+		@parameter searchFor string to look for
+		@parameter closeMatches vector which will contain found matches. Is empty if exact match was found.
+		@parameter caseSensitive whether to care about case
+		@return true if exact match is found
+	*/
+	static inline bool findCloseMatch(const std::vector<string>& source, const std::string& searchFor, std::vector<const string*>& closeMatches, const bool caseSensitive) {
+		string target = caseSensitive ? searchFor : tolower(searchFor);
+		for (size_t i = 0; i < source.size(); i++) {
+			if (source[i] == target) {
+				closeMatches.clear();
+				return true;
+			}
+			if ((caseSensitive && source[i].find(target) != string::npos) || ext::tolower(source[i]).find(target) != string::npos)
+				closeMatches.push_back(&source[i]);
+		}
+		return false;
+	}
+
+	/**
 		Structure for returning success values with messages
 		Automatically deletes message, because it assumes the message is not reused and there is no point copying it
 		message is not a pointer to reduce copying when it's not null
