@@ -105,6 +105,9 @@ void FileManager::OffsetForward(const std::streampos & beg, const std::streamoff
 	Close();
 	Truncate(static_cast<off_t>(off));
 	Open();
+	stream->seekg(0, std::ios::end);
+	fileEnd = stream->tellg();
+	stream->seekg(0, std::ios::beg);
 }
 
 void FileManager::OffsetBackward(const std::streampos & beg, const std::streamoff & off, const int32_t bufferSize) {
