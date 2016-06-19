@@ -102,7 +102,7 @@ void Config::Edit(FileManager &fm) {
 
 		string cmd = ext::tolower(input[0]);
 
-		if (ext::startsWith(cmd, "day")) {
+		if (cmd == "day") {
 			if (input.size() == 1) {
 				if (day == ext::DayOfWeek::Undefined)
 					std::cout << "You have not set backup day yet." << std::endl;
@@ -118,13 +118,13 @@ void Config::Edit(FileManager &fm) {
 		else if (cmd == "list") {
 			UList();
 		}
-		else if (ext::startsWith(cmd, "add")) {
+		else if (cmd == "add") {
 			if (input.size() < 2)
 				Console::PrintError("You did not enter path");
 			else
 				UAdd(in.substr(4));
 		}
-		else if (ext::startsWith(cmd, "remove")) {
+		else if (cmd == "remove") {
 			if (input.size() < 3)
 				Console::PrintError("Too few arguments. See help.");
 			else if (input[1] == "-p") {
@@ -151,9 +151,11 @@ void Config::Edit(FileManager &fm) {
 				Console::PrintError("After remove you must choose whether you use path (-p) or index (-i). See help.");
 			}
 		}
-		else if (ext::startsWith(cmd, "return"))
+		else if (cmd == "help")
+			PrintOptions();
+		else if (cmd == "return")
 			break;
-		else if (ext::startsWith(cmd, "exit"))
+		else if (cmd == "exit")
 			exit(0);
 		else
 			std::cout << "Unknown command" << std::endl;
