@@ -34,16 +34,21 @@ namespace ext {
 		Value 0 (undefined) is used as null
 	*/
 	enum DayOfWeek {
-		Undefined,
-		Monday,
-		Tuesday,
-		Wednesday,
-		Thursday,
-		Friday,
-		Saturday,
-		Sunday
+		Undefined = 0,
+		Monday = 1,
+		Tuesday = 2,
+		Wednesday = 3,
+		Thursday = 4,
+		Friday = 5,
+		Saturday = 6,
+		Sunday = 7
 	};
 
+	/**
+		Converts enum DayOfWeek to string
+		@parameter day Day of week
+		@return stringified day of week
+	*/
 	static inline string dayOfWeekToString(const DayOfWeek& day) {
 		switch (day) {
 		case DayOfWeek::Monday:
@@ -100,27 +105,27 @@ namespace ext {
 	}
 
 	/**
-	Trims left side of string from white characters by default
-	@param s string to trim from the left
-	@param t white characters which should be trimmed (default " \t\n\r\f\v")
+		Trims left side of string from white characters by default
+		@param s string to trim from the left
+		@param t white characters which should be trimmed (default " \t\n\r\f\v")
 	*/
 	static inline string& ltrim(string& s, const char* t = ws) {
 		return s.erase(0, s.find_first_not_of(t));
 	}
 
 	/**
-	Trims white characters on both sides of the string
-	@param s string to trim
-	@param t white characters which should be trimmed (default " \t\n\r\f\v")
+		Trims white characters on both sides of the string
+		@param s string to trim
+		@param t white characters which should be trimmed (default " \t\n\r\f\v")
 	*/
 	static inline string& trim(string& s, const char* t = ws) {
 		return ltrim(rtrim(s, t), t);
 	}
 
 	/**
-	Checks if string starts with another string
-	@param string string to check
-	@param what what should the string start with
+		Checks if string starts with another string
+		@param string string to check
+		@param what what should the string start with
 	*/
 	static inline bool startsWith(const string& str, const string& what) {
 		if (str.length() < what.length())
@@ -134,6 +139,8 @@ namespace ext {
 
 	/**
 		Number of digits in number
+		@parameter number input number
+		@return number of digits
 	*/
 	template <class T>
 	static inline int numDigits(T number) {
@@ -183,6 +190,11 @@ namespace ext {
 		return isValidPath(path.c_str());
 	}
 
+	/**
+	Returns parent directory of the path
+	@param path path for which we want to find parent
+	@return path to parent
+	*/
 	static inline string parent(const string& path) {
 		auto index = path.find_last_of("/\\");
 		if (index == string::npos)
@@ -190,6 +202,11 @@ namespace ext {
 		return path.substr(0, index);
 	}
 
+	/**
+	Generates full path for given path
+	@param relPath path - can be relative or absolute
+	@return full path
+	*/
 	static inline string fullPath(const string relPath) {
 		char* p = new char[MAX_PATH_LENGTH];
 #ifdef _WIN32 
@@ -302,4 +319,3 @@ namespace ext {
 		string *message;
 	};
 }
-
