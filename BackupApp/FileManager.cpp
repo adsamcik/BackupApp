@@ -255,16 +255,20 @@ void FileManager::PickRestore(std::vector<File*>& files) const {
 		c.Print(true);
 		string in;
 		getline(std::cin, in);
+		bool restored = false;
 		if (ext::isDigit(in)) {
 			int val = atoi(in.c_str());
 			if (val >= 0 && val < files.size()) {
 				files[val]->Restore(*stream);
-				std::cout << "Restored " << files[val]->GetPath() << std::endl;
-				return;
+				std::cout << "Restored " << *files[val]->GetPath() << std::endl;
+				restored = true;
 			}
-
 		}
-		std::cout << "Aborting..." << std::endl;
+
+		if (!restored)
+			std::cout << "Aborting..." << std::endl;
+		for (auto f : files)
+			delete f;
 	}
 }
 
