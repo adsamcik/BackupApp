@@ -222,6 +222,7 @@ void FileManager::Restore(const std::string &name) {
 	File *f;
 	std::streamoff end;
 	std::vector<File*> files;
+	stream->clear();
 	stream->seekg(0);
 	do {
 		try {
