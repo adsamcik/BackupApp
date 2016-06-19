@@ -108,19 +108,26 @@ void FileManager::OffsetForward(const std::streampos & beg, const std::streamoff
 }
 
 void FileManager::OffsetBackward(const std::streampos & beg, const std::streamoff & off, const int32_t bufferSize) {
-	char *buffer = new char[bufferSize];
+	char *buffer;
+	stream->seekg(0, std::ios::end);
+	std::cout << stream->fail() << std::endl;
+	//ensures seekg doesn't fail
+	stream->write(string(off, '\0').c_str(), off);
 	stream->seekg(fileEnd);
 	auto pos = fileEnd;
-	stream->seekg(-bufferSize, std::ios::end);
-	do {
-		stream->seekg(-bufferSize, std::ios::cur);
-		pos = stream->tellg();
-		stream->read(buffer, bufferSize);
-		stream->seekg(off - bufferSize, std::ios::cur);
-		stream->write(buffer, bufferSize);
-		stream->seekg(pos);
-	} while (stream->tellg() - beg > bufferSize);
-	delete[] buffer;
+	if (pos - beg >= bufferSize) {
+		buffer = new char[bufferSize];
+		//stream->seekg(-bufferSize, std::ios::end);
+		do {
+			stream->seekg(-bufferSize, std::ios::cur);
+			pos = stream->tellg();
+			stream->read(buffer, bufferSize);
+			stream->seekg(off - bufferSize, std::ios::cur);
+			stream->write(buffer, bufferSize);
+			stream->seekg(pos);
+		} while (stream->tellg() - beg > bufferSize);
+		delete[] buffer;
+	}
 
 	auto diff = stream->tellg() - beg;
 	if (diff > 0) {
@@ -131,6 +138,7 @@ void FileManager::OffsetBackward(const std::streampos & beg, const std::streamof
 		stream->write(buffer, diff);
 		delete[] buffer;
 	}
+	fileEnd += off;
 }
 
 
@@ -348,6 +356,7 @@ File* FileManager::GetFileFromStream(const string path)const {
 			if (ext::startsWith(*ts->GetPath(), ext::parent(path))) {
 				int cmp = strcmp(ts->GetPath()->c_str(), path.c_str());
 				if (cmp == 0) {
+					stream->seekg(ts->beginMeta);
 					return ts;
 				}
 				else if (cmp > 0) {
@@ -387,6 +396,7 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 		Console::PrintError("Stream is closed!");
 		return;
 	}
+
 	if (file->beginMeta != -1) {
 		if (!file->IsNewer()) {
 			std::cout << *file->GetPath() << " is up to date" << std::endl;
@@ -408,7 +418,7 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 	auto clength = file->endContent - file->beginContent - file->reserve;
 	if (file->endContent != -1 && length != clength) {
 		if (length - clength > file->reserve) {
-			Offset(file->endContent, length - clength + FILE_RESERVE);
+			Offset(file->beginMeta + file->endContent, length - clength + (FILE_RESERVE - file->reserve));
 			file->reserve = FILE_RESERVE;
 		}
 		else {
