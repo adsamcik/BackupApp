@@ -98,7 +98,7 @@ ext::Success File::Restore(std::fstream& stream) const {
 	if (!outfile.is_open())
 		return ext::Success(false, "Target file could not be created.");
 
-	auto length = static_cast<long long>(endContent - beginContent);
+	auto length = static_cast<long long>(endContent - beginContent - reserve);
 	auto count = length / BUFFER_SIZE;
 	char *cache = new char[BUFFER_SIZE];
 	stream.seekg(beginMeta + beginContent);
@@ -107,11 +107,11 @@ ext::Success File::Restore(std::fstream& stream) const {
 		outfile.write(cache, BUFFER_SIZE);
 	}
 	delete[] cache;
-	auto diff = length - (count * 32);
+	auto diff = length - (count * BUFFER_SIZE);
 	if (diff > 0) {
 		char *temp = new char[diff];
 		stream.read(temp, diff);
-		outfile << temp;
+		outfile.write(temp, diff);
 		delete[] temp;
 	}
 	outfile.close();
