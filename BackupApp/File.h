@@ -23,31 +23,32 @@ FILE STRUCTURE
 class File {
 private:
 	/**
-		Cached path to file, can be null
+		Cached path to file, can be null. Use functions GetPath() and ClearPath()
 	*/
 	std::string* path;
 public:
-	/*
-		Begin of meta
+	/**
+		First byte of file meta data
 	*/
 	std::streamoff beginMeta;
-	/*
-		Begin of file
+
+	/**
+		First byte of content
 	*/
 	std::streamoff beginContent;
-	/*
-		End of file (first byte out of range)
-	*/
 
+	/**
+		First byte out of range of content = beginMeta of the next file
+	*/
 	std::streamoff endContent;
 
 	/**
-	Number of bytes in reserve
+		Number of bytes in reserve
 	*/
 	std::streamoff reserve;
 
 	/**
-		Last edited
+		Last edit of file (Can differ from live file)
 	*/
 	tm* lastEdited = nullptr;
 
@@ -59,7 +60,7 @@ public:
 		Restores file to the original location
 		@param stream stream to the backup file
 	*/
-	virtual ext::Success Restore(std::fstream &stream) const;
+	ext::Success Restore(std::fstream &stream) const;
 
 	/**
 		Writes metadata to stream
@@ -70,11 +71,6 @@ public:
 		Checks if newer version of file is available
 	*/
 	bool IsNewer();
-
-	/**
-		Checks whether the path still exists or not
-	*/
-	bool IsValid() const;
 
 	/**
 		Function returns path. Utilizes caching to path variable on File object.
@@ -103,12 +99,7 @@ public:
 	Dir(const std::string& path);
 
 	/**
-		Restores file to it's original location
-	*/
-	ext::Success Restore(std::fstream & stream) const override;
-
-	/**
-		@return pointer to list of files in folder, excluding . and ..
+		@return pointer to list of files in directory, excluding . and ..
 	*/
 	std::vector<std::string>* GetFiles();
 };

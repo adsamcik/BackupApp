@@ -143,12 +143,6 @@ void File::WriteMeta(std::fstream *stream) {
 	stream->write(reinterpret_cast<char*>(&reserve), sizeof(reserve));
 }
 
-bool File::IsValid() const {
-	bool valid = ext::isValidPath(GetPath());
-	delete[] GetPath();
-	return valid;
-}
-
 char* File::GetPath() const {
 	if (path == nullptr) {
 		std::ifstream is(BACKUP_FILE);
