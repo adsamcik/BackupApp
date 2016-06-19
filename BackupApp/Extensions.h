@@ -288,7 +288,7 @@ namespace ext {
 		}
 
 		bool operator!() {
-			return success;
+			return !success;
 		}
 
 		bool success;
