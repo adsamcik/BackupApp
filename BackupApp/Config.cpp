@@ -58,7 +58,7 @@ const ext::Success Config::RemovePath(const std::string & path) {
 const ext::Success Config::RemovePath(const size_t & index) {
 	if (index < paths.size()) {
 		paths.erase(paths.begin() + index);
-		//Save();
+		Save();
 		return ext::Success();
 	}
 	return ext::Success(false, "Invalid index");
@@ -142,7 +142,7 @@ void Config::Edit(FileManager &fm) {
 				else {
 					int val = atoi(input[2].c_str());
 					if (val >= static_cast<int>(paths.size()) || val < 0)
-						Console::PrintError("Index must be between 0 and " + std::to_string(paths.size() - 1));
+						Console::PrintError("Index must be between 0 and " + std::to_string(paths.size() == 0 ? 0 : paths.size() - 1));
 					else
 						URemove(fm, val);
 				}
