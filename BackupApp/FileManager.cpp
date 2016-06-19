@@ -241,6 +241,7 @@ void FileManager::Restore(const std::string &name, const bool dir) {
 		end = f->beginMeta + f->endContent;
 
 		if (dir) {
+			std::cout << "testing " << *f->GetPath() << std::endl;
 			if (ext::startsWith(*f->GetPath(), name))
 				files.push_back(f);
 			else
@@ -258,12 +259,16 @@ void FileManager::Restore(const std::string &name, const bool dir) {
 			delete f;
 	} while (stream->seekg(end).peek() != EOF);
 
-	if (dir) {
-		for (auto file : files)
-			file->Restore(*stream);
+	if (files.size() == 0)
+		Console::PrintWarning("No files found " + name);
+	else {
+		if (dir) {
+			for (auto file : files)
+				file->Restore(*stream);
+		}
+		else
+			PickRestore(files);
 	}
-	else
-		PickRestore(files);
 	Close();
 }
 
@@ -499,7 +504,7 @@ void FileManager::Backup(Dir *dir) {
 	auto v = dir->GetFiles();
 	std::cout << "Backing up dir " << *dir->GetPath() << std::endl;
 	for (auto filename : *v) {
-		auto fullname = *dir->GetPath() + '/' + filename;
+		auto fullname = *dir->GetPath() + SEPARATOR + filename;
 		if (ext::isValidPath(fullname.c_str())) {
 			if (ext::isDir(fullname.c_str())) {
 				auto d = new Dir(fullname);

@@ -198,7 +198,7 @@ void Config::UAdd(const string & path) {
 		return;
 	}
 	char last = path[path.length() - 1];
-	auto s = AddPath(last == '/' || last == '\\' ? path.substr(0, path.length() - 1) : path);
+	auto s = AddPath(last == SEPARATOR ? path.substr(0, path.length() - 1) : path);
 	if (!s.success)
 		Console::PrintError(*s.message);
 	else

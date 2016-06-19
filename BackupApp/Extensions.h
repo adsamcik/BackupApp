@@ -11,9 +11,15 @@
 
 #define ws " \t\n\r\f\v"
 
-using std::string;
-
 #define MAX_PATH_LENGTH 4096
+
+#ifdef _WIN32
+#define SEPARATOR '\\'
+#else
+#define SEPARATOR '/'
+#endif
+
+using std::string;
 
 /**
 	Namespace ext is generally list of short functions that are used all around the app
@@ -21,6 +27,7 @@ using std::string;
 	because it's still easy to read and it's quite short anyway
 */
 namespace ext {
+
 	/**
 		DayOfWeek starting with Monday
 		Keeps actual day of the week values (1-7)
