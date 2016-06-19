@@ -77,13 +77,6 @@ private:
 	static const ext::Success Save();
 
 	/**
-		Auto backup enabled
-	*/
-	static bool abEnabled;
-
-	static void SetDay(const ext::DayOfWeek day);
-
-	/**
 		Day on which files should be backed up
 	*/
 	static ext::DayOfWeek day;
