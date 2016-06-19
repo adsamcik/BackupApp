@@ -14,8 +14,9 @@ bool ResolveInput() {
 
 	std::vector<string> input;
 	string s;
-	std::getline(std::cin, s);
-	std::istringstream tss(s);
+	string in;
+	std::getline(std::cin, in);
+	std::istringstream tss(in);
 	while (tss >> s)
 		input.push_back(s);
 
@@ -32,13 +33,20 @@ bool ResolveInput() {
 		fm.BackupAll();
 	}
 	else if (ext::startsWith(cmd, "restore")) {
-		if (input.size() == 2)
-			fm.Restore(input[1]);
+		if (input.size() >= 3) {
+			string substr = ext::trim(in).substr(11);
+			if (input[1] == "-d")
+				fm.Restore(ext::fullPath(substr), true);
+			else if (input[1] == "-f")
+				fm.Restore(substr, false);
+			else
+				Console::PrintError("Missing operator -f or -d");
+		}
 		else
 			Console::PrintError("Invalid number of arguments");
 	}
 	else if (ext::startsWith(cmd, "clear"))
-			 fm.Clear();
+		fm.Clear();
 	else if (ext::startsWith(cmd, "exit")) {
 		if (cmd != "exit") {
 			std::cout << "Did you really mean to exit? (yes/NO)" << std::endl;
@@ -62,14 +70,13 @@ bool ResolveInput() {
 	}
 	else if (ext::startsWith(cmd, "help")) {
 		Console cns(2, 4);
-		cns.Add("backup <path>\tsupports relative and absolute paths")
-		.Add("\t-force forces full backup")
-		.Add("restore <path>\tsupports relative and absolute paths")
-		.Add("restore all (<path>)\trestores all files to their default or set paths")
-		.Add("remove <path>\tremoves all or set path from backup")
-		.Add("clear\tclears all backups")
-		.Add("exit\tto close the app")
-		.Print(false);
+		cns.Add("backup\tbacks up all paths")
+			.Add("\t-force forces full backup")
+			.Add("restore <-f/-d> <path>\tsupports relative and absolute paths (-f file, -d directory)")
+			.Add("clear\tclears all backups")
+			.Add("config\tto access configurations")
+			.Add("exit\tto close the app")
+			.Print(false);
 	}
 	else if (ext::startsWith(cmd, "test")) {
 		fm.PrintContent(20);

@@ -122,6 +122,7 @@ ext::Success File::Restore(std::fstream& stream) const {
 	ut.actime = timegm(lastEdited);
 	if (utime(path, &ut) == -1)
 		std::cout << "Failed to modify file time" << std::endl;
+	std::cout << "Restored " << path << std::endl;
 	delete[] path;
 	return ext::Success();
 }

@@ -215,10 +215,10 @@ void FileManager::Remove(const std::string & path) {
 	Close();
 }
 
-void FileManager::Restore(const std::string &name) {
+void FileManager::Restore(const std::string &name, const bool dir) {
 	if (!Open() || IsEmpty())
 		return;
-	File *f;
+	File *f = nullptr;
 	std::streamoff end;
 	std::vector<File*> files;
 	stream->clear();
@@ -226,26 +226,50 @@ void FileManager::Restore(const std::string &name) {
 	do {
 		try {
 			f = new File(*stream);
+			f->GetPath();
+		}
+		catch (std::bad_alloc e) {
+			Console::PrintError("Failed to allocate file... Weird..");
+			return;
 		}
 		catch (std::exception e) {
 			Console::PrintError(string(e.what()) + "   Aborting");
+			delete f;
 			return;
 		}
+
 		end = f->beginMeta + f->endContent;
-		if (f->GetPath()->find(name) != string::npos)
+
+		if (dir) {
+			if (ext::startsWith(*f->GetPath(), name))
+				files.push_back(f);
+			else
+				delete f;
+		}
+		else if (*f->GetPath() == name) {
+			f->Restore(*stream);
+			Close();
+			delete f;
+			return;
+		}
+		else if (f->GetPath()->find(name) != string::npos)
 			files.push_back(f);
 		else
 			delete f;
 	} while (stream->seekg(end).peek() != EOF);
-	PickRestore(files);
+
+	if (dir) {
+		for (auto file : files)
+			file->Restore(*stream);
+	}
+	else
+		PickRestore(files);
 	Close();
 }
 
 void FileManager::PickRestore(std::vector<File*>& files) const {
 	if (files.size() == 0)
 		Console::PrintError("No files found");
-	else if (files.size() == 1)
-		files[0]->Restore(*stream);
 	else {
 		//Console::Clear();
 		std::cout << "Found these matches. Write index of the one you want to restore." << std::endl << "Invalid index or text will abort the restore." << std::endl;
@@ -262,10 +286,8 @@ void FileManager::PickRestore(std::vector<File*>& files) const {
 				auto suc = files[val]->Restore(*stream);
 				if (!suc)
 					Console::PrintError(*suc.message);
-				else {
-					std::cout << "Restored " << *files[val]->GetPath() << std::endl;
+				else
 					restored = true;
-				}
 			}
 		}
 
