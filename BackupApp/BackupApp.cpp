@@ -8,6 +8,8 @@ using std::string;
 
 FileManager fm;
 
+#define DBG
+
 /// <summary>Handles command recognition from user input
 /// </summary>
 bool ResolveInput() {
@@ -61,6 +63,9 @@ bool ResolveInput() {
 			.Add("clear\tclears all backups")
 			.Add("config\tto access configurations")
 			.Add("exit\tto close the app")
+#ifdef DBG
+			.Add("test\tprints backup file content")
+#endif
 			.Print(false);
 	}
 	else if (cmd == "test")
