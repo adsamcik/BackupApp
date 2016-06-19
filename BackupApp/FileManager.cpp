@@ -333,8 +333,8 @@ File* FileManager::GetFileFromStream(const string path)const {
 			Console::PrintError(e.what());
 			break;
 		}
+		//does not throw error because it includes perfectly valid fail reasons, like eof
 		catch (std::exception e) {
-			Console::PrintError(e.what());
 			if (ts != nullptr)
 				delete ts;
 			break;
@@ -371,7 +371,7 @@ File* FileManager::GetFileFromStream(const string path)const {
 				break;
 			}
 		}
-		end = ts->endContent;
+		end = ts->beginMeta + ts->endContent;
 		delete ts;
 		ts = nullptr;
 	} while (stream->seekg(end).peek());
