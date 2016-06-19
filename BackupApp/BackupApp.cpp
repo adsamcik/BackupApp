@@ -90,6 +90,7 @@ int main() {
 		fm.BackupAll();
 	delete timeday;
 
+	std::cout << "Type help if you're unsure of command." << std::endl;
 	while (ResolveInput()) {}
 	return 0;
 }
