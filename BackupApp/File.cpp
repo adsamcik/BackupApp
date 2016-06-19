@@ -183,10 +183,6 @@ void File::ClearPath() {
 
 Dir::Dir(const std::string & path) :File(path) {}
 
-ext::Success Dir::Restore(std::fstream & stream) const {
-	return ext::Success();
-}
-
 std::vector<std::string>* Dir::GetFiles() {
 	DIR *dir;
 	struct dirent *ent;

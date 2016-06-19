@@ -258,11 +258,13 @@ void Config::URemove(FileManager &fm, const size_t & index) {
 
 void Config::PrintOptions() {
 	Console c(2);
-	c.Add("day <0-7>\tsets day of auto-backup. 0 disables autobackup, 1 is Monday")
+	c.Add("day <0-7>\tsets day of auto-backup. 0 disables autobackup, 1 is Monday. Returns current settings without argument.")
 		.Add("list\treturns list of backed up folders and files with their indexes for easier removal")
 		.Add("add <path>\tadds path to backup")
 		.Add("remove <-p/-i> <path/index>\tremoves path. Use -p for path or -i for index")
 		.Add("help\tto print this help again")
+		.Add("return\tto go back from the configurations")
+		.Add("exit\tto exit the app")
 		.Print(false);
 }
 
