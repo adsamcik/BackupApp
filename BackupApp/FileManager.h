@@ -9,9 +9,20 @@ private:
 	std::fstream* stream;
 	std::streampos fileEnd;
 
+	/**
+		Opens stream
+		@return success
+	*/
 	bool Open();
+
+	/**
+		Closes stream
+	*/
 	void Close();
 
+	/**
+		If multiple files are returned and single file mode is used, this function gives user choice which file he wants to restore.
+	*/
 	void PickRestore(std::vector<File*>& files) const;
 
 	/**
@@ -24,10 +35,13 @@ private:
 	*/
 	void OffsetBackward(const std::streampos &beg, const std::streamoff &off, const int32_t bufferSize);
 
+	/**
+		Handles calling platform specific truncate functions
+	*/
 	void Truncate(const off_t length) const;
 #ifdef  _WIN32
 	int truncate(const char *path, const off_t shrinkBy) const;
-#endif //  _WIN32
+#endif
 public:
 	FileManager();
 	~FileManager();
@@ -37,8 +51,15 @@ public:
 	*/
 	bool IsEmpty() const;
 
+	/**
+		Clears backup file
+	*/
 	void Clear();
 
+	/**
+		Tries to load file from the stream.
+		Starts from current stream position which must be at the start of a file header.
+	*/
 	File* GetFileFromStream(const string file) const;
 
 	/**

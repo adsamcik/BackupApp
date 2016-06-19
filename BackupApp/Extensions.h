@@ -29,19 +29,19 @@ using std::string;
 namespace ext {
 
 	/**
-		DayOfWeek starting with Monday
-		Keeps actual day of the week values (1-7)
+		DayOfWeek starting with Monday.
+		Keeps actual day of the week values (1-7).
 		Value 0 (undefined) is used as null
 	*/
 	enum DayOfWeek {
-		Undefined = 0,
-		Monday = 1,
-		Tuesday = 2,
-		Wednesday = 3,
-		Thursday = 4,
-		Friday = 5,
-		Saturday = 6,
-		Sunday = 7
+		Undefined,
+		Monday,
+		Tuesday,
+		Wednesday,
+		Thursday,
+		Friday,
+		Saturday,
+		Sunday
 	};
 
 	/**

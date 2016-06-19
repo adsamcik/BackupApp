@@ -36,9 +36,19 @@ public:
 	*/
 	void Print(const bool showIndexes) const;
 
+	/**
+		Prints error to the screen
+	*/
 	static void PrintError(const std::string& message);
+
+	/**
+		Prints warning to the screen
+	*/
 	static void PrintWarning(const std::string& message);
 
+	/**
+		Handles platform specific clear
+	*/
 	static inline void Clear() {
 #ifdef _WIN32 
 		std::system("cls");
@@ -48,13 +58,24 @@ public:
 	}
 
 private:
-	///Number of columns
+	/**
+		Number of columns
+	*/
 	uint16_t columnsCount;
-	///Array of max number of chars in column
+
+	/**
+		Array of max number of chars in column
+	*/
 	uint16_t* columns;
-	///Number of seperation spaces
+
+	/**
+		Number of seperation spaces
+	*/
 	uint16_t spaces;
-	///Actual strings
+
+	/**
+		Actual strings
+	*/
 	std::vector<std::string*> content;
 };
 
