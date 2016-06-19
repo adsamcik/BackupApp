@@ -36,7 +36,7 @@ bool ResolveInput() {
 		if (input.size() >= 3) {
 			string substr = ext::trim(in).substr(11);
 			if (input[1] == "-d")
-				fm.Restore(ext::fullPath(substr), true);
+				fm.Restore(substr, true);
 			else if (input[1] == "-f")
 				fm.Restore(substr, false);
 			else

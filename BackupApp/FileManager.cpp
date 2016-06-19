@@ -216,6 +216,11 @@ void FileManager::Remove(const std::string & path) {
 }
 
 void FileManager::Restore(const std::string &name, const bool dir) {
+	string path = dir ? ext::fullPath(name) : name;
+#ifdef _WIN32
+	if (dir)
+		path[0] = std::toupper(path[0]);
+#endif
 	if (!Open() || IsEmpty())
 		return;
 	File *f = nullptr;
@@ -226,7 +231,6 @@ void FileManager::Restore(const std::string &name, const bool dir) {
 	do {
 		try {
 			f = new File(*stream);
-			f->GetPath();
 		}
 		catch (std::bad_alloc e) {
 			Console::PrintError("Failed to allocate file... Weird..");
@@ -240,31 +244,44 @@ void FileManager::Restore(const std::string &name, const bool dir) {
 
 		end = f->beginMeta + f->endContent;
 
+		try {
+			f->GetPath();
+		}
+		catch (std::exception e) {
+			std::cout << "Backup file is corrupted!" << std::endl;
+			delete f;
+			return;
+		}
+
 		if (dir) {
+#ifdef DBG
 			std::cout << "testing " << *f->GetPath() << std::endl;
-			if (ext::startsWith(*f->GetPath(), name))
+#endif
+			if (ext::startsWith(*f->GetPath(), path))
 				files.push_back(f);
 			else
 				delete f;
 		}
-		else if (*f->GetPath() == name) {
+		else if (*f->GetPath() == path) {
 			f->Restore(*stream);
 			Close();
 			delete f;
 			return;
 		}
-		else if (f->GetPath()->find(name) != string::npos)
+		else if (f->GetPath()->find(path) != string::npos)
 			files.push_back(f);
 		else
 			delete f;
 	} while (stream->seekg(end).peek() != EOF);
 
 	if (files.size() == 0)
-		Console::PrintWarning("No files found " + name);
+		Console::PrintWarning("No files found " + path);
 	else {
 		if (dir) {
-			for (auto file : files)
+			for (auto file : files) {
 				file->Restore(*stream);
+				delete file;
+			}
 		}
 		else
 			PickRestore(files);
