@@ -16,7 +16,7 @@ void Config::Initialize() {
 	try {
 		auto frst = line.find_first_of('=');
 		if (frst == string::npos)
-			throw std::runtime_error("Day is incorrectly saved");
+			throw std::runtime_error("Day is incorrectly saved. Config was not loaded.");
 		day = static_cast<ext::DayOfWeek>(std::stoi(line.substr(frst + 1)));
 	}
 	catch (const std::exception e) {
@@ -27,6 +27,7 @@ void Config::Initialize() {
 	while (getline(stream, line)) {
 		if (ext::startsWith(line, "#"))
 			continue;
+		ext::trim(line);
 		if (!ext::isValidPath(line))
 			Console::PrintWarning(line + " is invalid path");
 		else
