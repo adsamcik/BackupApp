@@ -64,6 +64,10 @@ const ext::Success Config::RemovePath(const size_t & index) {
 	return ext::Success(false, "Invalid index");
 }
 
+ext::DayOfWeek Config::GetDay() {
+	return day;
+}
+
 const ext::Success Config::Save() {
 	std::ofstream stream(CONFIG_FILE);
 	if (!stream)

@@ -25,6 +25,11 @@ public:
 	*/
 	static const ext::Success RemovePath(const size_t& path);
 
+	static ext::DayOfWeek GetDay();
+
+	/**
+		Function that handles user input
+	*/
 	static void Edit(FileManager &fm);
 
 	/**

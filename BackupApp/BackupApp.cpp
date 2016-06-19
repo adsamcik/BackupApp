@@ -2,6 +2,7 @@
 #include "Console.h"
 #include "Config.h"
 #include "FileManager.h"
+#include <ctime>
 
 using std::string;
 
@@ -92,6 +93,16 @@ bool ResolveInput() {
 int main() {
 	Console::Clear();
 	Config::Initialize();
+
+	auto d = Config::GetDay();
+	time_t timev;
+	time(&timev);
+	tm* timeday = new tm();
+	localtime_s(timeday, &timev);
+	ext::DayOfWeek day = timeday->tm_wday == 0 ? ext::DayOfWeek::Sunday : static_cast<ext::DayOfWeek>(timeday->tm_wday);
+	if (d == day)
+		fm.BackupAll();
+	delete timeday;
 
 	while (ResolveInput()) {}
 	return 0;
