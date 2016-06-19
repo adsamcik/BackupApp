@@ -33,8 +33,8 @@ File::File(const std::string &path) {
 File::File(std::fstream &stream) {
 	this->beginMeta = stream.tellg();
 	//Load string
-	char* mLengthData = new char[4];
-	stream.read(mLengthData, 4);
+	char* mLengthData = new char[sizeof(uint32_t)];
+	stream.read(mLengthData, sizeof(uint32_t));
 	uint32_t sLength = uint32_t(*reinterpret_cast<uint32_t*>(mLengthData));
 	delete[] mLengthData;
 	path = nullptr;
@@ -42,8 +42,8 @@ File::File(std::fstream &stream) {
 	stream.seekg(sLength, std::ios::cur);
 	//Load time
 	//Some weird shit here
-	char* mTimeData = new char[8];
-	if (stream.read(mTimeData, 8).fail()) {
+	char* mTimeData = new char[sizeof(time_t)];
+	if (stream.read(mTimeData, sizeof(time_t)).fail()) {
 		delete[] mTimeData;
 		throw std::runtime_error("Failed to load last edit information");
 	}
@@ -55,12 +55,11 @@ File::File(std::fstream &stream) {
 	gmtime_r(t, lastEdited);
 #endif
 
+	beginContent = BHEADER_SIZE + sLength;
 
 	//Load content begin and end
 	stream.read(reinterpret_cast<char*>(&endContent), sizeof(endContent));
 	stream.read(reinterpret_cast<char*>(&reserve), sizeof(reserve));
-
-	beginContent = BHEADER_SIZE + sLength;
 
 	delete[] mTimeData;
 }
