@@ -231,6 +231,9 @@ void FileManager::Restore(const std::string &name, const bool dir) {
 	std::vector<File*> files;
 	stream->clear();
 	stream->seekg(0);
+
+	if (dir)
+		std::cout << "Converted to full path " << path << std::endl;
 	do {
 		try {
 			f = new File(*stream);
@@ -257,9 +260,6 @@ void FileManager::Restore(const std::string &name, const bool dir) {
 		}
 
 		if (dir) {
-#ifdef DBG
-			std::cout << "testing " << *f->GetPath() << std::endl;
-#endif
 			if (ext::startsWith(*f->GetPath(), path))
 				files.push_back(f);
 			else
@@ -281,7 +281,17 @@ void FileManager::Restore(const std::string &name, const bool dir) {
 		Console::PrintWarning("No files found " + path);
 	else {
 		if (dir) {
+			string parent;
 			for (auto file : files) {
+				string tp = ext::parent(*file->GetPath());
+				if (parent != tp) {
+#ifdef _WIN32
+					system(("mkdir " + tp).c_str());
+#else 
+					system(("mkdir -p " + tp).c_str());
+#endif
+					parent = tp;
+				}
 				file->Restore(*stream);
 				delete file;
 			}
