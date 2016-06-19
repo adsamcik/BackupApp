@@ -144,12 +144,11 @@ void FileManager::OffsetBackward(const std::streampos & beg, const std::streamof
 
 void FileManager::Offset(const std::streampos &beg, const std::streamoff &off) {
 	//is signed to save on conversion when using in seek
-	const int32_t bufferSize = 512;
 	std::cout << "Offsetting data by " << off << std::endl;
 	if (off > 0)
-		OffsetBackward(beg, off, bufferSize);
+		OffsetBackward(beg, off, BUFFER_SIZE);
 	else if (off < 0)
-		OffsetForward(beg, off, bufferSize);
+		OffsetForward(beg, off, BUFFER_SIZE);
 	else
 		Console::PrintError("Offset is set to 0, this can't be right.");
 }
@@ -239,6 +238,7 @@ void FileManager::Restore(const std::string &name) {
 			delete f;
 	} while (stream->seekg(end).peek() != EOF);
 	PickRestore(files);
+	Close();
 }
 
 void FileManager::PickRestore(std::vector<File*>& files) const {
@@ -247,7 +247,7 @@ void FileManager::PickRestore(std::vector<File*>& files) const {
 	else if (files.size() == 1)
 		files[0]->Restore(*stream);
 	else {
-		Console::Clear();
+		//Console::Clear();
 		std::cout << "Found these matches. Write index of the one you want to restore." << std::endl << "Invalid index or text will abort the restore." << std::endl;
 		Console c(1);
 		for (size_t i = 0; i < files.size(); i++)
@@ -259,9 +259,13 @@ void FileManager::PickRestore(std::vector<File*>& files) const {
 		if (ext::isDigit(in)) {
 			int val = atoi(in.c_str());
 			if (val >= 0 && val < files.size()) {
-				files[val]->Restore(*stream);
-				std::cout << "Restored " << *files[val]->GetPath() << std::endl;
-				restored = true;
+				auto suc = files[val]->Restore(*stream);
+				if (!suc)
+					Console::PrintError(*suc.message);
+				else {
+					std::cout << "Restored " << *files[val]->GetPath() << std::endl;
+					restored = true;
+				}
 			}
 		}
 

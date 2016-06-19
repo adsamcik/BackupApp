@@ -85,27 +85,37 @@ bool File::IsNewer() {
 	return s.st_mtime > timegm(lastEdited);
 }
 
-void File::Restore(std::fstream& stream) const {
+ext::Success File::Restore(std::fstream& stream) const {
+	if (!stream.is_open())
+		return ext::Success(false, "Source stream is not open");
 	std::ofstream outfile;
 	char* path = GetPath();
+	if (ext::isValidPath(path))
+		if (remove(path) != 0)
+			return ext::Success(false, "Failed to restore the file. Current file cannot be rewritten.");
 	outfile.open(path);
 	delete[] path;
-	auto size = static_cast<long long>(endContent - beginContent);
-	auto count = size / 32;
-	char* cache = new char[32];
+	if (!outfile.is_open())
+		return ext::Success(false, "Target file could not be created.");
+
+	auto length = static_cast<long long>(endContent - beginContent);
+	auto count = length / BUFFER_SIZE;
+	char *cache = new char[BUFFER_SIZE];
+	stream.seekg(beginMeta + beginContent);
 	for (long long i = 0; i < count; i++) {
-		stream.read(cache, 32);
-		outfile << cache;
+		stream.read(cache, BUFFER_SIZE);
+		outfile.write(cache, BUFFER_SIZE);
 	}
 	delete[] cache;
-	auto diff = size - (count * 32);
+	auto diff = length - (count * 32);
 	if (diff > 0) {
-		char* temp = new char[diff];
+		char *temp = new char[diff];
 		stream.read(temp, diff);
 		outfile << temp;
 		delete[] temp;
 	}
 	outfile.close();
+	return ext::Success();
 }
 
 void File::WriteMeta(std::fstream *stream) {
@@ -167,8 +177,8 @@ void File::ClearPath() {
 
 Dir::Dir(const std::string & path) :File(path) {}
 
-void Dir::Restore(std::fstream & stream) const {
-
+ext::Success Dir::Restore(std::fstream & stream) const {
+	return ext::Success();
 }
 
 std::vector<std::string>* Dir::GetFiles() {

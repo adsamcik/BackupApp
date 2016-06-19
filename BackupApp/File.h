@@ -17,6 +17,7 @@ FILE STRUCTURE
 #define timegm _mkgmtime
 #endif
 
+#define BUFFER_SIZE 512
 #define FILE_RESERVE 1024
 
 class File {
@@ -58,7 +59,7 @@ public:
 		Restores file to the original location
 		@param stream stream to the backup file
 	*/
-	virtual void Restore(std::fstream &stream) const;
+	virtual ext::Success Restore(std::fstream &stream) const;
 
 	/**
 		Writes metadata to stream
@@ -104,7 +105,7 @@ public:
 	/**
 		Restores file to it's original location
 	*/
-	void Restore(std::fstream & stream) const override;
+	ext::Success Restore(std::fstream & stream) const override;
 
 	/**
 		@return pointer to list of files in folder, excluding . and ..
