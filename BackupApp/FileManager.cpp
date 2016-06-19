@@ -14,6 +14,72 @@
 #define DBG
 using std::string;
 
+FileManager::FileManager() {
+	//fstream does not create file with fstream::in flag
+	//this ensures the file exists
+	if (!ext::isValidPath(BACKUP_FILE)) {
+		std::ofstream outfile(BACKUP_FILE);
+		outfile.close();
+		isEmpty = true;
+	}
+
+	stream = new std::fstream(BACKUP_FILE, std::fstream::in | std::fstream::binary);
+	auto beg = stream->tellg();
+	stream->seekg(0, stream->end);
+	fileEnd = stream->tellg();
+	isEmpty = beg == fileEnd;
+	Close();
+}
+
+
+FileManager::~FileManager() {
+	stream->close();
+	delete stream;
+}
+
+bool FileManager::Open() {
+	stream->open(BACKUP_FILE, std::fstream::in | std::fstream::out | std::fstream::binary);
+	bool isOpen = stream->is_open();
+	if (!isOpen) {
+		if (!ext::isValidPath(BACKUP_FILE)) {
+			std::ofstream outfile(BACKUP_FILE);
+			if (!outfile.is_open()) {
+				Console::PrintError("Failed to recreate backup file!");
+				return false;
+			}
+			outfile.close();
+			isEmpty = true;
+			Console::PrintWarning("Please do not delete backup file while the app is running. File recreated.");
+			return Open();
+		}
+		else
+			Console::PrintError("Failed to open backup file!");
+	}
+	return isOpen;
+}
+
+void FileManager::Close() {
+	stream->close();
+}
+
+bool FileManager::IsEmpty() const {
+	if (isEmpty)
+		Console::PrintError("Nothing is backed up yet.");
+	return isEmpty;
+}
+
+void FileManager::Clear() {
+	stream->open(BACKUP_FILE, std::ios::trunc | std::ios::out);
+	if (stream->is_open()) {
+		std::cout << "Cleared all backups" << std::endl;
+		isEmpty = true;
+		fileEnd = 0;
+		Close();
+	}
+	else
+		Console::PrintError("Failed to clear backups");
+}
+
 void FileManager::OffsetForward(const std::streampos & beg, const std::streamoff & off, const int32_t bufferSize) {
 	char *buffer = new char[bufferSize];
 	auto pos = beg;
@@ -104,59 +170,6 @@ int FileManager::truncate(const char *path, const off_t shrinkBy) const {
 	return 0;
 }
 #endif
-
-FileManager::FileManager() {
-	//fstream does not create file with fstream::in flag
-	//this ensures the file exists
-	if (!ext::isValidPath(BACKUP_FILE)) {
-		std::ofstream outfile(BACKUP_FILE);
-		outfile.close();
-		isEmpty = true;
-	}
-
-	stream = new std::fstream(BACKUP_FILE, std::fstream::in | std::fstream::binary);
-	auto beg = stream->tellg();
-	stream->seekg(0, stream->end);
-	fileEnd = stream->tellg();
-	isEmpty = beg == fileEnd;
-	Close();
-}
-
-
-FileManager::~FileManager() {
-	stream->close();
-	delete stream;
-}
-
-bool FileManager::Open() {
-	stream->open(BACKUP_FILE, std::fstream::in | std::fstream::out | std::fstream::binary);
-	bool isOpen = stream->is_open();
-	if (!isOpen)
-		Console::PrintError("Failed to open backup file!");
-	return isOpen;
-}
-
-void FileManager::Close() {
-	stream->close();
-}
-
-bool FileManager::IsEmpty() const {
-	if (isEmpty)
-		Console::PrintError("Nothing is backed up yet.");
-	return isEmpty;
-}
-
-void FileManager::Clear() {
-	stream->open(BACKUP_FILE, std::ios::trunc | std::ios::out);
-	if (stream->is_open()) {
-		std::cout << "Cleared all backups" << std::endl;
-		isEmpty = true;
-		fileEnd = 0;
-		Close();
-	}
-	else
-		Console::PrintError("Failed to clear backups");
-}
 
 //Creates new backup file with restored reserves
 void FileManager::RebuildBackups() {}
@@ -289,8 +302,9 @@ void FileManager::PrintContent(const int contentLimit) {
 
 File* FileManager::GetFileFromStream(const string path)const {
 	File *ts = nullptr;
-	std::streampos end;
+	std::streampos end, beg;
 	do {
+		beg = stream->tellg();
 		try {
 			ts = new File(*stream);
 		}
@@ -323,7 +337,7 @@ File* FileManager::GetFileFromStream(const string path)const {
 				if (cmp == 0) {
 					return ts;
 				}
-				else if (cmp < 0) {
+				else if (cmp > 0) {
 					delete ts;
 					break;
 				}
@@ -336,6 +350,7 @@ File* FileManager::GetFileFromStream(const string path)const {
 		end = ts->endContent;
 		delete ts;
 	} while (stream->seekg(end).peek());
+	stream->seekg(beg);
 	return new File(path);
 }
 
@@ -376,9 +391,11 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 		}
 	}
 
-	file->beginMeta = beg;
 	file->beginContent = BHEADER_SIZE + file->GetPath()->size();
 	file->endContent = file->beginContent + length + file->reserve;
+	if (file->beginMeta == -1 && beg != fileEnd)
+		Offset(beg, file->endContent);
+	file->beginMeta = beg;
 	stream->clear();
 	stream->seekg(beg);
 	file->WriteMeta(stream);
