@@ -98,7 +98,11 @@ int main() {
 	time_t timev;
 	time(&timev);
 	tm* timeday = new tm();
+#ifdef _WIN32
 	localtime_s(timeday, &timev);
+#else
+	localtime_r(&timev, timeday);
+#endif
 	ext::DayOfWeek day = timeday->tm_wday == 0 ? ext::DayOfWeek::Sunday : static_cast<ext::DayOfWeek>(timeday->tm_wday);
 	if (d == day)
 		fm.BackupAll();

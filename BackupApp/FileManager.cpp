@@ -304,7 +304,7 @@ void FileManager::PickRestore(std::vector<File*>& files) const {
 		bool restored = false;
 		if (ext::isDigit(in)) {
 			int val = atoi(in.c_str());
-			if (val >= 0 && val < files.size()) {
+			if (val >= 0 && val < static_cast<int>(files.size())) {
 				auto suc = files[val]->Restore(*stream);
 				if (!suc)
 					Console::PrintError(*suc.message);

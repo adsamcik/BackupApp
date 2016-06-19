@@ -44,7 +44,7 @@ namespace ext {
 		Sunday
 	};
 
-	static string dayOfWeekToString(const DayOfWeek& day) {
+	static inline string dayOfWeekToString(const DayOfWeek& day) {
 		switch (day) {
 		case DayOfWeek::Monday:
 			return "Monday";

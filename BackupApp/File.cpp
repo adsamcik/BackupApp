@@ -4,7 +4,11 @@
 #include <fstream>
 #include <ctime>
 #include <time.h> 
+#ifdef _WIN32
 #include <sys/utime.h>
+#else
+#include <utime.h>
+#endif
 
 File::File(const std::string &path) {
 	if (!ext::isValidPath(path))
