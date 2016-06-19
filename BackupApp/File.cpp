@@ -87,7 +87,9 @@ bool File::IsNewer() {
 
 void File::Restore(std::fstream& stream) const {
 	std::ofstream outfile;
-	outfile.open(GetPath());
+	char* path = GetPath();
+	outfile.open(path);
+	delete[] path;
 	auto size = static_cast<long long>(endContent - beginContent);
 	auto count = size / 32;
 	char* cache = new char[32];
