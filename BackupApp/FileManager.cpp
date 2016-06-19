@@ -334,7 +334,9 @@ File* FileManager::GetFileFromStream(const string path)const {
 			break;
 		}
 		catch (std::exception e) {
-			delete ts;
+			Console::PrintError(e.what());
+			if (ts != nullptr)
+				delete ts;
 			break;
 		}
 
@@ -371,6 +373,7 @@ File* FileManager::GetFileFromStream(const string path)const {
 		}
 		end = ts->endContent;
 		delete ts;
+		ts = nullptr;
 	} while (stream->seekg(end).peek());
 	stream->seekg(beg);
 	return new File(path);
