@@ -182,30 +182,6 @@ int FileManager::truncate(const char *path, const off_t shrinkBy) const {
 //Creates new backup file with restored reserves
 void FileManager::RebuildBackups() {}
 
-void FileManager::Restore(const std::string &name) {
-	if (!Open() || IsEmpty())
-		return;
-	File *f;
-	std::streamoff end;
-	std::vector<File*> files;
-	stream->seekg(0);
-	do {
-		try {
-			f = new File(*stream);
-		}
-		catch (std::exception e) {
-			Console::PrintError(string(e.what()) + "   Aborting");
-			return;
-		}
-		end = f->beginMeta + f->endContent;
-		if (f->GetPath()->find(name) != string::npos)
-			files.push_back(f);
-		else
-			delete f;
-	} while (stream->seekg(end).peek() != EOF);
-	PickRestore(files);
-}
-
 void FileManager::Remove(const std::string & path) {
 	if (!Open() || isEmpty)
 		return;
@@ -238,6 +214,30 @@ void FileManager::Remove(const std::string & path) {
 		Offset(fileEnd, beg - fileEnd);
 
 	Close();
+}
+
+void FileManager::Restore(const std::string &name) {
+	if (!Open() || IsEmpty())
+		return;
+	File *f;
+	std::streamoff end;
+	std::vector<File*> files;
+	stream->seekg(0);
+	do {
+		try {
+			f = new File(*stream);
+		}
+		catch (std::exception e) {
+			Console::PrintError(string(e.what()) + "   Aborting");
+			return;
+		}
+		end = f->beginMeta + f->endContent;
+		if (f->GetPath()->find(name) != string::npos)
+			files.push_back(f);
+		else
+			delete f;
+	} while (stream->seekg(end).peek() != EOF);
+	PickRestore(files);
 }
 
 void FileManager::PickRestore(std::vector<File*>& files) const {
