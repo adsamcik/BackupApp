@@ -48,7 +48,7 @@ public:
 	/**
 		Last edited
 	*/
-	tm* lastEdited;
+	tm* lastEdited = nullptr;
 
 	File(const std::string& path);
 	File(std::fstream& stream);

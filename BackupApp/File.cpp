@@ -61,7 +61,8 @@ File::File(std::fstream &stream) {
 }
 
 File::~File() {
-	delete lastEdited;
+	if (lastEdited != nullptr)
+		delete lastEdited;
 	ClearPath();
 }
 
