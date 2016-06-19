@@ -4,6 +4,7 @@
 #include <fstream>
 #include <ctime>
 #include <time.h> 
+#include <sys/utime.h>
 
 File::File(const std::string &path) {
 	if (!ext::isValidPath(path))
@@ -94,9 +95,10 @@ ext::Success File::Restore(std::fstream& stream) const {
 		if (remove(path) != 0)
 			return ext::Success(false, "Failed to restore the file. Current file cannot be rewritten.");
 	outfile.open(path);
-	delete[] path;
-	if (!outfile.is_open())
+	if (!outfile.is_open()) {
+		delete[] path;
 		return ext::Success(false, "Target file could not be created.");
+	}
 
 	auto length = static_cast<long long>(endContent - beginContent - reserve);
 	auto count = length / BUFFER_SIZE;
@@ -115,6 +117,12 @@ ext::Success File::Restore(std::fstream& stream) const {
 		delete[] temp;
 	}
 	outfile.close();
+	struct utimbuf ut;
+	ut.modtime = timegm(lastEdited);
+	ut.actime = timegm(lastEdited);
+	if (utime(path, &ut) == -1)
+		std::cout << "Failed to modify file time" << std::endl;
+	delete[] path;
 	return ext::Success();
 }
 
