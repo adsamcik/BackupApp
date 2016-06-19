@@ -28,12 +28,12 @@ bool ResolveInput() {
 
 	string cmd = ext::tolower(input[0]);
 
-	if (ext::startsWith(cmd, "backup")) {
+	if (cmd == "backup") {
 		if (input.size() > 1 && input[1] == "-force")
 			std::cout << "force" << std::endl;
 		fm.BackupAll();
 	}
-	else if (ext::startsWith(cmd, "restore")) {
+	else if (cmd == "restore") {
 		if (input.size() >= 3) {
 			string substr = ext::trim(in).substr(11);
 			if (input[1] == "-d")
@@ -46,30 +46,14 @@ bool ResolveInput() {
 		else
 			Console::PrintError("Invalid number of arguments");
 	}
-	else if (ext::startsWith(cmd, "clear"))
+	else if (cmd == "clear")
 		fm.Clear();
-	else if (ext::startsWith(cmd, "exit")) {
-		if (cmd != "exit") {
-			std::cout << "Did you really mean to exit? (yes/NO)" << std::endl;
-			while (true) {
-				std::getline(std::cin, s);
-				ext::tolower_r(s);
-				if (ext::startsWith(s, "yes"))
-					return false;
-				else if (ext::startsWith(s, "no")) {
-					std::cout << std::endl;
-					return true;
-				}
-
-				std::cout << s << " is not a valid answer to yes or no question." << std::endl;
-			}
-		}
+	else if (cmd == "exit")
 		return false;
-	}
-	else if (ext::startsWith(cmd, "config")) {
+	else if (cmd == "config") {
 		Config::Edit(fm);
 	}
-	else if (ext::startsWith(cmd, "help")) {
+	else if (cmd == "help") {
 		Console cns(2, 4);
 		cns.Add("backup\tbacks up all paths")
 			.Add("\t-force forces full backup")
@@ -79,12 +63,10 @@ bool ResolveInput() {
 			.Add("exit\tto close the app")
 			.Print(false);
 	}
-	else if (ext::startsWith(cmd, "test")) {
+	else if (cmd == "test")
 		fm.PrintContent(20);
-	}
-	else {
+	else 
 		std::cout << cmd << " is not a command. Type 'help' for list of commands" << std::endl << std::endl;
-	}
 
 	std::cout << std::endl;
 	return true;

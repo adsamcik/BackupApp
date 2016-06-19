@@ -11,20 +11,29 @@ public:
 	static void Initialize();
 
 	/**
+		Add path to config
 		@return Success (Successfull when valid path and not already added)
 	*/
 	static const ext::Success AddPath(const std::string& path);
 
 	/**
-	@return Success Removes path by name
+		Remove path from config
+		@parameter path remove path by name
+		@return Success
 	*/
 	static const ext::Success RemovePath(const std::string& path);
 
 	/**
-	@return Success
+		Remove path from config
+		@parameter index index of path to remove
+		@return Success
 	*/
-	static const ext::Success RemovePath(const size_t& path);
+	static const ext::Success RemovePath(const size_t& index);
 
+	/**
+		Returns day of the week on which the backup will occur
+		@return day on which the backup will occur
+	*/
 	static ext::DayOfWeek GetDay();
 
 	/**
