@@ -182,12 +182,13 @@ int FileManager::truncate(const char *path, const off_t shrinkBy) const {
 //Creates new backup file with restored reserves
 void FileManager::RebuildBackups() {}
 
-void FileManager::Restore(const std::string &name) const {
-	if (IsEmpty())
+void FileManager::Restore(const std::string &name) {
+	if (!Open() || IsEmpty())
 		return;
 	File *f;
 	std::streamoff end;
 	std::vector<File*> files;
+	stream->seekg(0);
 	do {
 		try {
 			f = new File(*stream);
@@ -196,7 +197,7 @@ void FileManager::Restore(const std::string &name) const {
 			Console::PrintError(string(e.what()) + "   Aborting");
 			return;
 		}
-		end = f->endContent;
+		end = f->beginMeta + f->endContent;
 		if (f->GetPath()->find(name) != string::npos)
 			files.push_back(f);
 		else
@@ -245,10 +246,24 @@ void FileManager::PickRestore(std::vector<File*>& files) const {
 	else if (files.size() == 1)
 		files[0]->Restore(*stream);
 	else {
-		Console c(2);
+		Console::Clear();
+		std::cout << "Found these matches. Write index of the one you want to restore." << std::endl << "Invalid index or text will abort the restore." << std::endl;
+		Console c(1);
 		for (size_t i = 0; i < files.size(); i++)
 			c.Add(*files[i]->GetPath());
 		c.Print(true);
+		string in;
+		getline(std::cin, in);
+		if (ext::isDigit(in)) {
+			int val = atoi(in.c_str());
+			if (val >= 0 && val < files.size()) {
+				files[val]->Restore(*stream);
+				std::cout << "Restored " << files[val]->GetPath() << std::endl;
+				return;
+			}
+
+		}
+		std::cout << "Aborting..." << std::endl;
 	}
 }
 

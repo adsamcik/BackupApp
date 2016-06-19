@@ -79,7 +79,7 @@ public:
 		Restores given file
 		If more than one file matches the name a selection with indexes is given
 	*/
-	void Restore(const std::string& name) const;
+	void Restore(const std::string& name);
 
 	/**
 		Removes all files on this path
