@@ -15,6 +15,7 @@
 #include <fstream>
 #include <vector>
 #include "Extensions.h"
+#include <stdexcept>
 #if defined _DEBUG && defined _WIN32
 #include <vld.h>
 #endif
