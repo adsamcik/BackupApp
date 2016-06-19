@@ -252,7 +252,13 @@ void FileManager::PrintContent(const int contentLimit) {
 	std::streamoff end;
 	do {
 		beg = stream->tellg();
-		f = new File(*stream);
+		try {
+			f = new File(*stream);
+		}
+		catch (std::exception e) {
+			Console::PrintError(e.what());
+			break;
+		}
 		try {
 			auto path = f->GetPath();
 			if (f->lastEdited->tm_hour == -1) {
@@ -301,6 +307,13 @@ void FileManager::PrintContent(const int contentLimit) {
 }
 
 File* FileManager::GetFileFromStream(const string path)const {
+	if (stream->is_open())
+		stream->clear();
+	else {
+		Console::PrintError("Stream is closed!");
+		return new File(path);
+	}
+
 	File *ts = nullptr;
 	std::streampos end, beg;
 	do {
@@ -355,13 +368,25 @@ File* FileManager::GetFileFromStream(const string path)const {
 }
 
 void FileManager::Backup(File * file) {
+	if (stream->is_open())
+		stream->clear();
+	else {
+		Console::PrintError("Stream is closed!");
+		return;
+	}
 	if (file->beginMeta >= 0)
 		Backup(file, file->beginMeta);
 	else
-		Backup(file, fileEnd);
+		Backup(file, stream->tellg());
 }
 
 void FileManager::Backup(File *file, const std::streampos &beg) {
+	if (stream->is_open())
+		stream->clear();
+	else {
+		Console::PrintError("Stream is closed!");
+		return;
+	}
 	if (file->beginMeta != -1) {
 		if (!file->IsNewer()) {
 			std::cout << *file->GetPath() << " is up to date" << std::endl;
@@ -423,10 +448,8 @@ void FileManager::Backup(Dir *dir) {
 				delete d;
 			}
 			else {
-				stream->clear();
 				auto f = GetFileFromStream(fullname);
-				stream->clear();
-				Backup(f, f->beginMeta != -1 ? f->beginMeta : stream->tellg());
+				Backup(f);
 				stream->seekg(f->beginMeta + f->endContent);
 				delete f;
 			}
@@ -455,6 +478,7 @@ void FileManager::BackupAll() {
 		else if (ext::isValidPath(path)) {
 			File *f = GetFileFromStream(path);
 			Backup(f);
+			stream->seekg(f->beginMeta + f->endContent);
 			delete f;
 		}
 		else

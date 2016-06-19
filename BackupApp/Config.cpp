@@ -41,6 +41,7 @@ const ext::Success Config::AddPath(const string & path) {
 			return ext::Success(false, "Path is already backed up");
 	}
 	paths.push_back(fullPath);
+	std::sort(paths.begin(), paths.end());
 	return ext::Success();
 }
 
@@ -57,7 +58,7 @@ const ext::Success Config::RemovePath(const std::string & path) {
 const ext::Success Config::RemovePath(const size_t & index) {
 	if (index < paths.size()) {
 		paths.erase(paths.begin() + index);
-		Save();
+		//Save();
 		return ext::Success();
 	}
 	return ext::Success(false, "Invalid index");
@@ -86,7 +87,6 @@ void Config::Edit(FileManager &fm) {
 		string in;
 		std::vector<string> input;
 		getline(std::cin, in);
-		//Console::Clear();
 		std::istringstream tss(in);
 		while (tss >> s)
 			input.push_back(s);
