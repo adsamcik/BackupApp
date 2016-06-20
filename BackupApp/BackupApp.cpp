@@ -31,8 +31,6 @@ bool ResolveInput() {
 	string cmd = ext::tolower(input[0]);
 
 	if (cmd == "backup") {
-		if (input.size() > 1 && input[1] == "-force")
-			std::cout << "force" << std::endl;
 		fm.BackupAll();
 	}
 	else if (cmd == "restore") {
@@ -58,7 +56,6 @@ bool ResolveInput() {
 	else if (cmd == "help") {
 		Console cns(2, 4);
 		cns.Add("backup\tbacks up all paths")
-			.Add("\t-force forces full backup")
 			.Add("restore <-f/-d> <path>\tsupports relative and absolute paths (-f file, -d directory)")
 			.Add("clear\tclears all backups")
 			.Add("config\tto access configurations")
@@ -70,7 +67,7 @@ bool ResolveInput() {
 	}
 	else if (cmd == "test")
 		fm.PrintContent(20);
-	else 
+	else
 		std::cout << cmd << " is not a command. Type 'help' for list of commands" << std::endl << std::endl;
 
 	std::cout << std::endl;
