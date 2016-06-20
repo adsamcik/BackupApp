@@ -219,13 +219,15 @@ void FileManager::Remove(const std::string & path) {
 }
 
 void FileManager::Restore(const std::string &name, const bool dir) {
+	if (!Open() || IsEmpty())
+		return;
+
 	string path = dir ? ext::fullPath(name) : name;
 #ifdef _WIN32
 	if (dir)
 		path[0] = std::toupper(path[0]);
 #endif
-	if (!Open() || IsEmpty())
-		return;
+
 	File *f = nullptr;
 	std::streamoff end;
 	std::vector<File*> files;
