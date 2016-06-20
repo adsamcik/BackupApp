@@ -7,12 +7,22 @@
 using std::string;
 
 void Config::Initialize() {
+	if(!ext::isValidPath(ext::fullPath(CONFIG_FILE))) {
+		std::cout << "Config file does not exists. Creating." << std::endl;
+		std::ofstream ostream(CONFIG_FILE);
+		if (!ostream.is_open()) {
+			std::cout << "Failed to create config file. Aborting." << std::endl;
+			return;
+		}
+		ostream.close();
+	}
 	std::ifstream stream(CONFIG_FILE);
-	if (!stream.is_open())
-		Console::PrintError("Failed to open/create config file");
+	if (!stream.is_open()) {
+		Console::PrintError("Failed to open config file");
+		return;
+	}
 
 	string line;
-
 	getline(stream, line);
 	if (line.empty())
 		return;
