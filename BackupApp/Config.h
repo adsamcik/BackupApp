@@ -45,7 +45,7 @@ public:
 		User input function to set a day
 		@param param parameters (without function call) 
 	*/
-	static void USetDay(const std::string& param);
+	static ext::Success USetDay(const std::string& param);
 
 	/**
 		User input function
@@ -76,10 +76,11 @@ public:
 	static void URemove(FileManager &fm, const size_t& index);
 
 	/**
-		paths to back up
+		Paths to back up
 	*/
 	static std::vector<std::string> paths;
 private:
+
 	/**
 		@return Success true if successful
 	*/

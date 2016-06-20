@@ -19,14 +19,9 @@ void Config::Initialize() {
 	try {
 		if (ext::trim(line).substr(0, 4) != "day=" || line.length() < 5)
 			throw std::runtime_error("Day is incorrectly saved. Config was not loaded.");
-		auto val = std::stoi(line.substr(4));
-		if (val < 0 || val > 7)
-			throw std::out_of_range("Value is out of range");
-		day = static_cast<ext::DayOfWeek>(val);
-	}
-	catch (const std::out_of_range e) {
-		Console::PrintError("Day value is out of bounds. Should be between 0 and 7. Config was not loaded.");
-		return;
+		auto ret = USetDay(line.substr(4));
+		if(!ret)
+			throw std::runtime_error(ret.message->c_str());		
 	}
 	catch (const std::exception e) {
 		Console::PrintError(e.what());
@@ -123,8 +118,11 @@ void Config::Edit(FileManager &fm) {
 			}
 			else if (input.size() > 2)
 				Console::PrintError("Invalid number of arguments. Required 1 number.");
-			else
-				USetDay(input[1]);
+			else {
+				auto ret = USetDay(input[1]);
+				if (!!ret)
+					std::cout << "Day updated" << std::endl;
+			}
 		}
 		else if (cmd == "list") {
 			UList();
@@ -175,7 +173,7 @@ void Config::Edit(FileManager &fm) {
 	}
 }
 
-void Config::USetDay(const string & params) {
+ext::Success Config::USetDay(const string & params) {
 	auto tmp = day;
 	try {
 		if (!ext::isDigit(params))
@@ -187,19 +185,22 @@ void Config::USetDay(const string & params) {
 		auto save = Save();
 		if (!save.success)
 			throw std::runtime_error(save.message->c_str());
-		std::cout << "Day updated" << std::endl;
 	}
 	catch (std::invalid_argument e) {
 		std::cout << "Day needs a number" << std::endl;
+		return ext::Success(false, "invalid argument");
 	}
 	catch (std::out_of_range e) {
 		day = tmp;
 		std::cout << "Number must be in range 0-7" << std::endl;
+		return ext::Success(false, "out of range");
 	}
 	catch (std::exception e) {
 		day = tmp;
 		std::cout << e.what() << std::endl;
+		return ext::Success(false, e.what());
 	}
+	return ext::Success();
 }
 
 void Config::UList() {
