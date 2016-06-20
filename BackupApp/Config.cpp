@@ -18,7 +18,7 @@ void Config::Initialize() {
 		return;
 	try {
 		if (ext::trim(line).substr(0, 4) != "day=" || line.length() < 5)
-			throw std::runtime_error("Day is incorrectly saved. Config was not loaded.");
+			throw std::runtime_error("Day is incorrectly saved. Config was not loaded. If you update config with new path or day it might override the current config.");
 		auto ret = USetDay(line.substr(4));
 		if(!ret)
 			throw std::runtime_error(ret.message->c_str());		
@@ -187,12 +187,12 @@ ext::Success Config::USetDay(const string & params) {
 			throw std::runtime_error(save.message->c_str());
 	}
 	catch (std::invalid_argument e) {
-		std::cout << "Day needs a number" << std::endl;
+		std::cout << "Day needs a number. 1 is Monday, 7 is Sunday, 0 is no day." << std::endl;
 		return ext::Success(false, "invalid argument");
 	}
 	catch (std::out_of_range e) {
 		day = tmp;
-		std::cout << "Number must be in range 0-7" << std::endl;
+		std::cout << "Day number must be in range 0-7" << std::endl;
 		return ext::Success(false, "out of range");
 	}
 	catch (std::exception e) {
