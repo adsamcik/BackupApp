@@ -17,10 +17,16 @@ void Config::Initialize() {
 	if (line.empty())
 		return;
 	try {
-		auto frst = line.find_first_of('=');
-		if (frst == string::npos)
+		if (ext::trim(line).substr(0, 4) != "day=" || line.length() < 5)
 			throw std::runtime_error("Day is incorrectly saved. Config was not loaded.");
-		day = static_cast<ext::DayOfWeek>(std::stoi(line.substr(frst + 1)));
+		auto val = std::stoi(line.substr(4));
+		if (val < 0 || val > 7)
+			throw std::out_of_range("Value is out of range");
+		day = static_cast<ext::DayOfWeek>(val);
+	}
+	catch (const std::out_of_range e) {
+		Console::PrintError("Day value is out of bounds. Should be between 0 and 7. Config was not loaded.");
+		return;
 	}
 	catch (const std::exception e) {
 		Console::PrintError(e.what());
@@ -244,7 +250,13 @@ void Config::URemove(FileManager &fm, const string &line) {
 		string response;
 		getline(std::cin, response);
 		if (ext::isDigit(response)) {
-			auto val = std::stoi(response.c_str());
+			int val = -1;
+			try {
+				val = std::stoi(response.c_str());
+			}
+			catch (std::out_of_range e) {
+				Console::PrintError("Index is out of range! This can't be right.");
+			}
 			if (val >= 0 && val < static_cast<int>(closeMatches.size())) {
 				string path = *closeMatches[val];
 				RemovePath(path);
