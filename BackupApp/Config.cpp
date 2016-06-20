@@ -222,7 +222,9 @@ void Config::UList() {
 }
 
 void Config::UAdd(const string & path) {
+#ifdef __linux
 	string temp = path;
+#endif
 	if (!ext::isValidPath(path)) {
 		Console::PrintError("Invalid path");
 		return;
