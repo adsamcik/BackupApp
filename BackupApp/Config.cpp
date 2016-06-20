@@ -156,6 +156,8 @@ void Config::Edit(FileManager &fm) {
 				Console::PrintError("After remove you must choose whether you use path (-p) or index (-i). See help.");
 			}
 		}
+		else if (cmd == "refresh")
+			Initialize();
 		else if (cmd == "help")
 			PrintOptions();
 		else if (cmd == "return")
@@ -269,6 +271,7 @@ void Config::PrintOptions() {
 		.Add("list\treturns list of backed up folders and files with their indexes for easier removal")
 		.Add("add <path>\tadds path to backup")
 		.Add("remove <-p/-i> <path/index>\tremoves path. Use -p for path or -i for index")
+		.Add("refresh\trefreshes config settings from the file")
 		.Add("help\tto print this help again")
 		.Add("return\tto go back from the configurations")
 		.Add("exit\tto exit the app")
