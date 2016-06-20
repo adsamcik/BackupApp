@@ -8,6 +8,9 @@ using std::string;
 
 void Config::Initialize() {
 	std::ifstream stream(CONFIG_FILE);
+	if (!stream.is_open())
+		Console::PrintError("Failed to open/create config file");
+
 	string line;
 
 	getline(stream, line);
@@ -24,6 +27,7 @@ void Config::Initialize() {
 		return;
 	}
 
+	paths.clear();
 	while (getline(stream, line)) {
 		if (ext::startsWith(line, "#"))
 			continue;
