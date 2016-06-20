@@ -521,7 +521,8 @@ void FileManager::Backup(File *file, const std::streampos &beg) {
 	stream->seekg(beg);
 	file->WriteMeta(stream);
 
-	*stream << ostream.rdbuf();
+	if (length > 0)
+		*stream << ostream.rdbuf();
 	stream->write(string(file->reserve, '\0').c_str(), file->reserve);
 
 	auto pos = stream->tellg();
