@@ -42,11 +42,10 @@ void Config::Initialize() {
 	while (getline(stream, line)) {
 		if (ext::startsWith(line, "#"))
 			continue;
+#ifdef _WIN32
 		ext::trim(line);
-		if (!ext::isValidPath(line))
-			Console::PrintWarning(line + " is invalid path");
-		else
-			AddPath(line);
+#endif
+		UAdd(line);
 	}
 }
 
@@ -150,7 +149,7 @@ void Config::Edit(FileManager &fm) {
 				string spath;
 				auto index = in.find_first_of("-p");
 				auto substr = in.substr(index + 2);
-				spath = ext::ltrim(substr);
+				spath = ext::trim(substr);
 				URemove(fm, spath);
 			}
 			else if (input[1] == "-i") {
@@ -223,10 +222,18 @@ void Config::UList() {
 }
 
 void Config::UAdd(const string & path) {
+	string temp = path;
 	if (!ext::isValidPath(path)) {
 		Console::PrintError("Invalid path");
 		return;
 	}
+#ifdef __linux
+	else if (ext::trim(temp) == "/") {
+		Console::PrintError("Sorry, you can't backup root of the file system.");
+		return;
+	}
+#endif
+
 	char last = path[path.length() - 1];
 	auto s = AddPath(last == SEPARATOR ? path.substr(0, path.length() - 1) : path);
 	if (!s.success)
