@@ -145,7 +145,7 @@ void Config::Edit(FileManager &fm) {
 				else if (!ext::isDigit(input[2]))
 					Console::PrintError("Argument must be a number");
 				else {
-					int val = atoi(input[2].c_str());
+					int val = std::stoi(input[2].c_str());
 					if (val >= static_cast<int>(paths.size()) || val < 0)
 						Console::PrintError("Index must be between 0 and " + std::to_string(paths.size() == 0 ? 0 : paths.size() - 1));
 					else
@@ -244,7 +244,7 @@ void Config::URemove(FileManager &fm, const string &line) {
 		string response;
 		getline(std::cin, response);
 		if (ext::isDigit(response)) {
-			auto val = atoi(response.c_str());
+			auto val = std::stoi(response.c_str());
 			if (val >= 0 && val < static_cast<int>(closeMatches.size())) {
 				string path = *closeMatches[val];
 				RemovePath(path);
