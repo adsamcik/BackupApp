@@ -113,7 +113,6 @@ void FileManager::OffsetForward(const std::streampos & beg, const std::streamoff
 void FileManager::OffsetBackward(const std::streampos & beg, const std::streamoff & off, const int32_t bufferSize) {
 	char *buffer;
 	stream->seekg(0, std::ios::end);
-	std::cout << stream->fail() << std::endl;
 	//ensures seekg doesn't fail
 	stream->write(string(off, '\0').c_str(), off);
 	stream->seekg(fileEnd);
@@ -146,7 +145,10 @@ void FileManager::OffsetBackward(const std::streampos & beg, const std::streamof
 
 
 void FileManager::Offset(const std::streampos &beg, const std::streamoff &off) {
-	//is signed to save on conversion when using in seek
+	/*if (fileEnd == std::streampos(0)) {
+		Console::PrintError("File size is 0");
+		return;
+	}*/
 	std::cout << "Offsetting data by " << off << std::endl;
 	if (off > 0)
 		OffsetBackward(beg, off, BUFFER_SIZE);
